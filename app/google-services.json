@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "557658603308",
-    "project_id": "flat-rent-app",
-    "storage_bucket": "flat-rent-app.firebasestorage.app"
+    "project_number": "1056428835603",
+    "project_id": "sturent-2b8e7",
+    "storage_bucket": "sturent-2b8e7.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:557658603308:android:0cc3f9e9d37b9dbe11f689",
+        "mobilesdk_app_id": "1:1056428835603:android:87b95fd852f2bc9f7d50e6",
         "android_client_info": {
           "package_name": "com.example.flat_rent_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDlSGfGz0cxBaeifv_z1W4n29oBz_88Frk"
+          "current_key": "AIzaSyDpIDIAlZptUok3xK6xfMskS12iZWxv9t4"
         }
       ],
       "services": {

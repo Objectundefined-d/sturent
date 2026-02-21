@@ -46,11 +46,14 @@ android {
 
 dependencies {
     //firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
+    implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
+    implementation("com.google.firebase:firebase-analytics")
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("com.google.firebase:firebase-storage")
+
 
     //hilt
     implementation(libs.hilt.android)
@@ -99,4 +102,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+
 }

@@ -1,21 +1,17 @@
 package com.example.flat_rent_app.di
 
+import android.content.Context
+import com.example.flat_rent_app.core.FirebaseIdTokenProvider
 import com.example.flat_rent_app.data.remote.api.PhotoApi
-import com.example.flat_rent_app.data.repository.AuthRepositoryImpl
-import com.example.flat_rent_app.data.repository.ChatRepositoryImpl
-import com.example.flat_rent_app.data.repository.PhotoRepositoryImpl
-import com.example.flat_rent_app.data.repository.ProfileRepositoryImpl
-import com.example.flat_rent_app.data.repository.SwipeRepositoryImpl
-import com.example.flat_rent_app.domain.repository.AuthRepository
-import com.example.flat_rent_app.domain.repository.ChatRepository
-import com.example.flat_rent_app.domain.repository.PhotoRepository
-import com.example.flat_rent_app.domain.repository.ProfileRepository
-import com.example.flat_rent_app.domain.repository.SwipeRepository
+import com.example.flat_rent_app.data.repository.*
+import com.example.flat_rent_app.domain.repository.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -52,7 +48,16 @@ object RepositoryModule {
 
     @Provides
     @Singleton
+    fun provideStorageRepository(
+        storage: FirebaseStorage,
+        @ApplicationContext context: Context
+    ): StorageRepository = StorageRepositoryImpl(storage, context)
+
+    @Provides
+    @Singleton
     fun providePhotoRepository(
-        api: PhotoApi
-    ): PhotoRepository = PhotoRepositoryImpl(api)
+        api: PhotoApi,
+        tokenProvider: FirebaseIdTokenProvider,
+        @ApplicationContext context: Context  // <- ВАЖНО: добавляем @ApplicationContext
+    ): PhotoRepository = PhotoRepositoryImpl(api, tokenProvider, context)
 }

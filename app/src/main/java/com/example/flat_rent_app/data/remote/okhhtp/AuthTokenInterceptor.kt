@@ -1,4 +1,4 @@
-package com.example.flat_rent_app.data.remote.okhhtp
+package com.example.flat_rent_app.data.remote.okhttp
 
 import com.example.flat_rent_app.core.FirebaseIdTokenProvider
 import kotlinx.coroutines.runBlocking
@@ -11,14 +11,19 @@ class AuthTokenInterceptor @Inject constructor(
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = runBlocking { tokenProvider.getIdToken() }
+        val originalRequest = chain.request()
 
-        val req = if (!token.isNullOrBlank()) {
-            chain.request().newBuilder()
-                .addHeader("Authorization", "Bearer $token")
-                .build()
-        } else chain.request()
+        if (originalRequest.url.host.contains("onrender.com")) {
+            val token = runBlocking { tokenProvider.getIdToken() }
 
-        return chain.proceed(req)
+            if (token != null) {
+                val newRequest = originalRequest.newBuilder()
+                    .header("Authorization", "Bearer $token")
+                    .build()
+                return chain.proceed(newRequest)
+            }
+        }
+
+        return chain.proceed(originalRequest)
     }
 }
