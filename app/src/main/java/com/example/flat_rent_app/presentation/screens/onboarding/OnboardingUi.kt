@@ -60,6 +60,7 @@ import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.tooling.preview.Preview
 
 @Immutable
 data class OnboardingPalette(
@@ -215,6 +216,24 @@ fun OnboardingScreen(
             }
         }
     }
+}
+
+
+@Composable
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+fun OnboardingScreenPreview() {
+    OnboardingScreen(
+        step = 1,
+        title = "",
+        modifier = Modifier,
+        palette = DefaultOnbPalette,
+        emoji = null,
+        content = {},
+        bottomBar = {},
+    )
 }
 
 @Composable

@@ -1,7 +1,7 @@
 package com.example.flat_rent_app.di
 
 import com.example.flat_rent_app.data.remote.api.PhotoApi
-import com.example.flat_rent_app.data.remote.okhttp.AuthTokenInterceptor
+import com.example.flat_rent_app.data.remote.okhhtp.AuthTokenInterceptor
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module

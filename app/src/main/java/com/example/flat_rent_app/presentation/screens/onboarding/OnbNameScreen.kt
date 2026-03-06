@@ -28,7 +28,7 @@ fun OnbNameScreen(
     OnboardingScaffold(
         step = 1,
         totalSteps = 4,
-        title = "Расскажите о себе 👋",
+        title = "Расскажите о себе",
         footer = {
             OnboardingFooter(
                 onNext = {

@@ -17,7 +17,6 @@ import com.example.flat_rent_app.presentation.viewmodel.onboarding.OnboardingVie
 @Composable
 fun OnboardingGraph() {
     val navController = rememberNavController()
-
     val vm: OnboardingViewModel = hiltViewModel()
 
     NavHost(

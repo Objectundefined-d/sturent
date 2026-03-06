@@ -1,4 +1,4 @@
-package com.example.flat_rent_app.data.remote.okhttp
+package com.example.flat_rent_app.data.remote.okhhtp
 
 import com.example.flat_rent_app.core.FirebaseIdTokenProvider
 import kotlinx.coroutines.runBlocking

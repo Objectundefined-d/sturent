@@ -36,7 +36,6 @@ class MainViewModel @Inject constructor(
                 val result = profileRepository.getFeedProfiles(limit = 10)
 
                 result.onSuccess { userProfiles ->
-                    // Преобразуем UserProfile в SwipeProfile
                     val swipeProfiles = userProfiles.map { userProfile ->
                         SwipeProfile(
                             uid = userProfile.uid,
@@ -100,7 +99,6 @@ class MainViewModel @Inject constructor(
             val targetId = profiles[currentIndex].uid
 
             viewModelScope.launch {
-                // Отправляем пас через существующий репозиторий
                 swipeRepository.passUser(targetId)
                     .onSuccess {
                         println("Пас отправлен")
@@ -109,7 +107,6 @@ class MainViewModel @Inject constructor(
                         println("Ошибка паса: ${error.message}")
                     }
 
-                // Переключаем на следующего пользователя
                 moveToNext()
             }
         }

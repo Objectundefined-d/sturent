@@ -20,17 +20,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flat_rent_app.R
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
+fun LoginScreenContent(
+    email: String,
+    password: String,
+    error: String?,
+    loading: Boolean,
+    passVisible: Boolean,
     onBack: () -> Unit,
-    viewModel: AuthViewModel = hiltViewModel()
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLoginClick: () -> Unit,
+    onTogglePasswordVisibility: () -> Unit
 ) {
-    val state by viewModel.state.collectAsState()
-    var passVisible by remember { mutableStateOf(false) }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -41,7 +49,7 @@ fun LoginScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
-                title = {Text("")},
+                title = { Text("") },
             )
         }
     ) { pad ->
@@ -72,8 +80,8 @@ fun LoginScreen(
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = state.email,
-                onValueChange = viewModel::onEmail,
+                value = email,
+                onValueChange = onEmailChange,
                 placeholder = { Text(stringResource(R.string.login_email_hint)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -84,14 +92,14 @@ fun LoginScreen(
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = state.password,
-                onValueChange = viewModel::onPassword,
+                value = password,
+                onValueChange = onPasswordChange,
                 placeholder = { Text(stringResource(R.string.login_password_hint)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (passVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    IconButton(onClick = { passVisible = !passVisible }) {
+                    IconButton(onClick = onTogglePasswordVisibility) {
                         Icon(
                             imageVector = if (passVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                             contentDescription = null
@@ -101,7 +109,7 @@ fun LoginScreen(
                 shape = RoundedCornerShape(28.dp)
             )
 
-            state.error?.let {
+            error?.let {
                 Spacer(Modifier.height(10.dp))
                 Text(it, color = MaterialTheme.colorScheme.error)
             }
@@ -109,14 +117,14 @@ fun LoginScreen(
             Spacer(Modifier.height(28.dp))
 
             Button(
-                onClick = { viewModel.login() },
-                enabled = !state.loading,
+                onClick = onLoginClick,
+                enabled = !loading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(28.dp)
             ) {
-                if (state.loading) {
+                if (loading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(18.dp),
                         strokeWidth = 2.dp
@@ -127,4 +135,44 @@ fun LoginScreen(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginScreen(
+    onBack: () -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsState()
+    var passVisible by remember { mutableStateOf(false) }
+
+    LoginScreenContent(
+        email = state.email,
+        password = state.password,
+        error = state.error,
+        loading = state.loading,
+        passVisible = passVisible,
+        onBack = onBack,
+        onEmailChange = viewModel::onEmail,
+        onPasswordChange = viewModel::onPassword,
+        onLoginClick = viewModel::login,
+        onTogglePasswordVisibility = { passVisible = !passVisible }
+    )
+}
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    LoginScreenContent(
+        email = "test@mail.com",
+        password = "123456",
+        error = null,
+        loading = false,
+        passVisible = false,
+        onBack = {},
+        onEmailChange = {},
+        onPasswordChange = {},
+        onLoginClick = {},
+        onTogglePasswordVisibility = {}
+    )
 }

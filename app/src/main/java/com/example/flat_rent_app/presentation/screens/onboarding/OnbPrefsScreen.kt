@@ -28,7 +28,7 @@ fun OnbPrefsScreen(
     OnboardingScaffold(
         step = 3,
         totalSteps = 4,
-        title = "Ваши предпочтения 🎯",
+        title = "Ваши предпочтения",
         footer = {
             OnboardingFooter(
                 onBack = onBack,

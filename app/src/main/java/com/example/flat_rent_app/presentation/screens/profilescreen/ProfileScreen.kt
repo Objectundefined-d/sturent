@@ -33,7 +33,7 @@ fun ProfileScreen(
                 selected = BottomTabs.PROFILE,
                 onHome = onGoHome,
                 onChats = onGoChats,
-                onProfile = { /* уже тут */ }
+                onProfile = { }
             )
         }
     ) { pad ->

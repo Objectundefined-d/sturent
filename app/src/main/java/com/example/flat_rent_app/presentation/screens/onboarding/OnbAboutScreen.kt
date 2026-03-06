@@ -34,7 +34,7 @@ fun OnbAboutScreen(
 
         step = 4,
         totalSteps = 4,
-        title = "Расскажите о себе 🤗",
+        title = "Расскажите о себе",
         footer = {
             OnboardingFooter(
                 onBack = onBack,

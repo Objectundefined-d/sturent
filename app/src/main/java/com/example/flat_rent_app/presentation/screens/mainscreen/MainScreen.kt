@@ -37,6 +37,8 @@ import kotlin.math.abs
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.flat_rent_app.domain.model.BottomTab
 import com.example.flat_rent_app.presentation.components.AppBottomBar
@@ -52,8 +54,8 @@ fun SwipeableProfileCard(
     onSwipeRight: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
 
     Box(
         modifier = modifier
@@ -271,28 +273,27 @@ fun AllViewedView(onRetry: () -> Unit) {
     }
 }
 
+
 @Composable
-fun MainScreen(
-    onGoProfile: () -> Unit,
+@OptIn(ExperimentalMaterial3Api::class)
+fun MainScreenContent(
+    profiles: List<SwipeProfile>,
+    currentIndex: Int,
+    isLoading: Boolean,
+    error: String?,
+    showAllViewed: Boolean,
+    swipeRight: () -> Unit,
+    swipeLeft: () -> Unit,
+    openProfileDetails: () -> Unit,
     onGoChats: () -> Unit,
-    viewModel: MainViewModel = hiltViewModel()
+    onGoProfile: () -> Unit,
+    retry: () -> Unit
 ) {
-    val state by viewModel.state.collectAsState()
-    if (state.showProfileDetails) {
-        val profile = state.selectedProfile
-        if (profile != null) {
-            ProfileDetailScreen(
-                profile = profile,
-                onBack = viewModel::closeProfileDetails
-            )
-            return
-        }
-    }
     Scaffold(
         bottomBar = {
             AppBottomBar(
                 selected = BottomTabs.HOME,
-                onHome = { /* уже здесь */},
+                onHome = { },
                 onChats = onGoChats,
                 onProfile = onGoProfile
             )
@@ -310,7 +311,7 @@ fun MainScreen(
                 contentAlignment = Alignment.Center
             ) {
                 when {
-                    state.isLoading -> {
+                    isLoading -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -319,28 +320,27 @@ fun MainScreen(
                         }
                     }
 
-
-                    state.error != null -> {
+                    error != null -> {
                         ErrorView(
-                            error = state.error!!,
-                            onRetry = viewModel::retry
+                            error = error,
+                            onRetry = retry
                         )
                     }
 
-                    state.profiles.isEmpty() -> {
+                    profiles.isEmpty() -> {
                         EmptyView()
                     }
 
-                    state.showAllViewed -> {
-                        AllViewedView(onRetry = viewModel::retry)
+                    showAllViewed -> {
+                        AllViewedView(onRetry = retry)
                     }
 
                     else -> {
-                        val currentProfile = state.profiles[state.currentIndex]
+                        val currentProfile = profiles[currentIndex]
                         SwipeableProfileCard(
                             profile = currentProfile,
-                            onSwipeLeft = viewModel::swipeLeft,
-                            onSwipeRight = viewModel::swipeRight,
+                            onSwipeLeft = swipeLeft,
+                            onSwipeRight = swipeRight,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -349,14 +349,14 @@ fun MainScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (!state.isLoading && state.error == null && state.profiles.isNotEmpty() && !state.showAllViewed) {
+            if (!isLoading && error == null && profiles.isNotEmpty() && !showAllViewed) {
                 Column {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         FloatingActionButton(
-                            onClick = viewModel::swipeLeft,
+                            onClick = swipeLeft,
                             containerColor = Color(0xFFEEEEEE),
                             contentColor = Color.Black,
                             elevation = FloatingActionButtonDefaults.elevation(0.dp)
@@ -365,7 +365,7 @@ fun MainScreen(
                         }
 
                         FloatingActionButton(
-                            onClick = { viewModel.openProfileDetails() },
+                            onClick = { openProfileDetails() },
                             containerColor = Color(0xFFEEEEEE),
                             contentColor = Color.Black,
                             elevation = FloatingActionButtonDefaults.elevation(0.dp)
@@ -374,7 +374,7 @@ fun MainScreen(
                         }
 
                         FloatingActionButton(
-                            onClick = viewModel::swipeRight,
+                            onClick = swipeRight,
                             containerColor = Color(0xFFEEEEEE),
                             contentColor = Color.Black,
                             elevation = FloatingActionButtonDefaults.elevation(0.dp)
@@ -384,23 +384,67 @@ fun MainScreen(
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Button(
-                    onClick = onGoProfile,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Перейти в профиль")
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
+
+
+}
+@Composable
+fun MainScreen(
+    onGoProfile: () -> Unit,
+    onGoChats: () -> Unit,
+    viewModel: MainViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsState()
+    if (state.showProfileDetails) {
+        val profile = state.selectedProfile
+        if (profile != null) {
+            ProfileDetailScreen(
+                profile = profile,
+                onBack = viewModel::closeProfileDetails
+            )
+            return
+        }
+    }
+
+    MainScreenContent(
+        profiles = state.profiles,
+        currentIndex = state.currentIndex,
+        isLoading = state.isLoading,
+        error = state.error,
+        showAllViewed = state.showAllViewed,
+        swipeRight = viewModel::swipeRight,
+        swipeLeft = viewModel::swipeLeft,
+        openProfileDetails = viewModel::openProfileDetails,
+        onGoChats = onGoChats,
+        onGoProfile = onGoProfile,
+        retry = viewModel::retry
+    )
+
+}
+
+@Composable
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+fun PreviewMainScreen(
+    onGoChats: () -> Unit = {},
+    onGoProfile: () -> Unit = {},
+) {
+    MainScreenContent(
+        profiles = emptyList<SwipeProfile>(),
+        currentIndex = -1,
+        isLoading = false,
+        error = null,
+        showAllViewed = false,
+        swipeRight = {},
+        swipeLeft = {},
+        openProfileDetails = {},
+        onGoChats= onGoChats,
+        onGoProfile = onGoProfile,
+        retry = {}
+    )
 }
 
 @Composable

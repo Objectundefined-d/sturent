@@ -39,12 +39,12 @@ fun OnbPhotoScreen(
         viewModel.onPickedPhoto(uri)
     }
 
-    val canGoNext = state.uploadedPhoto != null
+    val canGoNext = true
 
     OnboardingScaffold(
         step = 2,
         totalSteps = 4,
-        title = "Добавьте фото 📷",
+        title = "Добавьте фото",
         footer = {
             OnboardingFooter(
                 onBack = onBack,
@@ -75,8 +75,8 @@ fun OnbPhotoScreen(
             }
 
             PillButton(
-                text = if (state.uploadedPhoto == null) "Загрузить" else "Загружено ✅",
-                enabled = !state.loading && state.pickedPhotoUri != null && state.uploadedPhoto == null,
+                text = if (state.uploadedPhoto == null) "Загрузить" else "Загружено",
+                enabled = !state.loading && state.pickedPhotoUri != null,
                 onClick = { viewModel.uploadMainPhoto(context) },
                 modifier = Modifier.fillMaxWidth(),
                 leading = {

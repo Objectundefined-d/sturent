@@ -25,12 +25,14 @@ class RootViewModel @Inject constructor(
         authRepo.currentUser
             .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    @kotlinx.coroutines.ExperimentalCoroutinesApi
     val profile: StateFlow<UserProfile?> =
         user.flatMapLatest { u ->
             if (u == null) flowOf(null)
             else profileRepo.observerProfile(u.uid)
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    @kotlinx.coroutines.ExperimentalCoroutinesApi
     val isProfileComplete: StateFlow<Boolean> =
         profile.map { p -> p?.isComplete() == true }
             .stateIn(viewModelScope, SharingStarted.Eagerly, false)

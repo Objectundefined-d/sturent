@@ -80,10 +80,10 @@ class OnboardingViewModel @Inject constructor(
             _state.value = s.copy(error = "Заполните имя, город и вуз")
             return
         }
-        if (s.uploadedPhoto == null) {
-            _state.value = s.copy(error = "Загрузите фото")
-            return
-        }
+//        if (s.uploadedPhoto == null) {
+//            _state.value = s.copy(error = "Загрузите фото")
+//            return
+//        }
         if (s.description.isBlank()) {
             _state.value = s.copy(error = "Добавьте описание")
             return
