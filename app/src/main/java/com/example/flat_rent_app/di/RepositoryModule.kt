@@ -58,6 +58,6 @@ object RepositoryModule {
     fun providePhotoRepository(
         api: PhotoApi,
         tokenProvider: FirebaseIdTokenProvider,
-        @ApplicationContext context: Context  // <- ВАЖНО: добавляем @ApplicationContext
+        @ApplicationContext context: Context
     ): PhotoRepository = PhotoRepositoryImpl(api, tokenProvider, context)
 }

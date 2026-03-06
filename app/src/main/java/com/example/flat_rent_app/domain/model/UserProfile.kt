@@ -8,10 +8,10 @@ data class UserProfile(
     val description: String = "",
     val mainPhotoIndex: Int = 0,
     val photoSlots: List<ProfilePhoto?> = listOf(null, null, null),
+    val preferences: List<String> = emptyList(),
     val createdAtMillis: Long? = null,
     val updatedAtMillis: Long? = null,
-    val preferences: List<String> = emptyList()
 ) {
     fun isComplete(): Boolean =
-        name.isNotBlank() && city.isNotBlank() && eduPlace.isNotBlank() && description.isNotBlank() && photoSlots.any { it != null }
+        name.isNotBlank() && city.isNotBlank() && eduPlace.isNotBlank() && description.isNotBlank()
 }

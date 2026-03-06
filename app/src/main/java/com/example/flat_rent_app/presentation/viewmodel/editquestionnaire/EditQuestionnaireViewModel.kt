@@ -59,21 +59,15 @@ class EditQuestionnaireViewModel @Inject constructor(
             try {
                 val userId = authRepo.currentUid() ?: throw Exception("Не авторизован")
 
-                val habitsString = selectedHabitsList.joinToString(", ")
-
                 val userProfile = UserProfile(
                     uid = userId,
                     name = state.value.name,
                     city = state.value.city,
                     eduPlace = state.value.eduPlace,
-                    description = buildString {
-                        append(state.value.description)
-                        if (habitsString.isNotBlank()) {
-                            append("\n\nПривычки: $habitsString")
-                        }
-                    },
+                    description = state.value.description,
                     mainPhotoIndex = 0,
-                    photoSlots = emptyList(),
+                    preferences = selectedHabitsList,
+                    photoSlots = state.value.photoSlots,
                     createdAtMillis = state.value.createdAtMillis,
                     updatedAtMillis = System.currentTimeMillis()
                 )
@@ -116,8 +110,6 @@ class EditQuestionnaireViewModel @Inject constructor(
                 val profile = profileRepo.observerProfile(userId).firstOrNull()
 
                 profile?.let { p ->
-                    val habitsFromDescription = parseHabitsFromDescription(p.description)
-
                     _state.update {
                         it.copy(
                             name = p.name,
@@ -126,8 +118,9 @@ class EditQuestionnaireViewModel @Inject constructor(
                             description = p.description.substringBefore("\n\nПривычки:"),
                             selectedHabits = mergeHabits(
                                 currentHabits = it.selectedHabits,
-                                loadedHabits = habitsFromDescription
+                                loadedHabits = p.preferences
                             ),
+                            photoSlots = p.photoSlots,
                             createdAtMillis = p.createdAtMillis,
                             isLoading = false
                         )
@@ -151,15 +144,6 @@ class EditQuestionnaireViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
-
-    private fun parseHabitsFromDescription(description: String): List<String> {
-        val habitsPart = description.substringAfter("Привычки:", "")
-        return if (habitsPart.isNotBlank()) {
-            habitsPart.split(",").map { it.trim() }
-        } else {
-            emptyList()
         }
     }
 

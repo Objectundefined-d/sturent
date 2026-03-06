@@ -56,6 +56,7 @@ class ProfileRepositoryImpl @Inject constructor(
                         "eduPlace" to profile.eduPlace,
                         "description" to profile.description,
 
+                        "preferences" to profile.preferences,
                         "mainPhotoIndex" to profile.mainPhotoIndex,
                         "photoSlots" to slots,
 
@@ -104,6 +105,7 @@ class ProfileRepositoryImpl @Inject constructor(
             city = getString("city").orEmpty(),
             eduPlace = getString("eduPlace").orEmpty(),
             description = getString("description").orEmpty(),
+            preferences = (get("preferences") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
             mainPhotoIndex = ((getLong("mainPhotoIndex") ?: 0L).toInt()).coerceIn(0, 2),
             photoSlots = slots.take(3).let { it + List(maxOf(0, 3 - it.size)) { null } },
             createdAtMillis = getLong("createdAtMillis"),

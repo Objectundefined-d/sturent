@@ -540,11 +540,11 @@ fun OnbLabeledField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnbOutlinedTextField(
+    modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
     palette: OnboardingPalette = DefaultOnbPalette,
-    modifier: Modifier = Modifier,
     singleLine: Boolean = true,
     trailingDropdown: Boolean = false,
     readOnly: Boolean = false,

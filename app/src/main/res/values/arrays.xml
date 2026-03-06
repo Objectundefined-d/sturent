@@ -5,10 +5,11 @@
         <item>Пью алкоголь</item>
         <item>Сова</item>
         <item>Жаворонок</item>
-        <item>Животные</item>
+        <item>Есть животные</item>
         <item>Приглашаю гостей</item>
-        <item>Чистота</item>
-        <item>Тишина</item>
-        <item>Музыка</item>
+        <item>Чистота важна</item>
+        <item>Тишина важна</item>
+        <item>Люблю музыку</item>
+        <item>Занимаюсь спортом</item>
     </string-array>
 </resources>

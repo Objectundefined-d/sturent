@@ -160,7 +160,7 @@ fun ProfileCard(
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-//                                    Color(0xFF6A11CB),
+                                    Color(0xFF6A11CB),
                                     Color(0xFF2575FC)
                                 )
                             )
