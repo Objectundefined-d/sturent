@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.presentation.screens.profilescreen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

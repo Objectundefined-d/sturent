@@ -51,7 +51,7 @@ fun OnbAboutScreen(
             AboutCardTextField(
                 value = state.description,
                 onValueChange = viewModel::onDescription,
-                placeholder = "Люблю готовить"
+                placeholder = "Расскажи о себе"
             )
 
             state.error?.let {
