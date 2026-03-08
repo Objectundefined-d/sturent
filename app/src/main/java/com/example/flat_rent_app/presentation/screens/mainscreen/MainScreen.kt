@@ -1,51 +1,47 @@
 package com.example.flat_rent_app.presentation.screens.mainscreen
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.School
-import androidx.compose.material3.Icon
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.runtime.remember
-import com.example.flat_rent_app.domain.model.SwipeProfile
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import kotlin.math.abs
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.offset
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.flat_rent_app.domain.model.BottomTab
+import coil.compose.AsyncImage
+import com.example.flat_rent_app.domain.model.SwipeProfile
 import com.example.flat_rent_app.presentation.components.AppBottomBar
-import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainViewModel
 import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileDetailScreen
+import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainViewModel
 import com.example.flat_rent_app.util.BottomTabs
+import kotlinx.coroutines.launch
+import kotlin.math.abs
 
+private val LikeGreen = Color(0xFF38D986)
+private val NopeRed = Color(0xFFFF4458)
+private val CardShadow = Color(0x22000000)
 
 @Composable
 fun SwipeableProfileCard(
@@ -54,35 +50,49 @@ fun SwipeableProfileCard(
     onSwipeRight: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var offsetX by remember { mutableFloatStateOf(0f) }
-    var offsetY by remember { mutableFloatStateOf(0f) }
+    val offsetX = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val threshold = with(density) { 110.dp.toPx() }
+
+    val swipeProgress = (abs(offsetX.value) / threshold).coerceIn(0f, 1f)
+    val isSwipingRight = offsetX.value > 0
 
     Box(
         modifier = modifier
+            .graphicsLayer {
+                translationX = offsetX.value
+                rotationZ = (offsetX.value / 25f).coerceIn(-22f, 22f)
+            }
             .pointerInput(Unit) {
                 detectDragGestures(
-                    onDrag = { change, dragAmount ->
+                    onDrag = { change, drag ->
                         change.consume()
-                        offsetX += dragAmount.x
-                        offsetY += dragAmount.y
-
-                        if (abs(offsetX) > 300f) {
-                            if (offsetX > 0) {
-                                onSwipeRight()
-                            } else {
-                                onSwipeLeft()
-                            }
-                            offsetX = 0f
-                            offsetY = 0f
+                        scope.launch {
+                            offsetX.snapTo(offsetX.value + drag.x)
                         }
                     },
                     onDragEnd = {
-                        offsetX = 0f
-                        offsetY = 0f
+                        scope.launch {
+                            when {
+                                offsetX.value > threshold -> {
+                                    offsetX.animateTo(2400f, tween(320))
+                                    onSwipeRight()
+                                    offsetX.snapTo(0f)
+                                }
+                                offsetX.value < -threshold -> {
+                                    offsetX.animateTo(-2400f, tween(320))
+                                    onSwipeLeft()
+                                    offsetX.snapTo(0f)
+                                }
+                                else -> {
+                                    offsetX.animateTo(0f, tween(380))
+                                }
+                            }
+                        }
                     }
                 )
             }
-            .offset(x = offsetX.dp, y = offsetY.dp)
     ) {
         ProfileCard(
             name = profile.name,
@@ -90,42 +100,11 @@ fun SwipeableProfileCard(
             city = profile.city,
             university = profile.university,
             description = profile.description,
-            lookingFor = profile.lookingFor,
-            photoUrl = profile.photoUrl
+            photoUrl = profile.photoUrl,
         )
-
-        if (abs(offsetX) > 50f) {
-            val color = if (offsetX > 0) Color.Green else Color.Red
-            val icon = if (offsetX > 0) Icons.Default.Favorite else Icons.Default.Close
-            val text = if (offsetX > 0) "LIKE" else "NOPE"
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color.copy(alpha = 0.2f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        icon,
-                        contentDescription = text,
-                        tint = color,
-                        modifier = Modifier.size(64.dp)
-                    )
-                    Text(
-                        text = text,
-                        color = color,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
     }
 }
+
 
 @Composable
 fun ProfileCard(
@@ -134,148 +113,222 @@ fun ProfileCard(
     city: String,
     university: String,
     description: String,
-    lookingFor: String,
-    photoUrl: String? = null
+    photoUrl: String? = null,
 ) {
-    Card(
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(20.dp)
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .shadow(16.dp, RoundedCornerShape(24.dp), ambientColor = CardShadow)
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color(0xFF1C1C1E))
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            if (photoUrl != null) {
-                AsyncImage(
-                    model = photoUrl,
-                    contentDescription = "Фото профиля",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color(0xFF6A11CB),
-                                    Color(0xFF2575FC)
-                                )
-                            )
-                        )
-                )
-            }
-
+        if (photoUrl != null) {
+            AsyncImage(
+                model = photoUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.2f))
-            )
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color(0xFF2C2C2E), Color(0xFF1C1C1E))
+                        )
+                    )
+            ) {
+                Text(
+                    text = "👤",
+                    fontSize = 96.sp,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.SpaceBetween
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Transparent,
+                            Color(0xCC000000)
+                        )
+                    )
+                )
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = "$name, $age",
-                    fontSize = 32.sp,
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
+            }
 
-                Column {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.LocationOn,
-                            contentDescription = "Город",
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = city,
-                            fontSize = 18.sp,
-                            color = Color.White
-                        )
-                    }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(city, color = Color.White.copy(alpha = 0.9f), fontSize = 15.sp)
+            }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.School,
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = university,
+                    color = Color.White.copy(alpha = 0.9f),
+                    fontSize = 15.sp,
+                    maxLines = 1
+                )
+            }
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.School,
-                            contentDescription = "Университет",
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = university,
-                            fontSize = 18.sp,
-                            color = Color.White
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White.copy(alpha = 0.9f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = description,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.Black
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = lookingFor,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                }
+            if (description.isNotBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = description,
+                    color = Color.White.copy(alpha = 0.75f),
+                    fontSize = 14.sp,
+                    maxLines = 2
+                )
             }
         }
     }
 }
 
+@Composable
+private fun ActionButtons(
+    onSwipeLeft: () -> Unit,
+    onSwipeRight: () -> Unit,
+    onInfo: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        FloatingActionButton(
+            onClick = onSwipeLeft,
+            containerColor = Color.White,
+            contentColor = NopeRed,
+            shape = CircleShape,
+            modifier = Modifier.size(64.dp),
+            elevation = FloatingActionButtonDefaults.elevation(6.dp)
+        ) {
+            Icon(
+                Icons.Default.Close,
+                contentDescription = "Пропустить",
+                modifier = Modifier.size(30.dp)
+            )
+        }
+
+        FloatingActionButton(
+            onClick = onInfo,
+            containerColor = Color.White,
+            contentColor = Color(0xFF636366),
+            shape = CircleShape,
+            modifier = Modifier.size(48.dp),
+            elevation = FloatingActionButtonDefaults.elevation(4.dp)
+        ) {
+            Icon(Icons.Default.Info, contentDescription = "Инфо", modifier = Modifier.size(22.dp))
+        }
+
+        FloatingActionButton(
+            onClick = onSwipeRight,
+            containerColor = LikeGreen,
+            contentColor = Color.White,
+            shape = CircleShape,
+            modifier = Modifier.size(64.dp),
+            elevation = FloatingActionButtonDefaults.elevation(6.dp)
+        ) {
+            Icon(
+                Icons.Default.Favorite,
+                contentDescription = "Нравится",
+                modifier = Modifier.size(30.dp)
+            )
+        }
+    }
+}
 
 @Composable
-fun AllViewedView(onRetry: () -> Unit) {
+fun LoadingView() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        CircularProgressIndicator(color = LikeGreen)
+        Text("Загружаем...", color = Color.Gray, fontSize = 15.sp)
+    }
+}
+
+@Composable
+fun ErrorView(error: String, onRetry: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.padding(24.dp)
     ) {
-        Text("Все профили просмотрены", style = MaterialTheme.typography.headlineSmall)
-        Text("Загляните позже или обновите список", color = Color.Gray)
-        Button(onClick = onRetry) {
-            Text("Обновить")
-        }
+        Text("Что-то пошло не так", style = MaterialTheme.typography.headlineSmall)
+        Text(error, color = Color.Gray, fontSize = 14.sp)
+        Button(onClick = onRetry) { Text("Попробовать снова") }
     }
 }
 
+@Composable
+fun EmptyView() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text("Анкеты не найдены", color = Color.Gray, fontSize = 16.sp)
+        Text("Попробуйте позже", color = Color.LightGray, fontSize = 14.sp)
+    }
+}
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+fun AllViewedView(onRetry: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.padding(24.dp)
+    ) {
+        Text("Все просмотрено", style = MaterialTheme.typography.headlineSmall)
+        Text("Загляните позже — появятся новые анкеты", color = Color.Gray, fontSize = 14.sp)
+        Spacer(Modifier.height(8.dp))
+        Button(onClick = onRetry) { Text("Обновить") }
+    }
+}
+
+@Composable
 fun MainScreenContent(
     profiles: List<SwipeProfile>,
     currentIndex: Int,
@@ -289,7 +342,10 @@ fun MainScreenContent(
     onGoProfile: () -> Unit,
     retry: () -> Unit
 ) {
+    val showCards = !isLoading && error == null && profiles.isNotEmpty() && !showAllViewed
+
     Scaffold(
+        containerColor = Color(0xFFF2F2F7),
         bottomBar = {
             AppBottomBar(
                 selected = BottomTabs.HOME,
@@ -302,43 +358,45 @@ fun MainScreenContent(
         Column(
             modifier = Modifier
                 .padding(pad)
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 when {
-                    isLoading -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            LoadingView()
-                        }
-                    }
-
-                    error != null -> {
-                        ErrorView(
-                            error = error,
-                            onRetry = retry
-                        )
-                    }
-
-                    profiles.isEmpty() -> {
-                        EmptyView()
-                    }
-
-                    showAllViewed -> {
-                        AllViewedView(onRetry = retry)
-                    }
-
+                    isLoading -> LoadingView()
+                    error != null -> ErrorView(error, retry)
+                    profiles.isEmpty() -> EmptyView()
+                    showAllViewed -> AllViewedView(retry)
                     else -> {
-                        val currentProfile = profiles[currentIndex]
+                        val nextIndex = currentIndex + 1
+                        if (nextIndex < profiles.size) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .graphicsLayer {
+                                        scaleX = 0.93f
+                                        scaleY = 0.93f
+                                        translationY = 20f
+                                    }
+                            ) {
+                                ProfileCard(
+                                    name = profiles[nextIndex].name,
+                                    age = profiles[nextIndex].age,
+                                    city = profiles[nextIndex].city,
+                                    university = profiles[nextIndex].university,
+                                    description = profiles[nextIndex].description,
+                                    photoUrl = profiles[nextIndex].photoUrl
+                                )
+                            }
+                        }
+
                         SwipeableProfileCard(
-                            profile = currentProfile,
+                            profile = profiles[currentIndex],
                             onSwipeLeft = swipeLeft,
                             onSwipeRight = swipeRight,
                             modifier = Modifier.fillMaxSize()
@@ -347,48 +405,17 @@ fun MainScreenContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (!isLoading && error == null && profiles.isNotEmpty() && !showAllViewed) {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        FloatingActionButton(
-                            onClick = swipeLeft,
-                            containerColor = Color(0xFFEEEEEE),
-                            contentColor = Color.Black,
-                            elevation = FloatingActionButtonDefaults.elevation(0.dp)
-                        ) {
-                            Text("Нет", fontWeight = FontWeight.Bold)
-                        }
-
-                        FloatingActionButton(
-                            onClick = { openProfileDetails() },
-                            containerColor = Color(0xFFEEEEEE),
-                            contentColor = Color.Black,
-                            elevation = FloatingActionButtonDefaults.elevation(0.dp)
-                        ) {
-                            Text("Инфо", fontWeight = FontWeight.Bold)
-                        }
-
-                        FloatingActionButton(
-                            onClick = swipeRight,
-                            containerColor = Color(0xFFEEEEEE),
-                            contentColor = Color.Black,
-                            elevation = FloatingActionButtonDefaults.elevation(0.dp)
-                        ) {
-                            Text("Да", fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
+            if (showCards) {
+                ActionButtons(
+                    onSwipeLeft = swipeLeft,
+                    onSwipeRight = swipeRight,
+                    onInfo = openProfileDetails
+                )
             }
         }
     }
-
-
 }
+
 @Composable
 fun MainScreen(
     onGoProfile: () -> Unit,
@@ -396,6 +423,7 @@ fun MainScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
     if (state.showProfileDetails) {
         val profile = state.selectedProfile
         if (profile != null) {
@@ -420,20 +448,13 @@ fun MainScreen(
         onGoProfile = onGoProfile,
         retry = viewModel::retry
     )
-
 }
 
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-fun PreviewMainScreen(
-    onGoChats: () -> Unit = {},
-    onGoProfile: () -> Unit = {},
-) {
+fun PreviewMainScreen() {
     MainScreenContent(
-        profiles = emptyList<SwipeProfile>(),
+        profiles = emptyList(),
         currentIndex = -1,
         isLoading = false,
         error = null,
@@ -441,45 +462,8 @@ fun PreviewMainScreen(
         swipeRight = {},
         swipeLeft = {},
         openProfileDetails = {},
-        onGoChats= onGoChats,
-        onGoProfile = onGoProfile,
+        onGoChats = {},
+        onGoProfile = {},
         retry = {}
     )
-}
-
-@Composable
-fun LoadingView() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        CircularProgressIndicator()
-        Text("Загрузка профилей...", color = Color.Gray)
-    }
-}
-
-@Composable
-fun ErrorView(error: String, onRetry: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.padding(24.dp)
-    ) {
-        Text("Ошибка", style = MaterialTheme.typography.headlineSmall)
-        Text(error, color = Color.Red)
-        Button(onClick = onRetry) {
-            Text("Повторить")
-        }
-    }
-}
-
-@Composable
-fun EmptyView() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Нет доступных профилей", color = Color.Gray)
-        Text("Попробуйте позже", color = Color.Gray, fontSize = 14.sp)
-    }
 }

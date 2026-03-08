@@ -45,27 +45,35 @@ class MainViewModel @Inject constructor(
                             university = userProfile.eduPlace,
                             description = userProfile.description,
                             lookingFor = extractLookingFor(userProfile.description),
-                            photoUrl = userProfile.photoSlots.getOrNull(0)?.fullUrl
+                            photoUrl = userProfile.photoSlots
+                                .getOrNull(userProfile.mainPhotoIndex)
+                                ?.fullUrl
                         )
                     }
 
-                    _state.update { it.copy(
-                        profiles = swipeProfiles,
-                        isLoading = false,
-                        currentIndex = if (swipeProfiles.isNotEmpty()) 0 else -1
-                    ) }
+                    _state.update {
+                        it.copy(
+                            profiles = swipeProfiles,
+                            isLoading = false,
+                            currentIndex = if (swipeProfiles.isNotEmpty()) 0 else -1
+                        )
+                    }
                 }.onFailure { error ->
-                    _state.update { it.copy(
-                        isLoading = false,
-                        error = "Ошибка загрузки: ${error.message}"
-                    ) }
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "Ошибка загрузки: ${error.message}"
+                        )
+                    }
                 }
 
             } catch (e: Exception) {
-                _state.update { it.copy(
-                    isLoading = false,
-                    error = "Ошибка: ${e.message}"
-                ) }
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Ошибка: ${e.message}"
+                    )
+                }
             }
         }
     }
@@ -155,17 +163,21 @@ class MainViewModel @Inject constructor(
         val profiles = _state.value.profiles
 
         if (currentIndex in profiles.indices) {
-            _state.update { it.copy(
-                showProfileDetails = true,
-                selectedProfile = profiles[currentIndex]
-            ) }
+            _state.update {
+                it.copy(
+                    showProfileDetails = true,
+                    selectedProfile = profiles[currentIndex]
+                )
+            }
         }
     }
 
     fun closeProfileDetails() {
-        _state.update { it.copy(
-            showProfileDetails = false,
-            selectedProfile = null
-        ) }
+        _state.update {
+            it.copy(
+                showProfileDetails = false,
+                selectedProfile = null
+            )
+        }
     }
 }
