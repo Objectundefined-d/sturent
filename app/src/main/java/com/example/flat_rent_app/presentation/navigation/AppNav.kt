@@ -9,7 +9,9 @@ import com.example.flat_rent_app.presentation.navigation.appgraphs.AppGraph
 import com.example.flat_rent_app.presentation.navigation.appgraphs.AuthGraph
 import com.example.flat_rent_app.presentation.navigation.appgraphs.OnboardingGraph
 import com.example.flat_rent_app.presentation.viewmodel.RootViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun AppNav() {
     val rootVm: RootViewModel = hiltViewModel()
