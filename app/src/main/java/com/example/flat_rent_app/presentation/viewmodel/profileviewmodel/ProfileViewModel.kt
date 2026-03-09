@@ -39,40 +39,4 @@ class ProfileViewModel @Inject constructor(
     fun signOut() {
         viewModelScope.launch { authRepo.signOut() }
     }
-
-    fun uploadPhoto(context: android.content.Context, index: Int, uri: Uri) {
-        viewModelScope.launch {
-            val file = runCatching { UriFiles.copyToCache(context, uri) }
-                .getOrElse { return@launch }
-
-            photoRepo.uploadPhoto(index, file).fold(
-                onSuccess = { photo ->
-                    val current = userProfile.value ?: return@fold
-                    val slots = current.photoSlots.toMutableList().also { it[index] = photo }
-                    profileRepo.upsertMyProfile(current.copy(photoSlots = slots))
-                },
-                onFailure = { /* хз пустой */  }
-            )
-        }
-    }
-
-    fun deletePhoto(index: Int) {
-        viewModelScope.launch {
-            val current = userProfile.value ?: return@launch
-            val slots = current.photoSlots.toMutableList().also { it[index] = null }
-            val newMain = if (current.mainPhotoIndex == index)
-                slots.indexOfFirst { it != null }.coerceAtLeast(0)
-            else
-                current.mainPhotoIndex
-
-            profileRepo.upsertMyProfile(current.copy(photoSlots = slots, mainPhotoIndex = newMain))
-        }
-    }
-
-    fun setMainPhoto(index: Int) {
-        viewModelScope.launch {
-            val current = userProfile.value ?: return@launch
-            profileRepo.upsertMyProfile(current.copy(mainPhotoIndex = index))
-        }
-    }
 }

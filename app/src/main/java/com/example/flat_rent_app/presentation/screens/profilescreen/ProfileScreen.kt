@@ -1,23 +1,15 @@
 package com.example.flat_rent_app.presentation.screens.profilescreen
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,36 +17,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.example.flat_rent_app.presentation.components.AppBottomBar
 import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 import com.example.flat_rent_app.util.BottomTabs
 
 @Composable
-fun ProfileScreen(
-    onGoHome: () -> Unit,
-    onGoChats: () -> Unit,
+fun ProfileScreenContent(
+    displayName: String,
+    email: String?,
+    photoUrls: List<String>,
     onEditQuestionnaire: () -> Unit,
-    viewModel: ProfileViewModel = hiltViewModel()
+    onSignOut: () -> Unit,
+    onGoHome: () -> Unit,
+    onGoChats: () -> Unit
 ) {
-    val user by viewModel.user.collectAsState(initial = null)
-    val userProfile by viewModel.userProfile.collectAsState()
-    val context = LocalContext.current
-
-    var activeSlot by remember { mutableIntStateOf(0) }
-
-    val picker = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri: Uri? ->
-        uri?.let { viewModel.uploadPhoto(context, activeSlot, it) }
-    }
-
     Scaffold(
         bottomBar = {
             AppBottomBar(
@@ -74,153 +55,72 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            val slots = userProfile?.photoSlots ?: listOf(null, null, null)
-            val mainIndex = userProfile?.mainPhotoIndex ?: 0
+            val pagerState = rememberPagerState(pageCount = { maxOf(1, photoUrls.size) })
 
-            Text(
-                text = "Мои фото",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp)
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth()
+                    .height(320.dp)
+                    .clip(RoundedCornerShape(20.dp))
             ) {
-                (0..2).forEach { index ->
-                    val photo = slots.getOrNull(index)
-                    val isMain = mainIndex == index
-                    val hasPhoto = photo?.fullUrl != null
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                if (photoUrls.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(130.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .border(
-                                    width = if (isMain && hasPhoto) 2.dp else 0.dp,
-                                    color = if (isMain && hasPhoto) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .clickable {
-                                    activeSlot = index
-                                    picker.launch(
-                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                    )
-                                },
-                            contentAlignment = Alignment.Center
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            if (hasPhoto) {
-                                AsyncImage(
-                                    model = photo?.fullUrl,
-                                    contentDescription = "Фото ${index + 1}",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(80.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        AsyncImage(
+                            model = photoUrls[page],
+                            contentDescription = "Фото ${page + 1}",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
 
-                                IconButton(
-                                    onClick = { viewModel.deletePhoto(index) },
+                    if (photoUrls.size > 1) {
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            photoUrls.indices.forEach { index ->
+                                Box(
                                     modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .size(28.dp)
+                                        .size(if (pagerState.currentPage == index) 8.dp else 6.dp)
+                                        .clip(CircleShape)
                                         .background(
-                                            color = Color.Black.copy(alpha = 0.5f),
-                                            shape = CircleShape
+                                            if (pagerState.currentPage == index)
+                                                Color.White
+                                            else
+                                                Color.White.copy(alpha = 0.5f)
                                         )
-                                ) {
-                                    Icon(
-                                        Icons.Default.Close,
-                                        contentDescription = "Удалить",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(14.dp)
-                                    )
-                                }
-
-                                Icon(
-                                    imageVector = if (isMain) Icons.Default.Star else Icons.Outlined.StarOutline,
-                                    contentDescription = if (isMain) "Главное фото" else "Сделать главным",
-                                    tint = if (isMain) Color(0xFFFFD700) else Color.White,
-                                    modifier = Modifier
-                                        .align(Alignment.BottomStart)
-                                        .padding(6.dp)
-                                        .size(20.dp)
-                                        .clickable {
-                                            if (!isMain) viewModel.setMainPhoto(index)
-                                        }
-                                )
-                            } else {
-                                Icon(
-                                    Icons.Default.Add,
-                                    contentDescription = "Добавить фото",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(32.dp)
                                 )
                             }
                         }
-
-                        Text(
-                            text = when {
-                                isMain && hasPhoto -> "★ Главное"
-                                hasPhoto -> "Нажми ★"
-                                else -> "Добавить"
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = 10.sp,
-                            color = if (isMain && hasPhoto)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(28.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(28.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                val mainPhotoUrl = slots.getOrNull(mainIndex)?.fullUrl
-
-                if (mainPhotoUrl != null) {
-                    Image(
-                        painter = rememberAsyncImagePainter(mainPhotoUrl),
-                        contentDescription = "Аватар",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Text(
-                        text = "👤",
-                        style = MaterialTheme.typography.displayMedium
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            val displayName = when {
-                !userProfile?.name.isNullOrBlank() -> userProfile?.name!!
-                !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@") ?: "Пользователь"
-                else -> "Пользователь"
-            }
 
             Text(
                 text = displayName,
@@ -228,9 +128,9 @@ fun ProfileScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            user?.email?.let { email ->
+            email?.let {
                 Text(
-                    text = email,
+                    text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
@@ -243,11 +143,13 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)
             ) {
-                Text("Анкета")
+                Text("Редактировать анкету")
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             Button(
-                onClick = viewModel::signOut,
+                onClick = onSignOut,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
@@ -256,5 +158,52 @@ fun ProfileScreen(
                 Text("Выйти")
             }
         }
+    }
+}
+
+@Composable
+fun ProfileScreen(
+    onGoHome: () -> Unit,
+    onGoChats: () -> Unit,
+    onEditQuestionnaire: () -> Unit,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+    val user by viewModel.user.collectAsState(initial = null)
+    val userProfile by viewModel.userProfile.collectAsState()
+
+    val slots = userProfile?.photoSlots ?: listOf(null, null, null)
+
+    ProfileScreenContent(
+        displayName = when {
+            !userProfile?.name.isNullOrBlank() -> userProfile?.name!!
+            !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@") ?: "Пользователь"
+            else -> "Пользователь"
+        },
+        email = user?.email,
+        photoUrls = slots.mapNotNull { it?.fullUrl },
+        onEditQuestionnaire = onEditQuestionnaire,
+        onSignOut = viewModel::signOut,
+        onGoHome = onGoHome,
+        onGoChats = onGoChats
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun ProfileScreenPreview() {
+    MaterialTheme {
+        ProfileScreenContent(
+            displayName = "Иван Иванов",
+            email = "ivan@mail.com",
+            photoUrls = listOf(
+                "https://picsum.photos/seed/1/400/600",
+                "https://picsum.photos/seed/2/400/600",
+                "https://picsum.photos/seed/3/400/600"
+            ),
+            onEditQuestionnaire = {},
+            onSignOut = {},
+            onGoHome = {},
+            onGoChats = {}
+        )
     }
 }
