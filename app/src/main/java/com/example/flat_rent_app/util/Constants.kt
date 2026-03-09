@@ -22,4 +22,10 @@ object Constants {
         UNIVERSITY_HSE,
         UNIVERSITY_MSU
     )
+
+    val UNIVERSITIES_FOR_PROFILE: List<String> = listOf(
+        UNIVERSITY_BAUMAN,
+        UNIVERSITY_HSE,
+        UNIVERSITY_MSU
+    )
 }
