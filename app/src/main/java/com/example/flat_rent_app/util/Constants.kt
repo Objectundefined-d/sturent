@@ -12,4 +12,14 @@ object Constants {
     const val VALUES_QUIET = "Тишина важна"
     const val LOVES_MUSIC = "Люблю музыку"
     const val DOES_SPORTS = "Занимаюсь спортом"
+    const val UNIVERSITY_ALL = "Все ВУЗы"
+    const val UNIVERSITY_BAUMAN = "МГТУ им. Н.Э. Баумана"
+    const val UNIVERSITY_HSE = "НИУ ВШЭ"
+    const val UNIVERSITY_MSU = "МГУ имени М. В. Ломоносова"
+    val UNIVERSITIES_FOR_FILTER: List<String> = listOf(
+        UNIVERSITY_ALL,
+        UNIVERSITY_BAUMAN,
+        UNIVERSITY_HSE,
+        UNIVERSITY_MSU
+    )
 }
