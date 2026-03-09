@@ -37,7 +37,6 @@ import com.example.flat_rent_app.presentation.screens.profiledetailscreen.Profil
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainViewModel
 import com.example.flat_rent_app.util.BottomTabs
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 private val LikeGreen = Color(0xFF38D986)
 private val NopeRed = Color(0xFFFF4458)
@@ -54,9 +53,6 @@ fun SwipeableProfileCard(
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val threshold = with(density) { 110.dp.toPx() }
-
-    val swipeProgress = (abs(offsetX.value) / threshold).coerceIn(0f, 1f)
-    val isSwipingRight = offsetX.value > 0
 
     Box(
         modifier = modifier
