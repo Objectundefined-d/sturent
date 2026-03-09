@@ -1,19 +1,24 @@
 package com.example.flat_rent_app.presentation.viewmodel.profileviewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flat_rent_app.domain.repository.AuthRepository
+import com.example.flat_rent_app.domain.repository.PhotoRepository
 import com.example.flat_rent_app.domain.repository.ProfileRepository
+import com.example.flat_rent_app.presentation.util.UriFiles
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.fold
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val authRepo: AuthRepository,
-    private val profileRepo: ProfileRepository
+    private val profileRepo: ProfileRepository,
+    private val photoRepo: PhotoRepository
 ) : ViewModel() {
 
     val user = authRepo.currentUser

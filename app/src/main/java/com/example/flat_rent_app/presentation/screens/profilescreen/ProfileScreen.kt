@@ -1,33 +1,41 @@
 package com.example.flat_rent_app.presentation.screens.profilescreen
 
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import com.example.flat_rent_app.presentation.components.AppBottomBar
+import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 import com.example.flat_rent_app.util.BottomTabs
 
 @Composable
-fun ProfileScreen(
-    onGoHome: () -> Unit,
-    onGoChats: () -> Unit,
+fun ProfileScreenContent(
+    displayName: String,
+    email: String?,
+    photoUrls: List<String>,
     onEditQuestionnaire: () -> Unit,
-    viewModel: ProfileViewModel = hiltViewModel()
+    onSignOut: () -> Unit,
+    onGoHome: () -> Unit,
+    onGoChats: () -> Unit
 ) {
-    val user by viewModel.user.collectAsState(initial = null)
-    val userProfile by viewModel.userProfile.collectAsState()
     Scaffold(
         bottomBar = {
             AppBottomBar(
@@ -42,59 +50,90 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(pad)
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            val pagerState = rememberPagerState(pageCount = { maxOf(1, photoUrls.size) })
+
             Box(
                 modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .height(320.dp)
+                    .clip(RoundedCornerShape(20.dp))
             ) {
-                val mainPhotoUrl = userProfile?.photoSlots
-                    ?.getOrNull(userProfile?.mainPhotoIndex ?: 0)
-                    ?.fullUrl
-
-                if (mainPhotoUrl != null) {
-                    Image(
-                        painter = rememberAsyncImagePainter(mainPhotoUrl),
-                        contentDescription = "Аватар",
+                if (photoUrls.isEmpty()) {
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(80.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 } else {
-                    Text(
-                        text = "👤",
-                        style = MaterialTheme.typography.displayLarge
-                    )
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        AsyncImage(
+                            model = photoUrls[page],
+                            contentDescription = "Фото ${page + 1}",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                    if (photoUrls.size > 1) {
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            photoUrls.indices.forEach { index ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(if (pagerState.currentPage == index) 8.dp else 6.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (pagerState.currentPage == index)
+                                                Color.White
+                                            else
+                                                Color.White.copy(alpha = 0.5f)
+                                        )
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            val displayName = when {
-                !userProfile?.name.isNullOrBlank() -> userProfile?.name!!
-                !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@") ?: "Пользователь"
-                else -> "Пользователь"
-            }
+            Spacer(modifier = Modifier.height(28.dp))
 
             Text(
                 text = displayName,
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
             )
 
-            user?.email?.let { email ->
+            email?.let {
                 Text(
-                    text = email,
+                    text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 48.dp)
+                    modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
                 )
             }
 
@@ -104,14 +143,14 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)
             ) {
-                Text("Анкета")
+                Text("Редактировать анкету")
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             Button(
-                onClick = viewModel::signOut,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
+                onClick = onSignOut,
+                modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
                 )
@@ -119,5 +158,52 @@ fun ProfileScreen(
                 Text("Выйти")
             }
         }
+    }
+}
+
+@Composable
+fun ProfileScreen(
+    onGoHome: () -> Unit,
+    onGoChats: () -> Unit,
+    onEditQuestionnaire: () -> Unit,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+    val user by viewModel.user.collectAsState(initial = null)
+    val userProfile by viewModel.userProfile.collectAsState()
+
+    val slots = userProfile?.photoSlots ?: listOf(null, null, null)
+
+    ProfileScreenContent(
+        displayName = when {
+            !userProfile?.name.isNullOrBlank() -> userProfile?.name!!
+            !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@") ?: "Пользователь"
+            else -> "Пользователь"
+        },
+        email = user?.email,
+        photoUrls = slots.mapNotNull { it?.fullUrl },
+        onEditQuestionnaire = onEditQuestionnaire,
+        onSignOut = viewModel::signOut,
+        onGoHome = onGoHome,
+        onGoChats = onGoChats
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun ProfileScreenPreview() {
+    MaterialTheme {
+        ProfileScreenContent(
+            displayName = "Иван Иванов",
+            email = "ivan@mail.com",
+            photoUrls = listOf(
+                "https://picsum.photos/seed/1/400/600",
+                "https://picsum.photos/seed/2/400/600",
+                "https://picsum.photos/seed/3/400/600"
+            ),
+            onEditQuestionnaire = {},
+            onSignOut = {},
+            onGoHome = {},
+            onGoChats = {}
+        )
     }
 }

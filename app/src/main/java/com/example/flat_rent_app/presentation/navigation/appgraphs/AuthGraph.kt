@@ -29,7 +29,7 @@ fun AuthGraph() {
         composable(Routes.authScreen.route) {
             LoginScreen(
                 onBack = { navController.popBackStack() },
-                onForgotPassword = { navController.navigate(Routes.forgotPasswordScreen.route) } // ← добавь
+                onForgotPassword = { navController.navigate(Routes.forgotPasswordScreen.route) }
             )
         }
 
