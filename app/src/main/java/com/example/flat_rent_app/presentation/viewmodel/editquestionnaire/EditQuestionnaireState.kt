@@ -23,6 +23,7 @@ data class EditQuestionnaireState(
 
     val createdAtMillis: Long? = null,
     val photoSlots: List<ProfilePhoto?> = listOf(null, null, null),
+    val mainPhotoIndex: Int = 0,
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val error: String? = null

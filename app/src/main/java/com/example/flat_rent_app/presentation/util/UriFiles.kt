@@ -1,6 +1,5 @@
 package com.example.flat_rent_app.presentation.util
 
-import android.content.Context
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
@@ -11,7 +10,7 @@ import java.io.FileOutputStream
  */
 object UriFiles {
 
-    fun copyToCache(context: Context, uri: Uri): File {
+    fun copyToCache(context: android.content.Context, uri: Uri): File {
         val resolver = context.contentResolver
 
         val ext = resolver.getType(uri)
