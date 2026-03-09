@@ -33,6 +33,8 @@ class OnboardingViewModel @Inject constructor(
     fun onEduPlace(v: String) = _state.update { it.copy(eduPlace = v, error = null) }
     fun onDescription(v: String) = _state.update { it.copy(description = v, error = null) }
 
+    fun onAge(v: String) = _state.update { it.copy(age = v, error = null) }
+
 
     fun togglePreference(pref: String) = _state.update { s ->
         val next = if (pref in s.preferences) s.preferences - pref else s.preferences + pref
@@ -88,6 +90,12 @@ class OnboardingViewModel @Inject constructor(
             return
         }
 
+        val age = s.age.toIntOrNull()
+        if (age == null) {
+            _state.value = s.copy(error = "Укажите ваш возраст")
+            return
+        }
+
         if (s.description.isBlank()) {
             _state.value = s.copy(error = "Добавьте описание")
             return
@@ -99,6 +107,7 @@ class OnboardingViewModel @Inject constructor(
             val profile = UserProfile(
                 uid = uid,
                 name = s.name.trim(),
+                age = age,
                 city = s.city.trim(),
                 eduPlace = s.eduPlace.trim(),
                 description = s.description.trim(),

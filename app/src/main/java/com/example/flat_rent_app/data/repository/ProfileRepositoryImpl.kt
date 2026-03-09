@@ -52,6 +52,7 @@ class ProfileRepositoryImpl @Inject constructor(
                 .set(
                     mapOf(
                         "name" to profile.name,
+                        "age" to profile.age,
                         "city" to profile.city,
                         "eduPlace" to profile.eduPlace,
                         "description" to profile.description,
@@ -102,6 +103,7 @@ class ProfileRepositoryImpl @Inject constructor(
         return UserProfile(
             uid = id,
             name = getString("name").orEmpty(),
+            age = getLong("age")?.toInt(),
             city = getString("city").orEmpty(),
             eduPlace = getString("eduPlace").orEmpty(),
             description = getString("description").orEmpty(),

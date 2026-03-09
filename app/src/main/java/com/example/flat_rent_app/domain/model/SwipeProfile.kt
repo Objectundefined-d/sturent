@@ -3,7 +3,7 @@ package com.example.flat_rent_app.domain.model
 data class SwipeProfile(
     val uid: String = "",
     val name: String = "",
-    val age: Int = 0,
+    val age: Int? = 0,
     val city: String = "",
     val university: String = "",
     val description: String = "",

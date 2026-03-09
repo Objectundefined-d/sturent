@@ -18,7 +18,6 @@ import kotlin.fold
 class ProfileViewModel @Inject constructor(
     private val authRepo: AuthRepository,
     private val profileRepo: ProfileRepository,
-    private val photoRepo: PhotoRepository
 ) : ViewModel() {
 
     val user = authRepo.currentUser

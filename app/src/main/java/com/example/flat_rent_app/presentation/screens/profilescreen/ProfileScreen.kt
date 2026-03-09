@@ -29,6 +29,7 @@ import com.example.flat_rent_app.util.BottomTabs
 @Composable
 fun ProfileScreenContent(
     displayName: String,
+    age: Int?,
     email: String?,
     photoUrls: List<String>,
     onEditQuestionnaire: () -> Unit,
@@ -123,7 +124,7 @@ fun ProfileScreenContent(
             Spacer(modifier = Modifier.height(28.dp))
 
             Text(
-                text = displayName,
+                text = "$displayName, $age",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -179,6 +180,7 @@ fun ProfileScreen(
             !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@") ?: "Пользователь"
             else -> "Пользователь"
         },
+        age = userProfile?.age,
         email = user?.email,
         photoUrls = slots.mapNotNull { it?.fullUrl },
         onEditQuestionnaire = onEditQuestionnaire,
@@ -194,6 +196,7 @@ fun ProfileScreenPreview() {
     MaterialTheme {
         ProfileScreenContent(
             displayName = "Иван Иванов",
+            age = 232,
             email = "ivan@mail.com",
             photoUrls = listOf(
                 "https://picsum.photos/seed/1/400/600",

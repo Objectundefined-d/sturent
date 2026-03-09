@@ -29,6 +29,8 @@ class EditQuestionnaireViewModel @Inject constructor(
         _state.update { it.copy(name = name) }
     }
 
+    fun onAgeChanged(age: String) = _state.update { it.copy(age = age) }
+
     fun onCityChanged(city: String) {
         _state.update { it.copy(city = city) }
     }
@@ -65,6 +67,7 @@ class EditQuestionnaireViewModel @Inject constructor(
                 val userProfile = UserProfile(
                     uid = userId,
                     name = state.value.name,
+                    age = state.value.age.toIntOrNull(),
                     city = state.value.city,
                     eduPlace = state.value.eduPlace,
                     description = state.value.description,
@@ -116,6 +119,7 @@ class EditQuestionnaireViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             name = p.name,
+                            age = p.age?.toString() ?: "",
                             city = p.city,
                             eduPlace = p.eduPlace,
                             description = p.description.substringBefore("\n\nПривычки:"),

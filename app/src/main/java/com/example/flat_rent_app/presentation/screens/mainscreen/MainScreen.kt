@@ -92,7 +92,7 @@ fun SwipeableProfileCard(
     ) {
         ProfileCard(
             name = profile.name,
-            age = profile.age,
+            age = profile?.age,
             city = profile.city,
             university = profile.university,
             description = profile.description,
@@ -105,7 +105,7 @@ fun SwipeableProfileCard(
 @Composable
 fun ProfileCard(
     name: String,
-    age: Int,
+    age: Int?,
     city: String,
     university: String,
     description: String,

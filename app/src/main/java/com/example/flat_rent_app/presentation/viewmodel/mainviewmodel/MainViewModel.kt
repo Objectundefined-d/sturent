@@ -40,7 +40,7 @@ class MainViewModel @Inject constructor(
                         SwipeProfile(
                             uid = userProfile.uid,
                             name = extractName(userProfile.name),
-                            age = extractAgeFromDescription(userProfile.description),
+                            age = userProfile.age,
                             city = userProfile.city,
                             university = userProfile.eduPlace,
                             description = userProfile.description,
@@ -144,9 +144,6 @@ class MainViewModel @Inject constructor(
         return fullName.split(",").firstOrNull()?.trim() ?: fullName
     }
 
-    private fun extractAgeFromDescription(description: String): Int {
-        return (18..35).random()
-    }
 
     private fun extractLookingFor(description: String): String {
         return when {
