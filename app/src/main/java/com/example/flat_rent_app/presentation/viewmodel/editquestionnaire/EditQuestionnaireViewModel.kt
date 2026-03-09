@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flat_rent_app.domain.model.UserProfile
 import com.example.flat_rent_app.domain.repository.AuthRepository
+import com.example.flat_rent_app.domain.repository.PhotoRepository
 import com.example.flat_rent_app.domain.repository.ProfileRepository
+import com.example.flat_rent_app.presentation.util.UriFiles
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class EditQuestionnaireViewModel @Inject constructor(
     private val profileRepo: ProfileRepository,
-    private val authRepo: AuthRepository
+    private val authRepo: AuthRepository,
+    private val photoRepo: PhotoRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(EditQuestionnaireState())
@@ -65,9 +68,9 @@ class EditQuestionnaireViewModel @Inject constructor(
                     city = state.value.city,
                     eduPlace = state.value.eduPlace,
                     description = state.value.description,
-                    mainPhotoIndex = 0,
                     preferences = selectedHabitsList,
                     photoSlots = state.value.photoSlots,
+                    mainPhotoIndex = state.value.mainPhotoIndex,
                     createdAtMillis = state.value.createdAtMillis,
                     updatedAtMillis = System.currentTimeMillis()
                 )
@@ -121,6 +124,7 @@ class EditQuestionnaireViewModel @Inject constructor(
                                 loadedHabits = p.preferences
                             ),
                             photoSlots = p.photoSlots,
+                            mainPhotoIndex = p.mainPhotoIndex,
                             createdAtMillis = p.createdAtMillis,
                             isLoading = false
                         )
@@ -162,5 +166,42 @@ class EditQuestionnaireViewModel @Inject constructor(
 
     init {
         loadProfile()
+    }
+
+    fun uploadPhoto(context: android.content.Context, index: Int, uri: android.net.Uri) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, error = null) }
+            val file = runCatching { UriFiles.copyToCache(context, uri) }
+                .getOrElse { e ->
+                    _state.update { it.copy(isLoading = false, error = e.message) }
+                    return@launch
+                }
+            photoRepo.uploadPhoto(index, file).fold(
+                onSuccess = { photo ->
+                    val updated = _state.value.photoSlots.toMutableList().also { it[index] = photo }
+                    _state.update { it.copy(isLoading = false, photoSlots = updated) }
+                },
+                onFailure = { e ->
+                    _state.update { it.copy(isLoading = false, error = e.message) }
+                }
+            )
+        }
+    }
+
+    fun deletePhoto(index: Int) {
+        val slots = _state.value.photoSlots.toMutableList().also { it[index] = null }
+        val currentMain = _state.value.mainPhotoIndex
+
+        val newMain = if (currentMain == index) {
+            slots.indexOfFirst { it?.fullUrl != null }.coerceAtLeast(0)
+        } else {
+            currentMain
+        }
+
+        _state.update { it.copy(photoSlots = slots, mainPhotoIndex = newMain) }
+    }
+
+    fun setMainPhoto(index: Int) {
+        _state.update { it.copy(mainPhotoIndex = index) }
     }
 }

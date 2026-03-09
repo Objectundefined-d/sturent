@@ -29,7 +29,7 @@ class PhotoRepositoryImpl @Inject constructor(
 
     companion object {
         private const val BASE_URL = "https://flat-rent-server.onrender.com"
-        private const val MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
+        private const val MAX_IMAGE_SIZE = 5 * 1024 * 1024
     }
 
     override suspend fun uploadPhoto(uri: Uri): Result<String> {
@@ -139,7 +139,6 @@ class PhotoRepositoryImpl @Inject constructor(
         }
     }
 
-    // Удаление фото по ID
     override suspend fun deletePhoto(photoId: Int): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
