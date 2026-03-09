@@ -16,7 +16,7 @@ object Constants {
     const val UNIVERSITY_BAUMAN = "МГТУ им. Н.Э. Баумана"
     const val UNIVERSITY_HSE = "НИУ ВШЭ"
     const val UNIVERSITY_MSU = "МГУ имени М. В. Ломоносова"
-    val UNIVERSITIES_FOR_FILTER: List<String> = listOf(
+    val UNIVERSITIES_LIST: List<String> = listOf(
         UNIVERSITY_ALL,
         UNIVERSITY_BAUMAN,
         UNIVERSITY_HSE,

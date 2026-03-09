@@ -59,7 +59,7 @@ class MainViewModel @Inject constructor(
                     _state.update { it.copy(
                         profiles = filtered,
                         isLoading = false,
-                        currentIndex = if (swipeProfiles.isNotEmpty()) 0 else -1
+                        currentIndex = if (filtered.isNotEmpty()) 0 else -1
                     ) }
                 }.onFailure { error ->
                     _state.update { it.copy(

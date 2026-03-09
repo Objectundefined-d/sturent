@@ -23,9 +23,7 @@ import coil.compose.AsyncImage
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.runtime.remember
 import com.example.flat_rent_app.domain.model.SwipeProfile
 import androidx.compose.runtime.mutableStateOf
@@ -40,11 +38,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.flat_rent_app.domain.model.BottomTab
 import com.example.flat_rent_app.presentation.components.AppBottomBar
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainViewModel
 import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileDetailScreen
 import com.example.flat_rent_app.util.BottomTabs
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBar
+import com.example.flat_rent_app.util.Constants
 
 
 @Composable
@@ -275,6 +278,39 @@ fun AllViewedView(onRetry: () -> Unit) {
 
 
 @Composable
+fun UniversityFilterButton(
+    selectedUniversity: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+)
+{
+    var expanded by remember { mutableStateOf(false) }
+    Box(modifier = modifier){
+        IconButton(onClick = {expanded = true}) {
+            Icon(
+                Icons.Default.FilterAlt,
+                contentDescription = "Фильтр по ВУЗу"
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            Constants.UNIVERSITIES_LIST.forEach { university ->
+                DropdownMenuItem(
+                    text = { Text(university)},
+                    onClick = {
+                        onSelect(university)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun MainScreenContent(
     profiles: List<SwipeProfile>,
@@ -287,9 +323,22 @@ fun MainScreenContent(
     openProfileDetails: () -> Unit,
     onGoChats: () -> Unit,
     onGoProfile: () -> Unit,
-    retry: () -> Unit
+    retry: () -> Unit,
+    selectedUniversityFilter: String,
+    onUniversityFilterChange: (String) -> Unit
 ) {
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Лента") },
+                actions = {
+                    UniversityFilterButton(
+                        selectedUniversity = selectedUniversityFilter,
+                        onSelect = onUniversityFilterChange
+                    )
+                }
+            )
+        },
         bottomBar = {
             AppBottomBar(
                 selected = BottomTabs.HOME,
@@ -418,7 +467,9 @@ fun MainScreen(
         openProfileDetails = viewModel::openProfileDetails,
         onGoChats = onGoChats,
         onGoProfile = onGoProfile,
-        retry = viewModel::retry
+        retry = viewModel::retry,
+        selectedUniversityFilter = state.selectedUniversityFilter,
+        onUniversityFilterChange = { viewModel.setUniversityFilter(it) }
     )
 
 }
@@ -443,7 +494,9 @@ fun PreviewMainScreen(
         openProfileDetails = {},
         onGoChats= onGoChats,
         onGoProfile = onGoProfile,
-        retry = {}
+        retry = {},
+        selectedUniversityFilter = Constants.UNIVERSITY_ALL,
+        onUniversityFilterChange = {},
     )
 }
 
