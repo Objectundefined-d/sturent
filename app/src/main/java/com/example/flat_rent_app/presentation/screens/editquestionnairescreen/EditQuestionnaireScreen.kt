@@ -5,13 +5,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.flat_rent_app.presentation.viewmodel.editquestionnaire.EditQuestionnaireViewModel
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.ui.platform.LocalConfiguration
@@ -226,7 +221,7 @@ fun EditQuestionnaireScreenContent(
                     onExpandedChange = { expanded = it }
                 ) {
                     OutlinedTextField(
-                        value = state.eduPlace,
+                        value = eduPlace,
                         onValueChange = { },
                         readOnly = true,
                         label = { Text("Учебное заведение") },
@@ -243,7 +238,7 @@ fun EditQuestionnaireScreenContent(
                             DropdownMenuItem(
                                 text = { Text(university) },
                                 onClick = {
-                                    viewModel.onEduPlaceChanged(university)
+                                    onEduPlaceChanged(university)
                                     expanded = false
                                 }
                             )
@@ -302,7 +297,7 @@ fun EditQuestionnaireScreenContent(
 fun EditQuestionnaireScreen(
     onBack: () -> Unit,
     onSaveComplete: () -> Unit,
-    viewModel: EditQuestionnaireViewModel
+    viewModel: EditQuestionnaireViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -354,7 +349,7 @@ fun EditQuestionnaireScreenPreview() {
             age = "22",
             city = "Москва",
             eduPlace = "МГУ",
-            description = "Люблю чистоту и тишину",
+            description = "Описание",
             selectedHabits = mapOf(
                 "Курение" to false,
                 "Алкоголь" to false,

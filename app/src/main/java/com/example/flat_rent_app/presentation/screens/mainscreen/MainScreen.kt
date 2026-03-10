@@ -21,11 +21,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.remember
-import com.example.flat_rent_app.domain.model.SwipeProfile
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -91,11 +89,13 @@ fun SwipeableProfileCard(
                                     onSwipeRight()
                                     offsetX.snapTo(0f)
                                 }
+
                                 offsetX.value < -threshold -> {
                                     offsetX.animateTo(-2400f, tween(320))
                                     onSwipeLeft()
                                     offsetX.snapTo(0f)
                                 }
+
                                 else -> {
                                     offsetX.animateTo(0f, tween(380))
                                 }
@@ -521,8 +521,8 @@ fun PreviewMainScreen() {
         swipeRight = {},
         swipeLeft = {},
         openProfileDetails = {},
-        onGoChats= onGoChats,
-        onGoProfile = onGoProfile,
+        onGoChats= {  },
+        onGoProfile = {  },
         retry = {},
         selectedUniversityFilter = Constants.UNIVERSITY_ALL,
         onUniversityFilterChange = {},
