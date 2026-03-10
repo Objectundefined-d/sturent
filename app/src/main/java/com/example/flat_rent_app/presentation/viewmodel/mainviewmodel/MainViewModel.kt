@@ -41,12 +41,14 @@ class MainViewModel @Inject constructor(
                         SwipeProfile(
                             uid = userProfile.uid,
                             name = extractName(userProfile.name),
-                            age = extractAgeFromDescription(userProfile.description),
+                            age = userProfile.age,
                             city = userProfile.city,
                             university = userProfile.eduPlace,
                             description = userProfile.description,
                             lookingFor = extractLookingFor(userProfile.description),
-                            photoUrl = userProfile.photoSlots.getOrNull(0)?.fullUrl
+                            photoUrl = userProfile.photoSlots
+                                .getOrNull(userProfile.mainPhotoIndex)
+                                ?.fullUrl
                         )
                     }
                     var filtered = if (_state.value.selectedUniversityFilter ==
@@ -62,17 +64,21 @@ class MainViewModel @Inject constructor(
                         currentIndex = if (filtered.isNotEmpty()) 0 else -1
                     ) }
                 }.onFailure { error ->
-                    _state.update { it.copy(
-                        isLoading = false,
-                        error = "Ошибка загрузки: ${error.message}"
-                    ) }
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "Ошибка загрузки: ${error.message}"
+                        )
+                    }
                 }
 
             } catch (e: Exception) {
-                _state.update { it.copy(
-                    isLoading = false,
-                    error = "Ошибка: ${e.message}"
-                ) }
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Ошибка: ${e.message}"
+                    )
+                }
             }
         }
     }
@@ -143,9 +149,6 @@ class MainViewModel @Inject constructor(
         return fullName.split(",").firstOrNull()?.trim() ?: fullName
     }
 
-    private fun extractAgeFromDescription(description: String): Int {
-        return (18..35).random()
-    }
 
     private fun extractLookingFor(description: String): String {
         return when {
@@ -162,18 +165,22 @@ class MainViewModel @Inject constructor(
         val profiles = _state.value.profiles
 
         if (currentIndex in profiles.indices) {
-            _state.update { it.copy(
-                showProfileDetails = true,
-                selectedProfile = profiles[currentIndex]
-            ) }
+            _state.update {
+                it.copy(
+                    showProfileDetails = true,
+                    selectedProfile = profiles[currentIndex]
+                )
+            }
         }
     }
 
     fun closeProfileDetails() {
-        _state.update { it.copy(
-            showProfileDetails = false,
-            selectedProfile = null
-        ) }
+        _state.update {
+            it.copy(
+                showProfileDetails = false,
+                selectedProfile = null
+            )
+        }
     }
 
     fun setUniversityFilter(university: String) {

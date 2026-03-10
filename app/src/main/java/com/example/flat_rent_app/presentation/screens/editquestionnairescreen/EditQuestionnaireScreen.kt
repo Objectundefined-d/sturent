@@ -27,42 +27,58 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.flat_rent_app.domain.model.ProfilePhoto
+import com.example.flat_rent_app.presentation.viewmodel.editquestionnaire.EditQuestionnaireViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditQuestionnaireScreen(
-    onBack: () -> Unit,
-    onSaveComplete: () -> Unit,
-    viewModel: EditQuestionnaireViewModel = hiltViewModel()
+fun EditQuestionnaireScreenContent(
+    name: String,
+    age: String,
+    city: String,
+    eduPlace: String,
+    description: String,
+    selectedHabits: Map<String, Boolean>,
+    photoSlots: List<ProfilePhoto?>,
+    mainPhotoIndex: Int,
+    isLoading: Boolean,
+    onNameChanged: (String) -> Unit,
+    onAgeChanged: (String) -> Unit,
+    onCityChanged: (String) -> Unit,
+    onEduPlaceChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    onToggleHabit: (String) -> Unit,
+    onPickPhoto: (index: Int) -> Unit,
+    onDeletePhoto: (index: Int) -> Unit,
+    onSetMainPhoto: (index: Int) -> Unit,
+    onSave: () -> Unit,
+    onBack: () -> Unit
 ) {
-    val state by viewModel.state.collectAsState()
-    val context = LocalContext.current
-    var activeSlot by remember { mutableIntStateOf(0) }
-    val picker = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri: Uri? ->
-        uri?.let { viewModel.uploadPhoto(context, activeSlot, it) }
-    }
-
-    LaunchedEffect(state.isSuccess) {
-        if (state.isSuccess) {
-            onSaveComplete()
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -84,19 +100,10 @@ fun EditQuestionnaireScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                OutlinedButton(onClick = onBack) {
-                    Text("Назад")
-                }
-
-                Button(
-                    onClick = { viewModel.saveProfile() },
-                    enabled = !state.isLoading
-                ) {
-                    if (state.isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                    } else {
-                        Text("Сохранить")
-                    }
+                OutlinedButton(onClick = onBack) { Text("Назад") }
+                Button(onClick = onSave, enabled = !isLoading) {
+                    if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                    else Text("Сохранить")
                 }
             }
         }
@@ -124,8 +131,8 @@ fun EditQuestionnaireScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     (0..2).forEach { index ->
-                        val photo = state.photoSlots.getOrNull(index)
-                        val isMain = state.mainPhotoIndex == index
+                        val photo = photoSlots.getOrNull(index)
+                        val isMain = mainPhotoIndex == index
                         val hasPhoto = photo?.fullUrl != null
 
                         Column(
@@ -144,10 +151,7 @@ fun EditQuestionnaireScreen(
                                         color = if (isMain && hasPhoto) MaterialTheme.colorScheme.primary else Color.Transparent,
                                         shape = RoundedCornerShape(12.dp)
                                     )
-                                    .clickable {
-                                        activeSlot = index
-                                        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                                    },
+                                    .clickable { onPickPhoto(index) },
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (hasPhoto) {
@@ -158,18 +162,13 @@ fun EditQuestionnaireScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                     IconButton(
-                                        onClick = { viewModel.deletePhoto(index) },
+                                        onClick = { onDeletePhoto(index) },
                                         modifier = Modifier
                                             .align(Alignment.TopEnd)
                                             .size(28.dp)
                                             .background(Color.Black.copy(alpha = 0.5f), CircleShape)
                                     ) {
-                                        Icon(
-                                            Icons.Default.Close,
-                                            null,
-                                            tint = Color.White,
-                                            modifier = Modifier.size(14.dp)
-                                        )
+                                        Icon(Icons.Default.Close, null, tint = Color.White, modifier = Modifier.size(14.dp))
                                     }
                                     Icon(
                                         imageVector = if (isMain) Icons.Default.Star else Icons.Outlined.StarOutline,
@@ -179,15 +178,10 @@ fun EditQuestionnaireScreen(
                                             .align(Alignment.BottomStart)
                                             .padding(6.dp)
                                             .size(20.dp)
-                                            .clickable { if (!isMain) viewModel.setMainPhoto(index) }
+                                            .clickable { if (!isMain) onSetMainPhoto(index) }
                                     )
                                 } else {
-                                    Icon(
-                                        Icons.Default.Add,
-                                        null,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(28.dp)
-                                    )
+                                    Icon(Icons.Default.Add, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(28.dp))
                                 }
                             }
 
@@ -201,19 +195,26 @@ fun EditQuestionnaireScreen(
                     }
                 }
 
-                HorizontalDivider()
-
                 OutlinedTextField(
-                    value = state.name,
-                    onValueChange = viewModel::onNameChanged,
+                    value = name,
+                    onValueChange = onNameChanged,
                     label = { Text("Имя") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
 
                 OutlinedTextField(
-                    value = state.city,
-                    onValueChange = viewModel::onCityChanged,
+                    value = age,
+                    onValueChange = { if (it.length <= 3) onAgeChanged(it) },
+                    label = { Text("Возраст") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
+                OutlinedTextField(
+                    value = city,
+                    onValueChange = onCityChanged,
                     label = { Text("Город") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -251,8 +252,8 @@ fun EditQuestionnaireScreen(
                 }
 
                 OutlinedTextField(
-                    value = state.description,
-                    onValueChange = viewModel::onDescriptionChanged,
+                    value = description,
+                    onValueChange = onDescriptionChanged,
                     label = { Text("О себе") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -266,18 +267,17 @@ fun EditQuestionnaireScreen(
                 )
 
                 Column {
-                    state.selectedHabits.keys.toList().chunked(2).forEach { rowHabits ->
+                    selectedHabits.keys.toList().chunked(2).forEach { rowHabits ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             rowHabits.forEach { habit ->
-                                val isSelected = state.selectedHabits[habit] ?: false
-
+                                val isSelected = selectedHabits[habit] ?: false
                                 Box(modifier = Modifier.weight(1f)) {
                                     FilterChip(
                                         selected = isSelected,
-                                        onClick = { viewModel.toggleHabit(habit) },
+                                        onClick = { onToggleHabit(habit) },
                                         label = {
                                             Text(
                                                 text = habit,
@@ -289,9 +289,7 @@ fun EditQuestionnaireScreen(
                                     )
                                 }
                             }
-                            if (rowHabits.size == 1) {
-                                Box(modifier = Modifier.weight(1f))
-                            }
+                            if (rowHabits.size == 1) Box(modifier = Modifier.weight(1f))
                         }
                     }
                 }
@@ -300,14 +298,89 @@ fun EditQuestionnaireScreen(
     }
 }
 
+@Composable
+fun EditQuestionnaireScreen(
+    onBack: () -> Unit,
+    onSaveComplete: () -> Unit,
+    viewModel: EditQuestionnaireViewModel
+) {
+    val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+    var activeSlot by remember { mutableIntStateOf(0) }
+
+    val picker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        uri?.let { viewModel.uploadPhoto(context, activeSlot, it) }
+    }
+
+    LaunchedEffect(state.isSuccess) {
+        if (state.isSuccess) onSaveComplete()
+    }
+
+    EditQuestionnaireScreenContent(
+        name = state.name,
+        age = state.age,
+        city = state.city,
+        eduPlace = state.eduPlace,
+        description = state.description,
+        selectedHabits = state.selectedHabits,
+        photoSlots = state.photoSlots,
+        mainPhotoIndex = state.mainPhotoIndex,
+        isLoading = state.isLoading,
+        onNameChanged = viewModel::onNameChanged,
+        onAgeChanged = viewModel::onAgeChanged,
+        onCityChanged = viewModel::onCityChanged,
+        onEduPlaceChanged = viewModel::onEduPlaceChanged,
+        onDescriptionChanged = viewModel::onDescriptionChanged,
+        onToggleHabit = viewModel::toggleHabit,
+        onPickPhoto = { index ->
+            activeSlot = index
+            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        },
+        onDeletePhoto = viewModel::deletePhoto,
+        onSetMainPhoto = viewModel::setMainPhoto,
+        onSave = viewModel::saveProfile,
+        onBack = onBack
+    )
+}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun EditQuestionnaireWithSystemUIPreview() {
+fun EditQuestionnaireScreenPreview() {
     MaterialTheme {
-        EditQuestionnaireScreen(
-            onBack = { },
-            onSaveComplete = { }
+        EditQuestionnaireScreenContent(
+            name = "Иван",
+            age = "22",
+            city = "Москва",
+            eduPlace = "МГУ",
+            description = "Люблю чистоту и тишину",
+            selectedHabits = mapOf(
+                "Курение" to false,
+                "Алкоголь" to false,
+                "Ночная сова" to true,
+                "Ранняя пташка" to false,
+                "Есть питомцы" to true,
+                "Зову гостей" to false,
+                "Чистюля" to true,
+                "Люблю тишину" to false,
+                "Люблю музыку" to false,
+                "Занимаюсь спортом" to true,
+            ),
+            photoSlots = listOf(null, null, null),
+            mainPhotoIndex = 0,
+            isLoading = false,
+            onNameChanged = {},
+            onAgeChanged = {},
+            onCityChanged = {},
+            onEduPlaceChanged = {},
+            onDescriptionChanged = {},
+            onToggleHabit = {},
+            onPickPhoto = {},
+            onDeletePhoto = {},
+            onSetMainPhoto = {},
+            onSave = {},
+            onBack = {}
         )
     }
 }

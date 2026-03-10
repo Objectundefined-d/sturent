@@ -4,6 +4,7 @@ import com.example.flat_rent_app.util.Constants
 
 data class EditQuestionnaireState(
     val name: String = "",
+    val age: String = "",
     val city: String = "",
     val eduPlace: String = "",
     val description: String = "",

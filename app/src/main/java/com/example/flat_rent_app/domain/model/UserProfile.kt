@@ -3,6 +3,7 @@ package com.example.flat_rent_app.domain.model
 data class UserProfile(
     val uid: String = "",
     val name: String = "",
+    val age: Int? = null,
     val city: String = "",
     val eduPlace: String = "",
     val description: String = "",
@@ -13,5 +14,5 @@ data class UserProfile(
     val updatedAtMillis: Long? = null,
 ) {
     fun isComplete(): Boolean =
-        name.isNotBlank() && city.isNotBlank() && eduPlace.isNotBlank() && description.isNotBlank()
+        name.isNotBlank() && age != null && city.isNotBlank() && eduPlace.isNotBlank() && description.isNotBlank()
 }

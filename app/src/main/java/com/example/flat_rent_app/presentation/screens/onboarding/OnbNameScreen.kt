@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.example.flat_rent_app.presentation.viewmodel.onboarding.OnboardingViewModel
@@ -58,6 +60,15 @@ fun OnbNameScreen(
                 onValueChange = viewModel::onName,
                 placeholder = "Имя",
                 singleLine = true
+            )
+
+            OutlinedTextField(
+                value = state.age,
+                onValueChange = viewModel::onAge,
+                label = { Text("Возраст") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
 
             OnbFieldLabel(label = "Город", icon = OnbIcon.Location)
