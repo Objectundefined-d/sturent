@@ -1,5 +1,25 @@
 package com.example.flat_rent_app.presentation.screens.editquestionnairescreen
 
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.flat_rent_app.presentation.viewmodel.editquestionnaire.EditQuestionnaireViewModel
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.ui.platform.LocalConfiguration
+import com.example.flat_rent_app.util.Constants
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -200,13 +220,36 @@ fun EditQuestionnaireScreenContent(
                     singleLine = true
                 )
 
-                OutlinedTextField(
-                    value = eduPlace,
-                    onValueChange = onEduPlaceChanged,
-                    label = { Text("Учебное заведение") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = state.eduPlace,
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text("Учебное заведение") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        Constants.UNIVERSITIES_FOR_PROFILE.forEach { university ->
+                            DropdownMenuItem(
+                                text = { Text(university) },
+                                onClick = {
+                                    viewModel.onEduPlaceChanged(university)
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 OutlinedTextField(
                     value = description,

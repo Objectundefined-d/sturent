@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.flat_rent_app.domain.model.SwipeProfile
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import com.example.flat_rent_app.domain.repository.SwipeRepository
+import com.example.flat_rent_app.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,14 +51,18 @@ class MainViewModel @Inject constructor(
                                 ?.fullUrl
                         )
                     }
-
-                    _state.update {
-                        it.copy(
-                            profiles = swipeProfiles,
-                            isLoading = false,
-                            currentIndex = if (swipeProfiles.isNotEmpty()) 0 else -1
-                        )
+                    var filtered = if (_state.value.selectedUniversityFilter ==
+                                                                        Constants.UNIVERSITY_ALL) {
+                        swipeProfiles
+                    } else {
+                        swipeProfiles.filter { it.university == _state.value.selectedUniversityFilter }
                     }
+
+                    _state.update { it.copy(
+                        profiles = filtered,
+                        isLoading = false,
+                        currentIndex = if (filtered.isNotEmpty()) 0 else -1
+                    ) }
                 }.onFailure { error ->
                     _state.update {
                         it.copy(
@@ -176,5 +181,10 @@ class MainViewModel @Inject constructor(
                 selectedProfile = null
             )
         }
+    }
+
+    fun setUniversityFilter(university: String) {
+        _state.update { it.copy(selectedUniversityFilter = university) }
+        loadProfiles()
     }
 }

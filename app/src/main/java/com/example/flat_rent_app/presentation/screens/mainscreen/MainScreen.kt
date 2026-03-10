@@ -21,6 +21,15 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.runtime.remember
+import com.example.flat_rent_app.domain.model.SwipeProfile
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.layout.ContentScale
@@ -37,6 +46,12 @@ import com.example.flat_rent_app.presentation.screens.profiledetailscreen.Profil
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainViewModel
 import com.example.flat_rent_app.util.BottomTabs
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBar
+import com.example.flat_rent_app.util.Constants
 
 private val LikeGreen = Color(0xFF38D986)
 private val NopeRed = Color(0xFFFF4458)
@@ -325,6 +340,40 @@ fun AllViewedView(onRetry: () -> Unit) {
 }
 
 @Composable
+fun UniversityFilterButton(
+    selectedUniversity: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+)
+{
+    var expanded by remember { mutableStateOf(false) }
+    Box(modifier = modifier){
+        IconButton(onClick = {expanded = true}) {
+            Icon(
+                Icons.Default.FilterAlt,
+                contentDescription = "Фильтр по ВУЗу"
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            Constants.UNIVERSITIES_LIST.forEach { university ->
+                DropdownMenuItem(
+                    text = { Text(university)},
+                    onClick = {
+                        onSelect(university)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun MainScreenContent(
     profiles: List<SwipeProfile>,
     currentIndex: Int,
@@ -336,12 +385,24 @@ fun MainScreenContent(
     openProfileDetails: () -> Unit,
     onGoChats: () -> Unit,
     onGoProfile: () -> Unit,
-    retry: () -> Unit
+    retry: () -> Unit,
+    selectedUniversityFilter: String,
+    onUniversityFilterChange: (String) -> Unit
 ) {
     val showCards = !isLoading && error == null && profiles.isNotEmpty() && !showAllViewed
 
     Scaffold(
-        containerColor = Color(0xFFF2F2F7),
+        topBar = {
+            TopAppBar(
+                title = { Text("Лента") },
+                actions = {
+                    UniversityFilterButton(
+                        selectedUniversity = selectedUniversityFilter,
+                        onSelect = onUniversityFilterChange
+                    )
+                }
+            )
+        },
         bottomBar = {
             AppBottomBar(
                 selected = BottomTabs.HOME,
@@ -442,7 +503,9 @@ fun MainScreen(
         openProfileDetails = viewModel::openProfileDetails,
         onGoChats = onGoChats,
         onGoProfile = onGoProfile,
-        retry = viewModel::retry
+        retry = viewModel::retry,
+        selectedUniversityFilter = state.selectedUniversityFilter,
+        onUniversityFilterChange = { viewModel.setUniversityFilter(it) }
     )
 }
 
@@ -458,8 +521,10 @@ fun PreviewMainScreen() {
         swipeRight = {},
         swipeLeft = {},
         openProfileDetails = {},
-        onGoChats = {},
-        onGoProfile = {},
-        retry = {}
+        onGoChats= onGoChats,
+        onGoProfile = onGoProfile,
+        retry = {},
+        selectedUniversityFilter = Constants.UNIVERSITY_ALL,
+        onUniversityFilterChange = {},
     )
 }
