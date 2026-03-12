@@ -6,6 +6,7 @@ import com.example.flat_rent_app.domain.model.SwipeProfile
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import com.example.flat_rent_app.domain.repository.SwipeRepository
 import com.example.flat_rent_app.util.Constants
+import com.example.flat_rent_app.util.LikeOutCome
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,16 @@ class MainViewModel @Inject constructor(
 
     init {
         loadProfiles()
+        checkUnseenMatches()
+    }
+
+    private fun checkUnseenMatches() {
+        viewModelScope.launch {
+            val match = swipeRepository.getUnseenMatch()
+            if (match != null) {
+                _state.update { it.copy(matchChatId = match.matchId) }
+            }
+        }
     }
 
     fun loadProfiles() {
@@ -51,7 +62,7 @@ class MainViewModel @Inject constructor(
                                 ?.fullUrl
                         )
                     }
-                    var filtered = if (_state.value.selectedUniversityFilter ==
+                    val filtered = if (_state.value.selectedUniversityFilter ==
                                                                         Constants.UNIVERSITY_ALL) {
                         swipeProfiles
                     } else {
@@ -93,10 +104,17 @@ class MainViewModel @Inject constructor(
             viewModelScope.launch {
                 swipeRepository.likeUser(targetId)
                     .onSuccess { outcome ->
-                        println("Лайк отправлен: $outcome")
+                        when (outcome) {
+                            is LikeOutCome.Match -> {
+                                _state.update {
+                                    it.copy(matchChatId = outcome.chatId)
+                                }
+                            }
+                            LikeOutCome.LikedOnly -> { }
+                        }
                     }
                     .onFailure { error ->
-                        println("Ошибка лайка: ${error.message}")
+                        _state.update { it.copy(error = error.message) }
                     }
 
                 moveToNext()
@@ -139,6 +157,16 @@ class MainViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun dismissMatch() {
+        val matchId = _state.value.matchChatId
+        if (matchId != null) {
+            viewModelScope.launch {
+                swipeRepository.markMatchAsSeen(matchId)
+            }
+        }
+        _state.update { it.copy(matchChatId = null) }
     }
 
     fun retry() {

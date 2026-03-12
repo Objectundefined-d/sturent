@@ -51,7 +51,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import com.example.flat_rent_app.util.Constants
 
-private val LikeGreen = Color(0xFF38D986)
+val LikeGreen = Color(0xFF38D986)
 private val NopeRed = Color(0xFFFF4458)
 private val CardShadow = Color(0x22000000)
 
@@ -344,11 +344,10 @@ fun UniversityFilterButton(
     selectedUniversity: String,
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier
-)
-{
+) {
     var expanded by remember { mutableStateOf(false) }
-    Box(modifier = modifier){
-        IconButton(onClick = {expanded = true}) {
+    Box(modifier = modifier) {
+        IconButton(onClick = { expanded = true }) {
             Icon(
                 Icons.Default.FilterAlt,
                 contentDescription = "Фильтр по ВУЗу"
@@ -360,7 +359,7 @@ fun UniversityFilterButton(
         ) {
             Constants.UNIVERSITIES_LIST.forEach { university ->
                 DropdownMenuItem(
-                    text = { Text(university)},
+                    text = { Text(university) },
                     onClick = {
                         onSelect(university)
                         expanded = false
@@ -473,6 +472,7 @@ fun MainScreenContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     onGoProfile: () -> Unit,
@@ -480,6 +480,17 @@ fun MainScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
+    if (state.matchChatId != null) {
+        ModalBottomSheet(
+            onDismissRequest = { viewModel.dismissMatch() }
+        ) {
+            MatchScreen(
+                onSendMessage = { viewModel.dismissMatch() },
+                onContinue = { viewModel.dismissMatch() }
+            )
+        }
+    }
 
     if (state.showProfileDetails) {
         val profile = state.selectedProfile
@@ -521,8 +532,8 @@ fun PreviewMainScreen() {
         swipeRight = {},
         swipeLeft = {},
         openProfileDetails = {},
-        onGoChats= {  },
-        onGoProfile = {  },
+        onGoChats = { },
+        onGoProfile = { },
         retry = {},
         selectedUniversityFilter = Constants.UNIVERSITY_ALL,
         onUniversityFilterChange = {},

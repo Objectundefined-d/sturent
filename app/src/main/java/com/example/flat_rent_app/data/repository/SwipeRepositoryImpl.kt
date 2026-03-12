@@ -32,26 +32,58 @@ class SwipeRepositoryImpl @Inject constructor(
             val matchRef = db.collection("matches").document(chatId)
             val chatRef = db.collection("chats").document(chatId)
 
-            val myChatIndex = db.collection("userChats").document(myUid).collection("items").document(chatId)
-            val otherChatIndex = db.collection("userChats").document(targetId).collection("items").document(chatId)
+            val myChatIndex =
+                db.collection("userChats").document(myUid).collection("items").document(chatId)
+            val otherChatIndex =
+                db.collection("userChats").document(targetId).collection("items").document(chatId)
 
             db.runTransaction { tx ->
                 val now = System.currentTimeMillis()
 
-                tx.set(likeRef, mapOf("fromUid" to myUid, "toUid" to targetId, "createdAtMillis" to now))
-
                 val reverse = tx.get(reverseRef)
+                val matchSnap = tx.get(matchRef)
+
+                tx.set(
+                    likeRef,
+                    mapOf("fromUid" to myUid, "toUid" to targetId, "createdAtMillis" to now)
+                )
+
                 if (!reverse.exists()) return@runTransaction LikeOutCome.LikedOnly
 
-                val matchSnap = tx.get(matchRef)
                 if (!matchSnap.exists()) {
                     val uids = listOf(myUid, targetId).sorted()
 
-                    tx.set(matchRef, mapOf("uids" to uids, "createdAtMillis" to now, "chatId" to chatId))
-                    tx.set(chatRef, mapOf("memberUids" to uids, "createdAtMillis" to now, "lastMessageAtMillis" to now))
-
-                    tx.set(myChatIndex, mapOf("chatId" to chatId, "otherUid" to targetId, "lastMessageAtMillis" to now, "unreadCount" to 0L))
-                    tx.set(otherChatIndex, mapOf("chatId" to chatId, "otherUid" to myUid, "lastMessageAtMillis" to now, "unreadCount" to 0L))
+                    tx.set(
+                        matchRef, mapOf(
+                            "uids" to uids,
+                            "createdAtMillis" to now,
+                            "chatId" to chatId,
+                            "seenByUids" to emptyList<String>()
+                        )
+                    )
+                    tx.set(
+                        chatRef, mapOf(
+                            "memberUids" to uids,
+                            "createdAtMillis" to now,
+                            "lastMessageAtMillis" to now
+                        )
+                    )
+                    tx.set(
+                        myChatIndex, mapOf(
+                            "chatId" to chatId,
+                            "otherUid" to targetId,
+                            "lastMessageAtMillis" to now,
+                            "unreadCount" to 0L
+                        )
+                    )
+                    tx.set(
+                        otherChatIndex, mapOf(
+                            "chatId" to chatId,
+                            "otherUid" to myUid,
+                            "lastMessageAtMillis" to now,
+                            "unreadCount" to 0L
+                        )
+                    )
                 }
 
                 LikeOutCome.Match(chatId)
@@ -67,7 +99,13 @@ class SwipeRepositoryImpl @Inject constructor(
 
             db.collection("passes")
                 .document("${myUid}_$targetId")
-                .set(mapOf("fromUid" to myUid, "toUid" to targetId, "createdAtMillis" to System.currentTimeMillis()))
+                .set(
+                    mapOf(
+                        "fromUid" to myUid,
+                        "toUid" to targetId,
+                        "createdAtMillis" to System.currentTimeMillis()
+                    )
+                )
                 .await()
 
             Unit
@@ -89,7 +127,8 @@ class SwipeRepositoryImpl @Inject constructor(
                 }
 
                 val list = snap.documents.mapNotNull { d ->
-                    val uids = (d.get("uids") as? List<*>)?.mapNotNull { it as? String } ?: return@mapNotNull null
+                    val uids = (d.get("uids") as? List<*>)?.mapNotNull { it as? String }
+                        ?: return@mapNotNull null
                     Match(
                         matchId = d.id,
                         uids = uids,
@@ -102,4 +141,36 @@ class SwipeRepositoryImpl @Inject constructor(
 
         awaitClose { reg.remove() }
     }
+
+    override suspend fun getUnseenMatch(): Match? =
+        runCatching {
+            val myUid = authRepo.currentUid() ?: return null
+
+            val snap = db.collection("matches")
+                .whereArrayContains("uids", myUid)
+                .get()
+                .await()
+
+            snap.documents.firstOrNull { doc ->
+                val seen = (doc.get("seenByUids") as? List<*>) ?: emptyList<String>()
+                myUid !in seen
+            }?.let { doc ->
+                val uids =
+                    (doc.get("uids") as? List<*>)?.mapNotNull { it as? String } ?: return null
+                Match(
+                    matchId = doc.id,
+                    uids = uids,
+                    updatedAtMillis = doc.getLong("updatedAtMillis")
+                )
+            }
+        }.getOrNull()
+
+    override suspend fun markMatchAsSeen(matchId: String): Result<Unit> =
+        runCatching {
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Нет авторизации")
+
+            db.collection("matches").document(matchId)
+                .update("seenByUids", com.google.firebase.firestore.FieldValue.arrayUnion(myUid))
+                .await()
+        }
 }
