@@ -35,8 +35,6 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun FlatrentappTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {

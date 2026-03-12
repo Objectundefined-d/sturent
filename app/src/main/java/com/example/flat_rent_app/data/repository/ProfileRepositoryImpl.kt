@@ -52,10 +52,12 @@ class ProfileRepositoryImpl @Inject constructor(
                 .set(
                     mapOf(
                         "name" to profile.name,
+                        "age" to profile.age,
                         "city" to profile.city,
                         "eduPlace" to profile.eduPlace,
                         "description" to profile.description,
 
+                        "preferences" to profile.preferences,
                         "mainPhotoIndex" to profile.mainPhotoIndex,
                         "photoSlots" to slots,
 
@@ -101,9 +103,11 @@ class ProfileRepositoryImpl @Inject constructor(
         return UserProfile(
             uid = id,
             name = getString("name").orEmpty(),
+            age = getLong("age")?.toInt(),
             city = getString("city").orEmpty(),
             eduPlace = getString("eduPlace").orEmpty(),
             description = getString("description").orEmpty(),
+            preferences = (get("preferences") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
             mainPhotoIndex = ((getLong("mainPhotoIndex") ?: 0L).toInt()).coerceIn(0, 2),
             photoSlots = slots.take(3).let { it + List(maxOf(0, 3 - it.size)) { null } },
             createdAtMillis = getLong("createdAtMillis"),

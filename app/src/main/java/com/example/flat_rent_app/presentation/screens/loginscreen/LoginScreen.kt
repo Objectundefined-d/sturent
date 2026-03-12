@@ -34,6 +34,7 @@ fun LoginScreenContent(
     loading: Boolean,
     passVisible: Boolean,
     onBack: () -> Unit,
+    onForgotPassword: () -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
@@ -109,6 +110,13 @@ fun LoginScreenContent(
                 shape = RoundedCornerShape(28.dp)
             )
 
+            TextButton(
+                onClick = onForgotPassword,
+                modifier = Modifier.align(Alignment.Start)
+            ) {
+                Text(stringResource(R.string.forgot_password))
+            }
+
             error?.let {
                 Spacer(Modifier.height(10.dp))
                 Text(it, color = MaterialTheme.colorScheme.error)
@@ -141,6 +149,7 @@ fun LoginScreenContent(
 @Composable
 fun LoginScreen(
     onBack: () -> Unit,
+    onForgotPassword: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -153,6 +162,7 @@ fun LoginScreen(
         loading = state.loading,
         passVisible = passVisible,
         onBack = onBack,
+        onForgotPassword = onForgotPassword,
         onEmailChange = viewModel::onEmail,
         onPasswordChange = viewModel::onPassword,
         onLoginClick = viewModel::login,
@@ -170,6 +180,7 @@ fun LoginScreenPreview() {
         loading = false,
         passVisible = false,
         onBack = {},
+        onForgotPassword = {},
         onEmailChange = {},
         onPasswordChange = {},
         onLoginClick = {},

@@ -33,21 +33,23 @@ class OnboardingViewModel @Inject constructor(
     fun onEduPlace(v: String) = _state.update { it.copy(eduPlace = v, error = null) }
     fun onDescription(v: String) = _state.update { it.copy(description = v, error = null) }
 
+    fun onAge(v: String) = _state.update { it.copy(age = v, error = null) }
+
 
     fun togglePreference(pref: String) = _state.update { s ->
         val next = if (pref in s.preferences) s.preferences - pref else s.preferences + pref
         s.copy(preferences = next, error = null)
     }
 
-    fun onPickedPhoto(uri: Uri?) {
-        _state.value = _state.value.copy(pickedPhotoUri = uri, error = null)
+    fun onPickedPhoto(index: Int, uri: Uri?) {
+        _state.update { s ->
+            val updated = s.pickedPhotoUris.toMutableList().also { it[index] = uri }
+            s.copy(pickedPhotoUris = updated, error = null)
+        }
     }
 
-    fun uploadMainPhoto(context: Context) {
-        val uri = _state.value.pickedPhotoUri ?: run {
-            _state.value = _state.value.copy(error = "Выберите фото")
-            return
-        }
+    fun uploadPhoto(context: Context, index: Int) {
+        val uri = _state.value.pickedPhotoUris[index] ?: return
 
         viewModelScope.launch {
             _state.value = _state.value.copy(loading = true, error = null)
@@ -57,16 +59,23 @@ class OnboardingViewModel @Inject constructor(
                     return@launch
                 }
 
-            val res = photoRepo.uploadPhoto(0, file)
-            res.fold(
+            photoRepo.uploadPhoto(index, file).fold(
                 onSuccess = { photo ->
-                    _state.value = _state.value.copy(loading = false, uploadedPhoto = photo)
+                    _state.update { s ->
+                        val updated = s.uploadedPhotos.toMutableList().also { it[index] = photo }
+                        s.copy(loading = false, uploadedPhotos = updated)
+                    }
                 },
                 onFailure = { t ->
-                    _state.value = _state.value.copy(loading = false, error = t.message ?: "Ошибка загрузки")
+                    _state.update { it.copy(loading = false, error = t.message) }
                 }
             )
+
         }
+    }
+
+    fun setMainPhoto(index: Int) {
+        _state.update { it.copy(mainPhotoIndex = index) }
     }
 
     fun saveProfile() {
@@ -80,10 +89,13 @@ class OnboardingViewModel @Inject constructor(
             _state.value = s.copy(error = "Заполните имя, город и вуз")
             return
         }
-//        if (s.uploadedPhoto == null) {
-//            _state.value = s.copy(error = "Загрузите фото")
-//            return
-//        }
+
+        val age = s.age.toIntOrNull()
+        if (age == null) {
+            _state.value = s.copy(error = "Укажите ваш возраст")
+            return
+        }
+
         if (s.description.isBlank()) {
             _state.value = s.copy(error = "Добавьте описание")
             return
@@ -95,11 +107,12 @@ class OnboardingViewModel @Inject constructor(
             val profile = UserProfile(
                 uid = uid,
                 name = s.name.trim(),
+                age = age,
                 city = s.city.trim(),
                 eduPlace = s.eduPlace.trim(),
                 description = s.description.trim(),
-                mainPhotoIndex = 0,
-                photoSlots = listOf(s.uploadedPhoto, null, null),
+                mainPhotoIndex = s.mainPhotoIndex,
+                photoSlots = s.uploadedPhotos,
                 preferences = s.preferences.toList()
             )
 

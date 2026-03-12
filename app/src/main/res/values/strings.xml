@@ -17,5 +17,6 @@
     <string name="login_password_hint">Пароль</string>
     <string name="login_submit">Войти</string>
     <string name="login_restore">Восстановить пароль</string>
+    <string name="forgot_password">Забыли пароль?</string>
 
 </resources>

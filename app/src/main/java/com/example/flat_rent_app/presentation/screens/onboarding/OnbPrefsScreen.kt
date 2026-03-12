@@ -9,11 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.flat_rent_app.R
 import com.example.flat_rent_app.presentation.viewmodel.onboarding.OnboardingViewModel
+import com.example.flat_rent_app.util.Constants
 
 @Composable
 fun OnbPrefsScreen(
@@ -23,7 +22,18 @@ fun OnbPrefsScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    val options = stringArrayResource(R.array.onboarding_prefs_options).toList()
+    val options = listOf(
+        Constants.SMOKING_ALLOWED,
+        Constants.DRINKS_ALCOHOL,
+        Constants.NIGHT_OWL,
+        Constants.EARLY_BIRD,
+        Constants.HAS_PETS,
+        Constants.INVITES_GUESTS,
+        Constants.VALUES_CLEANLINESS,
+        Constants.VALUES_QUIET,
+        Constants.LOVES_MUSIC,
+        Constants.DOES_SPORTS,
+    )
 
     OnboardingScaffold(
         step = 3,
