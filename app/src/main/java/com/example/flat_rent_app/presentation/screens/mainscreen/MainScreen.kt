@@ -52,6 +52,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
+import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainScreenState
 import com.example.flat_rent_app.util.Constants
 
 val LikeGreen = Color(0xFF38D986)
@@ -418,7 +419,7 @@ fun MainScreenContent(
     onAddToFavorites: () -> Unit,
     retry: () -> Unit,
     selectedUniversityFilter: String,
-    onUniversityFilterChange: (String) -> Unit
+    onOpenFilters: () -> Unit
 ) {
     val showCards = !isLoading && error == null && profiles.isNotEmpty() && !showAllViewed
 
@@ -427,9 +428,8 @@ fun MainScreenContent(
             TopAppBar(
                 title = { Text(stringResource(R.string.favorites)) },
                 actions = {
-                    UniversityFilterButton(
-                        selectedUniversity = selectedUniversityFilter,
-                        onSelect = onUniversityFilterChange
+                    FilterButton(
+                        onClick = onOpenFilters
                     )
                 }
             )
@@ -508,6 +508,19 @@ fun MainScreenContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun FilterButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(onClick = onClick, modifier = modifier) {
+        Icon(
+            Icons.Default.FilterAlt,
+            contentDescription = "Открыть фильтры"
+        )
+    }
+}
+
+@Composable
 fun MainScreen(
     onGoProfile: () -> Unit,
     onGoChats: () -> Unit,
@@ -517,6 +530,16 @@ fun MainScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
+    if (state.showFilters) {
+        FiltersScreen(
+            state = state,
+            onClose = { viewModel.closeFilters() },
+            onApplyFilters = { university, gender, minAge, maxAge ->
+                viewModel.applyFilters(university, gender, minAge, maxAge)
+                viewModel.closeFilters()
+            }
+        )
+        return
     if (state.matchChatId != null) {
         ModalBottomSheet(
             onDismissRequest = { viewModel.dismissMatch() }
@@ -562,7 +585,195 @@ fun MainScreen(
         },
         retry = viewModel::retry,
         selectedUniversityFilter = state.selectedUniversityFilter,
-        onUniversityFilterChange = { viewModel.setUniversityFilter(it) }
+        onOpenFilters = { viewModel.openFilters() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FiltersScreen(
+    state: MainScreenState,
+    onClose: () -> Unit,
+    onApplyFilters: (university: String, gender: String, minAge: Int, maxAge: Int) -> Unit
+) {
+    var selectedUniversity by remember { mutableStateOf(state.selectedUniversityFilter) }
+    var selectedGender by remember { mutableStateOf(state.selectedGenderFilter) }
+    var ageRange by remember {
+        mutableStateOf(
+            state.ageFilterMin.toFloat()..state.ageFilterMax.toFloat()
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Фильтры") },
+                navigationIcon = {
+                    IconButton(onClick = onClose) {
+                        Icon(Icons.Default.Close, contentDescription = "Закрыть")
+                    }
+                }
+            )
+        }
+    ) { pad ->
+        Column(
+            modifier = Modifier
+                .padding(pad)
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text("ВУЗ", fontWeight = FontWeight.Bold, color = Color.Black)
+            DropdownMenuForUniversity(
+                selectedUniversity = selectedUniversity,
+                onSelect = { selectedUniversity = it }
+            )
+
+            Text("Пол", fontWeight = FontWeight.Bold, color = Color.Black)
+            GenderRadioGroup(
+                selectedGender = selectedGender,
+                onSelect = { selectedGender = it }
+            )
+
+            Text(
+                text = "Возраст: ${ageRange.start.toInt()}–${ageRange.endInclusive.toInt()}",
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            AgeRangeSlider(
+                ageRange = ageRange,
+                onRangeChange = { ageRange = it }
+            )
+
+            Spacer(Modifier.weight(1f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TextButton(onClick = {
+                    selectedUniversity = Constants.UNIVERSITY_ALL
+                    selectedGender = Constants.GENDER_ANY
+                    ageRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat()
+                }) {
+                    Text("Сбросить")
+                }
+
+                Button(onClick = {
+                    onApplyFilters(
+                        selectedUniversity,
+                        selectedGender,
+                        ageRange.start.toInt(),
+                        ageRange.endInclusive.toInt()
+                    )
+                }) {
+                    Text("Применить")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DropdownMenuForUniversity(
+    selectedUniversity: String,
+    onSelect: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Column {
+        OutlinedButton(onClick = { expanded = true }) {
+            Text(selectedUniversity)
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            Constants.UNIVERSITIES_LIST.forEach { university ->
+                DropdownMenuItem(
+                    text = { Text(university) },
+                    onClick = {
+                        onSelect(university)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun GenderRadioGroup(
+    selectedGender: String,
+    onSelect: (String) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Constants.GENDERS_LIST.forEach { gender ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                RadioButton(
+                    selected = selectedGender == gender,
+                    onClick = { onSelect(gender) }
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(gender, color = Color.Black)
+            }
+        }
+    }
+}
+
+@Composable
+fun AgeRangeSlider(
+    ageRange: ClosedFloatingPointRange<Float>,
+    onRangeChange: (ClosedFloatingPointRange<Float>) -> Unit
+) {
+    RangeSlider(
+        value = ageRange,
+        onValueChange = { newRange ->
+            val clampedStart = newRange.start.coerceIn(
+                Constants.AGE_MIN_DEFAULT.toFloat(),
+                Constants.AGE_MAX_DEFAULT.toFloat()
+            )
+            val clampedEnd = newRange.endInclusive.coerceIn(
+                Constants.AGE_MIN_DEFAULT.toFloat(),
+                Constants.AGE_MAX_DEFAULT.toFloat()
+            )
+            onRangeChange(clampedStart..clampedEnd)
+        },
+        valueRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat(),
+        steps = (Constants.AGE_MAX_DEFAULT - Constants.AGE_MIN_DEFAULT)
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewGenderRadioGroup() {
+    GenderRadioGroup(
+        selectedGender = Constants.GENDER_ANY,
+        onSelect = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAgeRangeSlider() {
+    AgeRangeSlider(
+        ageRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat(),
+        onRangeChange = {}
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewFiltersScreen() {
+    val fakeState = MainScreenState()
+    FiltersScreen(
+        state = fakeState,
+        onClose = {},
+        onApplyFilters = { _, _, _, _ -> }
     )
 }
 
@@ -585,6 +796,6 @@ fun PreviewMainScreen() {
         onAddToFavorites = { },
         retry = {},
         selectedUniversityFilter = Constants.UNIVERSITY_ALL,
-        onUniversityFilterChange = {},
+        onOpenFilters = {}
     )
 }

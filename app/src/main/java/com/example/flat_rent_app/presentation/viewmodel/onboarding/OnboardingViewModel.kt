@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.OnboardingState
 import com.example.flat_rent_app.domain.model.UserProfile
 import com.example.flat_rent_app.domain.repository.AuthRepository
@@ -78,6 +79,8 @@ class OnboardingViewModel @Inject constructor(
         _state.update { it.copy(mainPhotoIndex = index) }
     }
 
+    fun onGender(g: Gender) = _state.update { it.copy(gender = g, error = null) }
+
     fun saveProfile() {
         val uid = authRepo.currentUid() ?: run {
             _state.value = _state.value.copy(error = "Нет авторизации")
@@ -108,6 +111,7 @@ class OnboardingViewModel @Inject constructor(
                 uid = uid,
                 name = s.name.trim(),
                 age = age,
+                gender = s.gender,
                 city = s.city.trim(),
                 eduPlace = s.eduPlace.trim(),
                 description = s.description.trim(),

@@ -2,6 +2,7 @@ package com.example.flat_rent_app.presentation.viewmodel.editquestionnaire
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.UserProfile
 import com.example.flat_rent_app.domain.repository.AuthRepository
 import com.example.flat_rent_app.domain.repository.PhotoRepository
@@ -30,6 +31,8 @@ class EditQuestionnaireViewModel @Inject constructor(
     }
 
     fun onAgeChanged(age: String) = _state.update { it.copy(age = age) }
+
+    fun onGenderChanged(g: Gender) = _state.update { it.copy(gender = g) }
 
     fun onCityChanged(city: String) {
         _state.update { it.copy(city = city) }
@@ -68,6 +71,7 @@ class EditQuestionnaireViewModel @Inject constructor(
                     uid = userId,
                     name = state.value.name,
                     age = state.value.age.toIntOrNull(),
+                    gender = state.value.gender,
                     city = state.value.city,
                     eduPlace = state.value.eduPlace,
                     description = state.value.description,
@@ -120,6 +124,7 @@ class EditQuestionnaireViewModel @Inject constructor(
                         it.copy(
                             name = p.name,
                             age = p.age?.toString() ?: "",
+                            gender = p.gender,
                             city = p.city,
                             eduPlace = p.eduPlace,
                             description = p.description.substringBefore("\n\nПривычки:"),

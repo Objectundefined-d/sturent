@@ -2,6 +2,7 @@ package com.example.flat_rent_app.presentation.screens.onboarding
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.RadioButton
+import androidx.compose.ui.Alignment
+import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.R
 import com.example.flat_rent_app.presentation.viewmodel.onboarding.OnboardingViewModel
 
@@ -37,7 +41,10 @@ fun OnbNameScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    val canGoNext = state.name.isNotBlank() && state.city.isNotBlank() && state.eduPlace.isNotBlank()
+    val canGoNext = state.name.isNotBlank()
+            && state.city.isNotBlank()
+            && state.eduPlace.isNotBlank()
+            && state.gender != null
 
     OnboardingScaffold(
         step = 1,
@@ -73,6 +80,33 @@ fun OnbNameScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            OnbFieldLabel(label = "Пол", icon = OnbIcon.Person)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = state.gender == Gender.MALE,
+                        onClick = { viewModel.onGender(Gender.MALE) }
+                    )
+                    Text("Мужской")
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = state.gender == Gender.FEMALE,
+                        onClick = { viewModel.onGender(Gender.FEMALE) }
+                    )
+                    Text("Женский")
+                }
+            }
+
+            OnbFieldLabel(label = "Город", icon = OnbIcon.Location)
             OnbFieldLabel(label = stringResource(R.string.onb_city_label), icon = OnbIcon.Location)
             OnbTextField(
                 value = state.city,

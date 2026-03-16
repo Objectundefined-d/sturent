@@ -3,6 +3,7 @@ package com.example.flat_rent_app.presentation.viewmodel.mainviewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.SwipeProfile
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import com.example.flat_rent_app.domain.repository.SwipeRepository
@@ -51,6 +52,7 @@ class MainViewModel @Inject constructor(
                             uid = userProfile.uid,
                             name = extractName(userProfile.name),
                             age = userProfile.age,
+                            gender = userProfile.gender,
                             city = userProfile.city,
                             university = userProfile.eduPlace,
                             description = userProfile.description,
@@ -60,6 +62,15 @@ class MainViewModel @Inject constructor(
                                 ?.fullUrl
                         )
                     }
+                    val currentState = _state.value
+
+                    val filtered = applyFilters(
+                        profiles = swipeProfiles,
+                        university = currentState.selectedUniversityFilter,
+                        genderFilter = currentState.selectedGenderFilter,
+                        ageMin = currentState.ageFilterMin,
+                        ageMax = currentState.ageFilterMax
+                    )
                     val filtered = if (_state.value.selectedUniversityFilter ==
                                                                         Constants.UNIVERSITY_ALL) {
                         swipeProfiles
@@ -219,8 +230,60 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun setUniversityFilter(university: String) {
-        _state.update { it.copy(selectedUniversityFilter = university) }
+    fun applyFilters(university: String, gender: String, minAge: Int, maxAge: Int) {
+        _state.update {
+            it.copy(
+                selectedUniversityFilter = university,
+                selectedGenderFilter = gender,
+                ageFilterMin = minAge,
+                ageFilterMax = maxAge,
+                showFilters = false
+            )
+        }
         loadProfiles()
     }
+
+    fun openFilters() {
+        _state.update { it.copy(showFilters = true) }
+    }
+    fun closeFilters() {
+        _state.update { it.copy(showFilters = false) }
+    }
+}
+
+private fun applyFilters(
+    profiles: List<SwipeProfile>,
+    university: String,
+    genderFilter: String,
+    ageMin: Int,
+    ageMax: Int
+): List<SwipeProfile> {
+    return profiles
+        .filter { profile ->
+            if (university == Constants.UNIVERSITY_ALL) {
+                true
+            } else {
+                profile.university == university
+            }
+        }
+        .filter { profile ->
+            when (genderFilter) {
+                Constants.GENDER_ANY -> true
+                Constants.GENDER_MALE -> {
+                    profile.gender == Gender.MALE
+                }
+                Constants.GENDER_FEMALE -> {
+                    profile.gender == Gender.FEMALE
+                }
+                else -> true
+            }
+        }
+        .filter { profile ->
+            val age = profile.age
+            if (age == null) {
+                false
+            } else {
+                age in ageMin..ageMax
+            }
+        }
 }

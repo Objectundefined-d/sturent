@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.data.repository
 
+import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.ProfilePhoto
 import com.example.flat_rent_app.domain.model.UserProfile
 import com.example.flat_rent_app.domain.repository.AuthRepository
@@ -53,6 +54,7 @@ class ProfileRepositoryImpl @Inject constructor(
                     mapOf(
                         "name" to profile.name,
                         "age" to profile.age,
+                        "gender" to profile.gender?.name,
                         "city" to profile.city,
                         "eduPlace" to profile.eduPlace,
                         "description" to profile.description,
@@ -99,11 +101,18 @@ class ProfileRepositoryImpl @Inject constructor(
                 updatedAt = (m["updatedAtMillis"] as? Number)?.toLong()
             )
         } ?: listOf(null, null, null)
+        val genderRaw = getString("gender")
+        val gender = try {
+            genderRaw?.let { Gender.valueOf(it) }
+        } catch (e: IllegalArgumentException) {
+            null
+        }
 
         return UserProfile(
             uid = id,
             name = getString("name").orEmpty(),
             age = getLong("age")?.toInt(),
+            gender = gender,
             city = getString("city").orEmpty(),
             eduPlace = getString("eduPlace").orEmpty(),
             description = getString("description").orEmpty(),

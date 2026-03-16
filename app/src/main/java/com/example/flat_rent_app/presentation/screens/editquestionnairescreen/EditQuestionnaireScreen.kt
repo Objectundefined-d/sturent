@@ -41,7 +41,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.ProfilePhoto
+import com.example.flat_rent_app.presentation.screens.onboarding.OnbFieldLabel
+import com.example.flat_rent_app.presentation.screens.onboarding.OnbIcon
 import com.example.flat_rent_app.presentation.viewmodel.editquestionnaire.EditQuestionnaireViewModel
 import com.example.flat_rent_app.R
 
@@ -50,6 +53,7 @@ import com.example.flat_rent_app.R
 fun EditQuestionnaireScreenContent(
     name: String,
     age: String,
+    gender: Gender?,
     city: String,
     eduPlace: String,
     description: String,
@@ -59,6 +63,7 @@ fun EditQuestionnaireScreenContent(
     isLoading: Boolean,
     onNameChanged: (String) -> Unit,
     onAgeChanged: (String) -> Unit,
+    onGenderChanged: (Gender) -> Unit,
     onCityChanged: (String) -> Unit,
     onEduPlaceChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
@@ -223,6 +228,34 @@ fun EditQuestionnaireScreenContent(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
+                Text(
+                    text = "Пол",
+                    style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = gender == Gender.MALE,
+                            onClick = { onGenderChanged(Gender.MALE) }
+                        )
+                        Text("Мужской")
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = gender == Gender.FEMALE,
+                            onClick = { onGenderChanged(Gender.FEMALE) }
+                        )
+                        Text("Женский")
+                    }
+                }
+
                 OutlinedTextField(
                     value = city,
                     onValueChange = onCityChanged,
@@ -335,6 +368,7 @@ fun EditQuestionnaireScreen(
     EditQuestionnaireScreenContent(
         name = state.name,
         age = state.age,
+        gender = state.gender,
         city = state.city,
         eduPlace = state.eduPlace,
         description = state.description,
@@ -344,6 +378,7 @@ fun EditQuestionnaireScreen(
         isLoading = state.isLoading,
         onNameChanged = viewModel::onNameChanged,
         onAgeChanged = viewModel::onAgeChanged,
+        onGenderChanged = viewModel::onGenderChanged,
         onCityChanged = viewModel::onCityChanged,
         onEduPlaceChanged = viewModel::onEduPlaceChanged,
         onDescriptionChanged = viewModel::onDescriptionChanged,
@@ -366,6 +401,7 @@ fun EditQuestionnaireScreenPreview() {
         EditQuestionnaireScreenContent(
             name = "Иван",
             age = "22",
+            gender = Gender.MALE,
             city = "Москва",
             eduPlace = "МГУ",
             description = "Описание",
@@ -386,6 +422,7 @@ fun EditQuestionnaireScreenPreview() {
             isLoading = false,
             onNameChanged = {},
             onAgeChanged = {},
+            onGenderChanged = {},
             onCityChanged = {},
             onEduPlaceChanged = {},
             onDescriptionChanged = {},
