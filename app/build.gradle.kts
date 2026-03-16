@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.flat_rent_app"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
+    implementation("com.google.firebase:firebase-messaging-ktx:24.0.0")
 
     // Hilt
     implementation(libs.hilt.android)

@@ -336,8 +336,7 @@ fun EmptyView() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(stringResource(R.string.no_favorites), color = Color.Gray, fontSize = 16.sp)
-        Text(stringResource(R.string.smth_wrong), color = Color.LightGray, fontSize = 14.sp)
+        Text(stringResource(R.string.all_viewed), color = Color.Gray, fontSize = 16.sp)
     }
 }
 
@@ -348,59 +347,12 @@ fun AllViewedView(onRetry: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(24.dp)
     ) {
-        Text(stringResource(R.string.smth_wrong), style = MaterialTheme.typography.headlineSmall)
-        Text(stringResource(R.string.smth_wrong), color = Color.Gray, fontSize = 14.sp)
+        Text(stringResource(R.string.all_viewed), style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.message), color = Color.Gray, fontSize = 14.sp)
         Spacer(Modifier.height(8.dp))
         Button(onClick = onRetry) { Text(stringResource(R.string.repeat)) }
     }
 }
-
-@Composable
-fun UniversityFilterButton(
-    selectedUniversity: String,
-    onSelect: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var expanded by remember { mutableStateOf(false) }
-    Box(modifier = modifier) {
-        IconButton(onClick = { expanded = true }) {
-            Icon(
-                Icons.Default.FilterAlt,
-                contentDescription = stringResource(R.string.smth_wrong)
-            )
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            Constants.UNIVERSITIES_LIST.forEach { university ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = university,
-                            color = if (university == selectedUniversity) LikeGreen else Color.Unspecified,
-                            fontWeight = if (university == selectedUniversity) FontWeight.Bold else FontWeight.Normal
-                        )
-                    },
-                    trailingIcon = {
-                        if (university == selectedUniversity) {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = null,
-                                tint = LikeGreen
-                            )
-                        }
-                    },
-                    onClick = {
-                        onSelect(university)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -418,7 +370,6 @@ fun MainScreenContent(
     onGoFavorites: () -> Unit,
     onAddToFavorites: () -> Unit,
     retry: () -> Unit,
-    selectedUniversityFilter: String,
     onOpenFilters: () -> Unit
 ) {
     val showCards = !isLoading && error == null && profiles.isNotEmpty() && !showAllViewed
@@ -426,7 +377,7 @@ fun MainScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.favorites)) },
+                title = { Text(stringResource(R.string.users)) },
                 actions = {
                     FilterButton(
                         onClick = onOpenFilters
@@ -569,7 +520,6 @@ fun MainScreen(
             currentProfile?.let { viewModel.addToFavorites(it.uid) }
         },
         retry = viewModel::retry,
-        selectedUniversityFilter = state.selectedUniversityFilter,
         onOpenFilters = { viewModel.openFilters() }
     )
 
@@ -787,7 +737,6 @@ fun PreviewMainScreen() {
         onGoFavorites = { },
         onAddToFavorites = { },
         retry = {},
-        selectedUniversityFilter = Constants.UNIVERSITY_ALL,
         onOpenFilters = {}
     )
 }
