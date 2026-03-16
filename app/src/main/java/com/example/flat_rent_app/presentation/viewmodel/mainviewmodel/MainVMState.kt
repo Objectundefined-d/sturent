@@ -17,4 +17,6 @@ data class MainScreenState(
     val ageFilterMin: Int = Constants.AGE_MIN_DEFAULT,
     val ageFilterMax: Int = Constants.AGE_MAX_DEFAULT,
     val showFilters: Boolean = false
+    val matchChatId: String? = null,
+    val matchedUserId: String? = null
 )

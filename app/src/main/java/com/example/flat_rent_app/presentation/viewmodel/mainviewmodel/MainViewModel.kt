@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.presentation.viewmodel.mainviewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flat_rent_app.domain.model.Gender
@@ -7,8 +8,8 @@ import com.example.flat_rent_app.domain.model.SwipeProfile
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import com.example.flat_rent_app.domain.repository.SwipeRepository
 import com.example.flat_rent_app.util.Constants
+import com.example.flat_rent_app.util.LikeOutCome
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -26,6 +27,16 @@ class MainViewModel @Inject constructor(
 
     init {
         loadProfiles()
+        checkUnseenMatches()
+    }
+
+    private fun checkUnseenMatches() {
+        viewModelScope.launch {
+            val match = swipeRepository.getUnseenMatch()
+            if (match != null) {
+                _state.update { it.copy(matchChatId = match.matchId) }
+            }
+        }
     }
 
     fun loadProfiles() {
@@ -33,8 +44,6 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                delay(2000L)
-
                 val result = profileRepository.getFeedProfiles(limit = 10)
 
                 result.onSuccess { userProfiles ->
@@ -62,6 +71,12 @@ class MainViewModel @Inject constructor(
                         ageMin = currentState.ageFilterMin,
                         ageMax = currentState.ageFilterMax
                     )
+                    val filtered = if (_state.value.selectedUniversityFilter ==
+                                                                        Constants.UNIVERSITY_ALL) {
+                        swipeProfiles
+                    } else {
+                        swipeProfiles.filter { it.university == _state.value.selectedUniversityFilter }
+                    }
 
                     _state.update { it.copy(
                         profiles = filtered,
@@ -98,10 +113,20 @@ class MainViewModel @Inject constructor(
             viewModelScope.launch {
                 swipeRepository.likeUser(targetId)
                     .onSuccess { outcome ->
-                        println("Лайк отправлен: $outcome")
+                        when (outcome) {
+                            is LikeOutCome.Match -> {
+                                _state.update {
+                                    it.copy(
+                                        matchChatId = outcome.chatId,
+                                        matchedUserId = targetId
+                                        )
+                                }
+                            }
+                            LikeOutCome.LikedOnly -> { }
+                        }
                     }
                     .onFailure { error ->
-                        println("Ошибка лайка: ${error.message}")
+                        _state.update { it.copy(error = error.message) }
                     }
 
                 moveToNext()
@@ -144,6 +169,23 @@ class MainViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun addToFavorites(userId: String) {
+        viewModelScope.launch {
+            swipeRepository.addToFavorites(userId)
+            moveToNext()
+        }
+    }
+
+    fun dismissMatch() {
+        val matchId = _state.value.matchChatId
+        if (matchId != null) {
+            viewModelScope.launch {
+                swipeRepository.markMatchAsSeen(matchId)
+            }
+        }
+        _state.update { it.copy(matchChatId = null, matchedUserId = null) }
     }
 
     fun retry() {

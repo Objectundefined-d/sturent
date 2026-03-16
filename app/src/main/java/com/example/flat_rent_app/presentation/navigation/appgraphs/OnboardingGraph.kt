@@ -21,32 +21,32 @@ fun OnboardingGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.onbNameScreen.route
+        startDestination = Routes.OnbNameScreen.route
     ) {
-        composable(Routes.onbNameScreen.route) {
+        composable(Routes.OnbNameScreen.route) {
             OnbNameScreen(
-                onNext = { navController.navigate(Routes.onbPhotoScreen.route) },
+                onNext = { navController.navigate(Routes.OnbPhotoScreen.route) },
                 viewModel = vm
             )
         }
 
-        composable(Routes.onbPhotoScreen.route) {
+        composable(Routes.OnbPhotoScreen.route) {
             OnbPhotoScreen(
                 onBack = { navController.popBackStack() },
-                onNext = { navController.navigate(Routes.onbPrefsScreen.route) },
+                onNext = { navController.navigate(Routes.OnbPrefsScreen.route) },
                 viewModel = vm
             )
         }
 
-        composable(Routes.onbPrefsScreen.route) {
+        composable(Routes.OnbPrefsScreen.route) {
             OnbPrefsScreen(
                 onBack = { navController.popBackStack() },
-                onNext = { navController.navigate(Routes.onbAboutScreen.route) },
+                onNext = { navController.navigate(Routes.OnbAboutScreen.route) },
                 viewModel = vm
             )
         }
 
-        composable(Routes.onbAboutScreen.route) {
+        composable(Routes.OnbAboutScreen.route) {
             OnbAboutScreen(
                 onBack = { navController.popBackStack() },
                 onFinish = { },

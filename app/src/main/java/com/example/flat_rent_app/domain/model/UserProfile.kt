@@ -22,4 +22,15 @@ enum class Gender {
 ) {
     fun isComplete(): Boolean =
         name.isNotBlank() && age != null && city.isNotBlank() && eduPlace.isNotBlank() && description.isNotBlank()
+
+    fun toSwipeProfile() = SwipeProfile(
+        uid = uid,
+        name = name,
+        age = age,
+        city = city,
+        university = eduPlace,
+        description = description,
+        lookingFor = "",
+        photoUrl = photoSlots.getOrNull(mainPhotoIndex)?.fullUrl
+    )
 }

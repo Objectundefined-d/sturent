@@ -14,8 +14,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.presentation.viewmodel.onboarding.OnboardingViewModel
 
 @Composable
@@ -31,15 +33,14 @@ fun OnbAboutScreen(
     }
 
     OnboardingScaffold(
-
         step = 4,
         totalSteps = 4,
-        title = "Расскажите о себе",
+        title = stringResource(R.string.onb_about_title),
         footer = {
             OnboardingFooter(
                 onBack = onBack,
                 onNext = { viewModel.saveProfile() },
-                nextText = "Далее",
+                nextText = stringResource(R.string.onb_next),
                 nextEnabled = !state.loading
             )
         }
@@ -51,7 +52,7 @@ fun OnbAboutScreen(
             AboutCardTextField(
                 value = state.description,
                 onValueChange = viewModel::onDescription,
-                placeholder = "Расскажи о себе"
+                placeholder = stringResource(R.string.onb_about_placeholder)
             )
 
             state.error?.let {

@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.RadioButton
 import androidx.compose.ui.Alignment
 import com.example.flat_rent_app.domain.model.Gender
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.presentation.viewmodel.onboarding.OnboardingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +49,7 @@ fun OnbNameScreen(
     OnboardingScaffold(
         step = 1,
         totalSteps = 4,
-        title = "Расскажи о себе",
+        title = stringResource(R.string.onb_name_title),
         footer = {
             OnboardingFooter(
                 onNext = {
@@ -61,18 +63,18 @@ fun OnbNameScreen(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            OnbFieldLabel(label = "Как Вас зовут?", icon = OnbIcon.Person)
+            OnbFieldLabel(label = stringResource(R.string.onb_name_question), icon = OnbIcon.Person)
             OnbTextField(
                 value = state.name,
                 onValueChange = viewModel::onName,
-                placeholder = "Имя",
+                placeholder = stringResource(R.string.onb_name_placeholder),
                 singleLine = true
             )
 
             OutlinedTextField(
                 value = state.age,
                 onValueChange = viewModel::onAge,
-                label = { Text("Возраст") },
+                label = { Text(stringResource(R.string.onb_age_label)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -105,15 +107,16 @@ fun OnbNameScreen(
             }
 
             OnbFieldLabel(label = "Город", icon = OnbIcon.Location)
+            OnbFieldLabel(label = stringResource(R.string.onb_city_label), icon = OnbIcon.Location)
             OnbTextField(
                 value = state.city,
                 onValueChange = viewModel::onCity,
-                placeholder = "Город обучения",
+                placeholder = stringResource(R.string.onb_city_placeholder),
                 singleLine = true
             )
 
             var expanded by remember { mutableStateOf(false) }
-            OnbFieldLabel(label = "Учебное заведение", icon = OnbIcon.School)
+            OnbFieldLabel(label = stringResource(R.string.onb_university_label), icon = OnbIcon.School)
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = it }
@@ -122,7 +125,7 @@ fun OnbNameScreen(
                     value = state.eduPlace,
                     onValueChange = {},
                     readOnly = true,
-                    placeholder = { Text("Место учебы") },
+                    placeholder = { Text(stringResource(R.string.onb_university_placeholder)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier.fillMaxWidth().menuAnchor()
                 )
