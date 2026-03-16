@@ -188,19 +188,16 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun setUniversityFilter(university: String) {
-        _state.update { it.copy(selectedUniversityFilter = university) }
-        loadProfiles()
-    }
-    fun setAgeFilter(min: Int, max: Int) {
-        _state.update { it.copy(
-            ageFilterMin = min,
-            ageFilterMax = max
-        ) }
-        loadProfiles()
-    }
-    fun setGenderFilter(gender: String) {
-        _state.update { it.copy(selectedGenderFilter = gender) }
+    fun applyFilters(university: String, gender: String, minAge: Int, maxAge: Int) {
+        _state.update {
+            it.copy(
+                selectedUniversityFilter = university,
+                selectedGenderFilter = gender,
+                ageFilterMin = minAge,
+                ageFilterMax = maxAge,
+                showFilters = false
+            )
+        }
         loadProfiles()
     }
 

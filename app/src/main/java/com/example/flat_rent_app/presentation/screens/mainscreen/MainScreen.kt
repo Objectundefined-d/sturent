@@ -190,7 +190,7 @@ fun ProfileCard(
                     text = "$name, $age",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Color.White
                 )
             }
 
@@ -198,24 +198,24 @@ fun ProfileCard(
                 Icon(
                     Icons.Default.LocationOn,
                     contentDescription = null,
-                    tint = Color.Black.copy(alpha = 0.8f),
+                    tint = Color.White.copy(alpha = 0.8f),
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(Modifier.width(4.dp))
-                Text(city, color = Color.Black.copy(alpha = 0.9f), fontSize = 15.sp)
+                Text(city, color = Color.White.copy(alpha = 0.9f), fontSize = 15.sp)
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     Icons.Default.School,
                     contentDescription = null,
-                    tint = Color.Black.copy(alpha = 0.8f),
+                    tint = Color.White.copy(alpha = 0.8f),
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = university,
-                    color = Color.Black.copy(alpha = 0.9f),
+                    color = Color.White.copy(alpha = 0.9f),
                     fontSize = 15.sp,
                     maxLines = 1
                 )
@@ -225,7 +225,7 @@ fun ProfileCard(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = description,
-                    color = Color.Black.copy(alpha = 0.75f),
+                    color = Color.White.copy(alpha = 0.75f),
                     fontSize = 14.sp,
                     maxLines = 2
                 )
@@ -355,7 +355,6 @@ fun MainScreenContent(
     onGoProfile: () -> Unit,
     retry: () -> Unit,
     selectedUniversityFilter: String,
-    onUniversityFilterChange: (String) -> Unit,
     onOpenFilters: () -> Unit
 ) {
     val showCards = !isLoading && error == null && profiles.isNotEmpty() && !showAllViewed
@@ -467,9 +466,7 @@ fun MainScreen(
             state = state,
             onClose = { viewModel.closeFilters() },
             onApplyFilters = { university, gender, minAge, maxAge ->
-                viewModel.setUniversityFilter(university)
-                viewModel.setGenderFilter(gender)
-                viewModel.setAgeFilter(minAge, maxAge)
+                viewModel.applyFilters(university, gender, minAge, maxAge)
                 viewModel.closeFilters()
             }
         )
@@ -500,7 +497,6 @@ fun MainScreen(
         onGoProfile = onGoProfile,
         retry = viewModel::retry,
         selectedUniversityFilter = state.selectedUniversityFilter,
-        onUniversityFilterChange = { viewModel.setUniversityFilter(it) },
         onOpenFilters = { viewModel.openFilters() }
     )
 }
@@ -709,7 +705,6 @@ fun PreviewMainScreen() {
         onGoProfile = {  },
         retry = {},
         selectedUniversityFilter = Constants.UNIVERSITY_ALL,
-        onUniversityFilterChange = {},
         onOpenFilters = {}
     )
 }
