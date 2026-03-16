@@ -1,8 +1,7 @@
 package com.example.flat_rent_app.presentation.navigation.appgraphs
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +17,10 @@ import com.example.flat_rent_app.presentation.viewmodel.onboarding.OnboardingVie
 fun OnboardingGraph() {
     val navController = rememberNavController()
     val vm: OnboardingViewModel = hiltViewModel()
+
+    LaunchedEffect(Unit) {
+        vm.resetState()
+    }
 
     NavHost(
         navController = navController,
