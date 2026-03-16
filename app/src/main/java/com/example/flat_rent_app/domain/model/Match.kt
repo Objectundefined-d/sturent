@@ -4,6 +4,6 @@ data class Match(
     val matchId: String = "",
     val uids: List<String> = emptyList(),
     val updatedAtMillis: Long? = null
-){
+) {
     fun otherUid(myUid: String): String? = uids.firstOrNull { it != myUid }
 }

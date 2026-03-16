@@ -17,27 +17,27 @@ fun AuthGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.welcomeScreen.route
+        startDestination = Routes.WelcomeScreen.route
     ) {
-        composable(Routes.welcomeScreen.route){
+        composable(Routes.WelcomeScreen.route){
             WelcomeScreen(
-                onLogin = { navController.navigate(Routes.authScreen.route)},
-                onRegister = { navController.navigate(Routes.regScreen.route)  }
+                onLogin = { navController.navigate(Routes.AuthScreen.route)},
+                onRegister = { navController.navigate(Routes.RegScreen.route)  }
             )
         }
 
-        composable(Routes.authScreen.route) {
+        composable(Routes.AuthScreen.route) {
             LoginScreen(
                 onBack = { navController.popBackStack() },
-                onForgotPassword = { navController.navigate(Routes.forgotPasswordScreen.route) }
+                onForgotPassword = { navController.navigate(Routes.ForgotPasswordScreen.route) }
             )
         }
 
-        composable(Routes.forgotPasswordScreen.route) {
+        composable(Routes.ForgotPasswordScreen.route) {
             ForgotPasswordScreen(onBack = { navController.popBackStack() })
         }
 
-        composable(Routes.regScreen.route) {
+        composable(Routes.RegScreen.route) {
             RegisterScreen(
                 onBack = { navController.popBackStack() }
             )

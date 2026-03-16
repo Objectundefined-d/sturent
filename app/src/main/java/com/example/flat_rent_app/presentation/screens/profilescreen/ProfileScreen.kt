@@ -35,15 +35,46 @@ fun ProfileScreenContent(
     onEditQuestionnaire: () -> Unit,
     onSignOut: () -> Unit,
     onGoHome: () -> Unit,
-    onGoChats: () -> Unit
+    onGoChats: () -> Unit,
+    onGoFavorites: () -> Unit,
+    onDeleteAccount: () -> Unit,
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Удалить аккаунт?") },
+            text = { Text("Это действие нельзя отменить. Все данные будут удалены.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteAccount()
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Удалить")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Отмена")
+                }
+            }
+        )
+    }
+
     Scaffold(
         bottomBar = {
             AppBottomBar(
                 selected = BottomTabs.PROFILE,
                 onHome = onGoHome,
                 onChats = onGoChats,
-                onProfile = { }
+                onProfile = { },
+                onFavorites = onGoFavorites
             )
         }
     ) { pad ->
@@ -158,6 +189,18 @@ fun ProfileScreenContent(
             ) {
                 Text("Выйти")
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = { showDeleteDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Удалить аккаунт")
+            }
         }
     }
 }
@@ -166,6 +209,7 @@ fun ProfileScreenContent(
 fun ProfileScreen(
     onGoHome: () -> Unit,
     onGoChats: () -> Unit,
+    onGoFavorites: () -> Unit,
     onEditQuestionnaire: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -186,7 +230,9 @@ fun ProfileScreen(
         onEditQuestionnaire = onEditQuestionnaire,
         onSignOut = viewModel::signOut,
         onGoHome = onGoHome,
-        onGoChats = onGoChats
+        onGoChats = onGoChats,
+        onGoFavorites = onGoFavorites,
+        onDeleteAccount = viewModel::deleteAccount
     )
 }
 
@@ -195,9 +241,9 @@ fun ProfileScreen(
 fun ProfileScreenPreview() {
     MaterialTheme {
         ProfileScreenContent(
-            displayName = "Иван Иванов",
-            age = 232,
-            email = "ivan@mail.com",
+            displayName = "Имя Фамилия",
+            age = 22,
+            email = "user@mail.com",
             photoUrls = listOf(
                 "https://picsum.photos/seed/1/400/600",
                 "https://picsum.photos/seed/2/400/600",
@@ -206,7 +252,9 @@ fun ProfileScreenPreview() {
             onEditQuestionnaire = {},
             onSignOut = {},
             onGoHome = {},
-            onGoChats = {}
+            onGoChats = {},
+            onGoFavorites = {},
+            onDeleteAccount = {}
         )
     }
 }
