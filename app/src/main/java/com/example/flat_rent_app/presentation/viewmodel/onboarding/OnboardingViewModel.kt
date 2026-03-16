@@ -79,6 +79,10 @@ class OnboardingViewModel @Inject constructor(
         _state.update { it.copy(mainPhotoIndex = index) }
     }
 
+    fun resetState() {
+        _state.value = OnboardingState()
+    }
+
     fun onGender(g: Gender) = _state.update { it.copy(gender = g, error = null) }
 
     fun saveProfile() {

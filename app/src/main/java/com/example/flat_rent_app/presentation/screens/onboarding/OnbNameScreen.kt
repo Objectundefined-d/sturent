@@ -80,7 +80,11 @@ fun OnbNameScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OnbFieldLabel(label = "Пол", icon = OnbIcon.Person)
+            Text(
+                text = stringResource(R.string.onb_gender_label),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -106,7 +110,6 @@ fun OnbNameScreen(
                 }
             }
 
-            OnbFieldLabel(label = "Город", icon = OnbIcon.Location)
             OnbFieldLabel(label = stringResource(R.string.onb_city_label), icon = OnbIcon.Location)
             OnbTextField(
                 value = state.city,

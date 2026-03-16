@@ -95,6 +95,7 @@
     <string name="onb_name_placeholder">Имя</string>
     <string name="onb_age_label">Возраст</string>
     <string name="onb_city_label">Город</string>
+    <string name="onb_gender_label">Пол</string>
     <string name="onb_city_placeholder">Город обучения</string>
     <string name="onb_university_label">Учебное заведение</string>
     <string name="onb_university_placeholder">Место учебы</string>
