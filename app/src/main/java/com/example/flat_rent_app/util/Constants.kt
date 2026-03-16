@@ -28,4 +28,17 @@ object Constants {
         UNIVERSITY_HSE,
         UNIVERSITY_MSU
     )
+
+    const val GENDER_MALE = "Мужской"
+    const val GENDER_FEMALE = "Женский"
+    const val GENDER_ANY = "Любой"
+
+    val GENDERS_LIST: List<String> = listOf(
+        GENDER_ANY,
+        GENDER_MALE,
+        GENDER_FEMALE
+    )
+
+    const val AGE_MIN_DEFAULT = 18
+    const val AGE_MAX_DEFAULT = 40
 }
