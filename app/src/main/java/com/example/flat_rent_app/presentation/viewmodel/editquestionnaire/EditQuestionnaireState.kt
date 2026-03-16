@@ -1,10 +1,12 @@
 package com.example.flat_rent_app.presentation.viewmodel.editquestionnaire
+import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.ProfilePhoto
 import com.example.flat_rent_app.util.Constants
 
 data class EditQuestionnaireState(
     val name: String = "",
     val age: String = "",
+    val gender: Gender? = null,
     val city: String = "",
     val eduPlace: String = "",
     val description: String = "",
