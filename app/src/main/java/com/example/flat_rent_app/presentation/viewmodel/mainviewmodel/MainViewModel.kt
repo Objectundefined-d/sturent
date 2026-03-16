@@ -71,12 +71,6 @@ class MainViewModel @Inject constructor(
                         ageMin = currentState.ageFilterMin,
                         ageMax = currentState.ageFilterMax
                     )
-                    val filtered = if (_state.value.selectedUniversityFilter ==
-                                                                        Constants.UNIVERSITY_ALL) {
-                        swipeProfiles
-                    } else {
-                        swipeProfiles.filter { it.university == _state.value.selectedUniversityFilter }
-                    }
 
                     _state.update { it.copy(
                         profiles = filtered,

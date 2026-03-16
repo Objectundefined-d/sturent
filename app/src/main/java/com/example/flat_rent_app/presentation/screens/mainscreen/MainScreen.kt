@@ -536,24 +536,9 @@ fun MainScreen(
             onClose = { viewModel.closeFilters() },
             onApplyFilters = { university, gender, minAge, maxAge ->
                 viewModel.applyFilters(university, gender, minAge, maxAge)
-                viewModel.closeFilters()
             }
         )
         return
-    if (state.matchChatId != null) {
-        ModalBottomSheet(
-            onDismissRequest = { viewModel.dismissMatch() }
-        ) {
-            MatchScreen(
-                onSendMessage = {
-                    val chatId = state.matchChatId!!
-                    val otherUid = state.matchedUserId!!
-                    viewModel.dismissMatch()
-                    onOpenChat(chatId, otherUid)
-                },
-                onContinue = { viewModel.dismissMatch() }
-            )
-        }
     }
 
     if (state.showProfileDetails) {
@@ -587,6 +572,32 @@ fun MainScreen(
         selectedUniversityFilter = state.selectedUniversityFilter,
         onOpenFilters = { viewModel.openFilters() }
     )
+
+    if (state.matchChatId != null) {
+        MatchBottomSheet(
+            onSendMessage = {
+                val chatId = state.matchChatId!!
+                val otherUid = state.matchedUserId!!
+                viewModel.dismissMatch()
+                onOpenChat(chatId, otherUid)
+            },
+            onContinue = { viewModel.dismissMatch() }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MatchBottomSheet(
+    onSendMessage: () -> Unit,
+    onContinue: () -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onContinue) {
+        MatchScreen(
+            onSendMessage = onSendMessage,
+            onContinue = onContinue
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -599,9 +610,7 @@ fun FiltersScreen(
     var selectedUniversity by remember { mutableStateOf(state.selectedUniversityFilter) }
     var selectedGender by remember { mutableStateOf(state.selectedGenderFilter) }
     var ageRange by remember {
-        mutableStateOf(
-            state.ageFilterMin.toFloat()..state.ageFilterMax.toFloat()
-        )
+        mutableStateOf(state.ageFilterMin.toFloat()..state.ageFilterMax.toFloat())
     }
 
     Scaffold(
@@ -623,13 +632,13 @@ fun FiltersScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Text("ВУЗ", fontWeight = FontWeight.Bold, color = Color.Black)
+            Text("ВУЗ", fontWeight = FontWeight.Bold)
             DropdownMenuForUniversity(
                 selectedUniversity = selectedUniversity,
                 onSelect = { selectedUniversity = it }
             )
 
-            Text("Пол", fontWeight = FontWeight.Bold, color = Color.Black)
+            Text("Пол", fontWeight = FontWeight.Bold)
             GenderRadioGroup(
                 selectedGender = selectedGender,
                 onSelect = { selectedGender = it }
@@ -637,8 +646,7 @@ fun FiltersScreen(
 
             Text(
                 text = "Возраст: ${ageRange.start.toInt()}–${ageRange.endInclusive.toInt()}",
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
+                fontWeight = FontWeight.Bold
             )
             AgeRangeSlider(
                 ageRange = ageRange,
@@ -655,9 +663,7 @@ fun FiltersScreen(
                     selectedUniversity = Constants.UNIVERSITY_ALL
                     selectedGender = Constants.GENDER_ANY
                     ageRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat()
-                }) {
-                    Text("Сбросить")
-                }
+                }) { Text("Сбросить") }
 
                 Button(onClick = {
                     onApplyFilters(
@@ -666,9 +672,7 @@ fun FiltersScreen(
                         ageRange.start.toInt(),
                         ageRange.endInclusive.toInt()
                     )
-                }) {
-                    Text("Применить")
-                }
+                }) { Text("Применить") }
             }
         }
     }
@@ -684,17 +688,11 @@ fun DropdownMenuForUniversity(
         OutlinedButton(onClick = { expanded = true }) {
             Text(selectedUniversity)
         }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             Constants.UNIVERSITIES_LIST.forEach { university ->
                 DropdownMenuItem(
                     text = { Text(university) },
-                    onClick = {
-                        onSelect(university)
-                        expanded = false
-                    }
+                    onClick = { onSelect(university); expanded = false }
                 )
             }
         }
@@ -710,21 +708,17 @@ fun GenderRadioGroup(
         Constants.GENDERS_LIST.forEach { gender ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
             ) {
-                RadioButton(
-                    selected = selectedGender == gender,
-                    onClick = { onSelect(gender) }
-                )
+                RadioButton(selected = selectedGender == gender, onClick = { onSelect(gender) })
                 Spacer(Modifier.width(8.dp))
-                Text(gender, color = Color.Black)
+                Text(gender)
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AgeRangeSlider(
     ageRange: ClosedFloatingPointRange<Float>,
@@ -733,18 +727,16 @@ fun AgeRangeSlider(
     RangeSlider(
         value = ageRange,
         onValueChange = { newRange ->
-            val clampedStart = newRange.start.coerceIn(
-                Constants.AGE_MIN_DEFAULT.toFloat(),
-                Constants.AGE_MAX_DEFAULT.toFloat()
+            val start = newRange.start.coerceIn(
+                Constants.AGE_MIN_DEFAULT.toFloat(), Constants.AGE_MAX_DEFAULT.toFloat()
             )
-            val clampedEnd = newRange.endInclusive.coerceIn(
-                Constants.AGE_MIN_DEFAULT.toFloat(),
-                Constants.AGE_MAX_DEFAULT.toFloat()
+            val end = newRange.endInclusive.coerceIn(
+                Constants.AGE_MIN_DEFAULT.toFloat(), Constants.AGE_MAX_DEFAULT.toFloat()
             )
-            onRangeChange(clampedStart..clampedEnd)
+            onRangeChange(start..end)
         },
         valueRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat(),
-        steps = (Constants.AGE_MAX_DEFAULT - Constants.AGE_MIN_DEFAULT)
+        steps = Constants.AGE_MAX_DEFAULT - Constants.AGE_MIN_DEFAULT
     )
 }
 
