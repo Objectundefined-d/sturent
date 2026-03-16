@@ -36,8 +36,37 @@ fun ProfileScreenContent(
     onSignOut: () -> Unit,
     onGoHome: () -> Unit,
     onGoChats: () -> Unit,
-    onGoFavorites: () -> Unit
+    onGoFavorites: () -> Unit,
+    onDeleteAccount: () -> Unit,
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Удалить аккаунт?") },
+            text = { Text("Это действие нельзя отменить. Все данные будут удалены.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteAccount()
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Удалить")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Отмена")
+                }
+            }
+        )
+    }
+
     Scaffold(
         bottomBar = {
             AppBottomBar(
@@ -160,6 +189,18 @@ fun ProfileScreenContent(
             ) {
                 Text("Выйти")
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = { showDeleteDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Удалить аккаунт")
+            }
         }
     }
 }
@@ -190,7 +231,8 @@ fun ProfileScreen(
         onSignOut = viewModel::signOut,
         onGoHome = onGoHome,
         onGoChats = onGoChats,
-        onGoFavorites = onGoFavorites
+        onGoFavorites = onGoFavorites,
+        onDeleteAccount = viewModel::deleteAccount
     )
 }
 
@@ -211,7 +253,8 @@ fun ProfileScreenPreview() {
             onSignOut = {},
             onGoHome = {},
             onGoChats = {},
-            onGoFavorites = {}
+            onGoFavorites = {},
+            onDeleteAccount = {}
         )
     }
 }
