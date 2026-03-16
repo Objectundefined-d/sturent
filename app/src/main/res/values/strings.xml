@@ -25,6 +25,10 @@
     <string name="no_favorites">Нет добавленых в избранное</string>
     <string name="favorites">Избранное</string>
 
+    <string name="users">Главная</string>
+    <string name="all_viewed">Нет доступных анкет</string>
+    <string name="message">Вы просмотрели всех пользователей</string>
+
     <!-- Forgot Password Screen -->
     <string name="letter_sent">Письмо отправлено</string>
     <string name="letter_sent_verbose">На вашу почту отправлено письмо с инструкцией по сбросу пароля</string>

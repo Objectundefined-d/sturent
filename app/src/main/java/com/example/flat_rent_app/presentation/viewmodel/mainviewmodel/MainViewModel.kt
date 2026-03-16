@@ -44,7 +44,7 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val result = profileRepository.getFeedProfiles(limit = 10)
+                val result = profileRepository.getFeedProfiles(limit = 50)
 
                 result.onSuccess { userProfiles ->
                     val swipeProfiles = userProfiles.map { userProfile ->
@@ -275,7 +275,7 @@ private fun applyFilters(
         .filter { profile ->
             val age = profile.age
             if (age == null) {
-                false
+                true
             } else {
                 age in ageMin..ageMax
             }

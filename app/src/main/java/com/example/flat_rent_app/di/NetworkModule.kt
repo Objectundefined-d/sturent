@@ -58,7 +58,7 @@ object NetworkModule {
         okHttp: OkHttpClient,
         moshi: Moshi
     ): Retrofit {
-        val baseUrl = "https://flat-rent-server.onrender.com/"
+        val baseUrl = "https://flatrentserver-production.up.railway.app/"
 
         return Retrofit.Builder()
             .baseUrl(baseUrl)

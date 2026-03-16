@@ -123,4 +123,12 @@ class ProfileRepositoryImpl @Inject constructor(
             updatedAtMillis = getLong("updatedAtMillis")
         )
     }
+
+    override suspend fun saveFcmToken(token: String) {
+        val uid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
+        db.collection("users")
+            .document(uid)
+            .update("fcmToken", token)
+            .await()
+    }
 }
