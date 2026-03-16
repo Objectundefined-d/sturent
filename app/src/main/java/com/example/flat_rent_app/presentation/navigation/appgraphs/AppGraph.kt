@@ -1,6 +1,8 @@
 package com.example.flat_rent_app.presentation.navigation.appgraphs
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,6 +15,9 @@ import com.example.flat_rent_app.presentation.screens.mainscreen.MainScreen
 import com.example.flat_rent_app.presentation.screens.profilescreen.ProfileScreen
 import com.example.flat_rent_app.presentation.screens.questionnairescreen.QuestionnaireScreen
 import com.example.flat_rent_app.presentation.screens.editquestionnairescreen.EditQuestionnaireScreen
+import com.example.flat_rent_app.presentation.screens.favoritesscreen.FavoritesScreen
+import com.example.flat_rent_app.presentation.viewmodel.favoritesviewmodel.FavoritesViewModel
+import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainViewModel
 
 @Composable
 fun AppGraph() {
@@ -21,23 +26,37 @@ fun AppGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.homeScreen.route
+        startDestination = Routes.HomeScreen.route
     ) {
-        composable(Routes.homeScreen.route) {
+        composable(Routes.HomeScreen.route) {
+            val backStackEntry = remember(it) { it }
+            val mainViewModel: MainViewModel = hiltViewModel(backStackEntry)
+
             MainScreen(
-                onGoProfile = { navController.navigate(Routes.profileScreen.route) },
+                onGoProfile = { navController.navigate(Routes.ProfileScreen.route) },
                 onGoChats = { navController.navigate(Routes.ChatsScreen.route) },
+                onGoFavorites = { navController.navigate(Routes.FavoritesScreen.route) },
+                onOpenChat = { chatId, otherUid ->
+                    navController.navigate(Routes.ChatScreen.create(chatId, otherUid))
+                },
+                viewModel = mainViewModel
             )
         }
 
-        composable(Routes.profileScreen.route) {
+        composable(Routes.ProfileScreen.route) {
             ProfileScreen(
-                onGoHome = { navController.navigate(Routes.homeScreen.route) },
+                onGoHome = {
+                    navController.popBackStack(
+                        route = Routes.HomeScreen.route,
+                        inclusive = false
+                    )
+                },
                 onGoChats = { navController.navigate(Routes.ChatsScreen.route) },
+                onGoFavorites = { navController.navigate(Routes.FavoritesScreen.route) },
                 onEditQuestionnaire = { navController.navigate(Routes.EditQuestionnaire.route) })
         }
 
-        composable(Routes.formScreen.route) {
+        composable(Routes.FormScreen.route) {
             QuestionnaireScreen(onBack = { navController.popBackStack() })
         }
 
@@ -52,8 +71,27 @@ fun AppGraph() {
             ChatsScreen(onOpenChat = { chatId, otherUid ->
                 navController.navigate(Routes.ChatScreen.create(chatId, otherUid))
             },
-                onGoHome = { navController.navigate(Routes.homeScreen.route) },
-                onGoProfile = { navController.navigate(Routes.profileScreen.route) },)
+                onGoFavorites = { navController.navigate(Routes.FavoritesScreen.route) },
+                onGoHome = {
+                    navController.popBackStack(
+                        route = Routes.HomeScreen.route,
+                        inclusive = false
+                    )
+                },
+                onGoProfile = { navController.navigate(Routes.ProfileScreen.route) },)
+        }
+
+        composable(Routes.FavoritesScreen.route) {
+            FavoritesScreen(
+                onGoHome = {
+                    navController.popBackStack(
+                        route = Routes.HomeScreen.route,
+                        inclusive = false
+                    )
+                },
+                onGoProfile = { navController.navigate(Routes.ProfileScreen.route) },
+                onGoChats = { navController.navigate(Routes.ChatsScreen.route)}
+            )
         }
 
         composable(

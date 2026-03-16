@@ -5,11 +5,19 @@ import com.example.flat_rent_app.util.LikeOutCome
 import kotlinx.coroutines.flow.Flow
 
 interface SwipeRepository {
-    //Свайп вправо
     suspend fun likeUser(targetId: String): Result<LikeOutCome>
 
-    //Свайп влево
     suspend fun passUser(targetId: String): Result<Unit>
 
     fun observeMatches(): Flow<List<Match>>
+
+    suspend fun getUnseenMatch() : Match?
+
+    suspend fun markMatchAsSeen(matchId: String) : Result<Unit>
+
+    suspend fun addToFavorites(userId: String) : Result<Unit>
+
+    fun observeFavorites() : Flow<List<String>>
+
+    suspend fun removeFromFavorites(userId: String) : Result<Unit>
 }

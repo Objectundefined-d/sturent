@@ -9,7 +9,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.ui.platform.LocalConfiguration
 import com.example.flat_rent_app.util.Constants
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
@@ -22,33 +21,29 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.flat_rent_app.domain.model.ProfilePhoto
 import com.example.flat_rent_app.presentation.viewmodel.editquestionnaire.EditQuestionnaireViewModel
+import com.example.flat_rent_app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,7 +74,7 @@ fun EditQuestionnaireScreenContent(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Моя анкета",
+                        text = stringResource(R.string.my_questionnaire),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
@@ -95,10 +90,15 @@ fun EditQuestionnaireScreenContent(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                OutlinedButton(onClick = onBack) { Text("Назад") }
+                OutlinedButton(onClick = onBack) {
+                    Text(text = stringResource(R.string.back))
+                }
                 Button(onClick = onSave, enabled = !isLoading) {
-                    if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                    else Text("Сохранить")
+                    if (isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                    } else {
+                        Text(text = stringResource(R.string.save))
+                    }
                 }
             }
         }
@@ -116,7 +116,7 @@ fun EditQuestionnaireScreenContent(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 Text(
-                    text = "Фотографии",
+                    text = stringResource(R.string.photos),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
@@ -163,11 +163,16 @@ fun EditQuestionnaireScreenContent(
                                             .size(28.dp)
                                             .background(Color.Black.copy(alpha = 0.5f), CircleShape)
                                     ) {
-                                        Icon(Icons.Default.Close, null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.delete),
+                                            tint = Color.White,
+                                            modifier = Modifier.size(14.dp)
+                                        )
                                     }
                                     Icon(
                                         imageVector = if (isMain) Icons.Default.Star else Icons.Outlined.StarOutline,
-                                        contentDescription = null,
+                                        contentDescription = stringResource(R.string.photo_set_main),
                                         tint = if (isMain) Color(0xFFFFD700) else Color.White,
                                         modifier = Modifier
                                             .align(Alignment.BottomStart)
@@ -176,12 +181,21 @@ fun EditQuestionnaireScreenContent(
                                             .clickable { if (!isMain) onSetMainPhoto(index) }
                                     )
                                 } else {
-                                    Icon(Icons.Default.Add, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(28.dp))
+                                    Icon(
+                                        Icons.Default.Add,
+                                        contentDescription = stringResource(R.string.photo_add),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(28.dp)
+                                    )
                                 }
                             }
 
                             Text(
-                                text = if (isMain && hasPhoto) "★ Главное" else if (hasPhoto) "Нажми ★" else "Добавить",
+                                text = when {
+                                    isMain && hasPhoto -> stringResource(R.string.photo_main)
+                                    hasPhoto -> stringResource(R.string.photo_click)
+                                    else -> stringResource(R.string.photo_add)
+                                },
                                 style = MaterialTheme.typography.labelSmall,
                                 fontSize = 10.sp,
                                 color = if (isMain && hasPhoto) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
@@ -193,7 +207,8 @@ fun EditQuestionnaireScreenContent(
                 OutlinedTextField(
                     value = name,
                     onValueChange = onNameChanged,
-                    label = { Text("Имя") },
+                    label = { Text(stringResource(R.string.name)) },
+                    placeholder = { Text(stringResource(R.string.hint_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -201,7 +216,8 @@ fun EditQuestionnaireScreenContent(
                 OutlinedTextField(
                     value = age,
                     onValueChange = { if (it.length <= 3) onAgeChanged(it) },
-                    label = { Text("Возраст") },
+                    label = { Text(stringResource(R.string.age)) },
+                    placeholder = { Text(stringResource(R.string.hint_age)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -210,7 +226,8 @@ fun EditQuestionnaireScreenContent(
                 OutlinedTextField(
                     value = city,
                     onValueChange = onCityChanged,
-                    label = { Text("Город") },
+                    label = { Text(stringResource(R.string.city)) },
+                    placeholder = { Text(stringResource(R.string.hint_city)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -224,7 +241,8 @@ fun EditQuestionnaireScreenContent(
                         value = eduPlace,
                         onValueChange = { },
                         readOnly = true,
-                        label = { Text("Учебное заведение") },
+                        label = { Text(stringResource(R.string.educational_institution)) },
+                        placeholder = { Text(stringResource(R.string.hint_university)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -249,14 +267,15 @@ fun EditQuestionnaireScreenContent(
                 OutlinedTextField(
                     value = description,
                     onValueChange = onDescriptionChanged,
-                    label = { Text("О себе") },
+                    label = { Text(stringResource(R.string.about_me)) },
+                    placeholder = { Text(stringResource(R.string.hint_about)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp)
                 )
 
                 Text(
-                    text = "Привычки и предпочтения",
+                    text = stringResource(R.string.habits_and_preferences),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
@@ -351,16 +370,16 @@ fun EditQuestionnaireScreenPreview() {
             eduPlace = "МГУ",
             description = "Описание",
             selectedHabits = mapOf(
-                "Курение" to false,
-                "Алкоголь" to false,
-                "Ночная сова" to true,
-                "Ранняя пташка" to false,
-                "Есть питомцы" to true,
-                "Зову гостей" to false,
-                "Чистюля" to true,
-                "Люблю тишину" to false,
-                "Люблю музыку" to false,
-                "Занимаюсь спортом" to true,
+                stringResource(R.string.habit_smoking) to false,
+                stringResource(R.string.habit_alcohol) to false,
+                stringResource(R.string.habit_night_owl) to true,
+                stringResource(R.string.habit_early_bird) to false,
+                stringResource(R.string.habit_pets) to true,
+                stringResource(R.string.habit_guests) to false,
+                stringResource(R.string.habit_clean) to true,
+                stringResource(R.string.habit_quiet) to false,
+                stringResource(R.string.habit_music) to false,
+                stringResource(R.string.habit_sport) to true,
             ),
             photoSlots = listOf(null, null, null),
             mainPhotoIndex = 0,

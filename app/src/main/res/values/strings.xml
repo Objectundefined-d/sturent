@@ -19,4 +19,84 @@
     <string name="login_restore">Восстановить пароль</string>
     <string name="forgot_password">Забыли пароль?</string>
 
+    <!-- Favorites Screen -->
+    <string name="repeat">Повторить</string>
+    <string name="smth_wrong">Что-то пошло не так</string>
+    <string name="no_favorites">Нет добавленых в избранное</string>
+    <string name="favorites">Избранное</string>
+
+    <!-- Forgot Password Screen -->
+    <string name="letter_sent">Письмо отправлено</string>
+    <string name="letter_sent_verbose">На вашу почту отправлено письмо с инструкцией по сбросу пароля</string>
+    <string name="ok">OK</string>
+    <string name="password_recovery">Восстановление пароля</string>
+    <string name="email">Email</string>
+    <string name="send_letter">Отправить письмо</string>
+    <string name="forgot_password_back">Назад</string>
+    <string name="instructions">Для восстановления пароля зайдите на почту</string>
+
+    <!-- Edit Questionnaire Scree -->
+    <string name="my_questionnaire">Моя анкета</string>
+    <string name="photos">Фотографии</string>
+    <string name="habits_and_preferences">Привычки и предпочтения</string>
+    <string name="save">Сохранить</string>
+    <string name="back">Назад</string>
+    <string name="add">Добавить</string>
+    <string name="delete">Удалить</string>
+    <string name="edit">Редактировать</string>
+    <string name="photo_main">Главное</string>
+    <string name="photo_click">Нажми</string>
+    <string name="photo_add">Добавить</string>
+    <string name="photo_set_main">Сделать главной</string>
+    <string name="name">Имя</string>
+    <string name="age">Возраст</string>
+    <string name="city">Город</string>
+    <string name="educational_institution">Учебное заведение</string>
+    <string name="about_me">О себе</string>
+    <string name="habit_smoking">Курение</string>
+    <string name="habit_alcohol">Алкоголь</string>
+    <string name="habit_pets">Есть питомцы</string>
+    <string name="habit_clean">Чистюля</string>
+    <string name="habit_messy">Творческий беспорядок</string>
+    <string name="habit_night_owl">Сова</string>
+    <string name="habit_early_bird">Жаворонок</string>
+    <string name="habit_guests">Зову гостей</string>
+    <string name="habit_quiet">Люблю тишину</string>
+    <string name="habit_music">Люблю музыку</string>
+    <string name="habit_sport">Занимаюсь спортом</string>
+    <string name="loading">Загрузка...</string>
+    <string name="error">Ошибка</string>
+    <string name="success">Успешно</string>
+    <string name="save_success">Анкета успешно сохранена</string>
+    <string name="save_error">Ошибка при сохранении</string>
+    <string name="hint_name">Введите имя</string>
+    <string name="hint_age">Введите возраст</string>
+    <string name="hint_city">Введите город</string>
+    <string name="hint_university">Выберите учебное заведение</string>
+    <string name="hint_about">Расскажите о себе (до 300 символов)</string>
+
+    <!--Chat Row -->
+    <string name="question_sign">\?</string>
+
+    <!-- Match Screen -->
+    <string name="match_title">У вас мэтч</string>
+    <string name="match_subtitle">Пользователь уже лайкнул тебя</string>
+    <string name="match_write">Написать</string>
+    <string name="match_continue">Продолжить смотреть</string>
+
+    <!-- Onboarding -->
+    <string name="onb_about_title">Расскажите о себе</string>
+    <string name="onb_next">Далее</string>
+    <string name="onb_about_placeholder">Расскажи о себе</string>
+
+    <!-- Onboarding Name Screen -->
+    <string name="onb_name_title">Расскажи о себе</string>
+    <string name="onb_name_question">Как Вас зовут?</string>
+    <string name="onb_name_placeholder">Имя</string>
+    <string name="onb_age_label">Возраст</string>
+    <string name="onb_city_label">Город</string>
+    <string name="onb_city_placeholder">Город обучения</string>
+    <string name="onb_university_label">Учебное заведение</string>
+    <string name="onb_university_placeholder">Место учебы</string>
+
 </resources>
