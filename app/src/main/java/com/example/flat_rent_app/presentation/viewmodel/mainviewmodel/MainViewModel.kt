@@ -199,6 +199,17 @@ class MainViewModel @Inject constructor(
         ) }
         loadProfiles()
     }
+    fun setGenderFilter(gender: String) {
+        _state.update { it.copy(selectedGenderFilter = gender) }
+        loadProfiles()
+    }
+
+    fun openFilters() {
+        _state.update { it.copy(showFilters = true) }
+    }
+    fun closeFilters() {
+        _state.update { it.copy(showFilters = false) }
+    }
 }
 
 private fun applyFilters(
