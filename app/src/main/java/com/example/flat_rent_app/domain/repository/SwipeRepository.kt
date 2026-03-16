@@ -14,4 +14,10 @@ interface SwipeRepository {
     suspend fun getUnseenMatch() : Match?
 
     suspend fun markMatchAsSeen(matchId: String) : Result<Unit>
+
+    suspend fun addToFavorites(userId: String) : Result<Unit>
+
+    fun observeFavorites() : Flow<List<String>>
+
+    suspend fun removeFromFavorites(userId: String) : Result<Unit>
 }

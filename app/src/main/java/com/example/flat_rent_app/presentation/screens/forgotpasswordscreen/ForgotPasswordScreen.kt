@@ -19,11 +19,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.presentation.viewmodel.forgotpasswordviewmodel.ForgotPasswordViewModel
 
 @Composable
@@ -34,13 +36,13 @@ fun ForgotPasswordScreen(
     if (viewModel.isSuccess) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("Письмо отправлено") },
-            text = { Text("На вашу почту отправлено письмо с инструкцией по сбросу пароля") },
+            title = { Text(text = stringResource(R.string.letter_sent)) },
+            text = { Text(text = stringResource(R.string.letter_sent_verbose)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.resetSuccess()
                     onBack()
-                }) { Text("OK") }
+                }) { Text(text = stringResource(R.string.ok)) }
             }
         )
     }
@@ -52,7 +54,7 @@ fun ForgotPasswordScreen(
             .padding(24.dp)
     ) {
         Text(
-            text = "Восстановление пароля",
+            text = stringResource(R.string.password_recovery),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -60,7 +62,7 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Введите email, и мы пришлём ссылку для сброса пароля",
+            text = stringResource(R.string.instructions),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -70,7 +72,7 @@ fun ForgotPasswordScreen(
         OutlinedTextField(
             value = viewModel.email,
             onValueChange = viewModel::onEmailChange,
-            label = { Text("Email") },
+            label = { Text(text = stringResource(R.string.email)) },
             isError = viewModel.errorMessage != null,
             supportingText = viewModel.errorMessage?.let {
                 { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -97,7 +99,7 @@ fun ForgotPasswordScreen(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Text("Отправить письмо")
+                Text(text = stringResource(R.string.send_letter))
             }
         }
 
@@ -107,7 +109,7 @@ fun ForgotPasswordScreen(
             onClick = onBack,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            Text("Назад")
+            Text(text = stringResource(R.string.forgot_password_back))
         }
     }
 }

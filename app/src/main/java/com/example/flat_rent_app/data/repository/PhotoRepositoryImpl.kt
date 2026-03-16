@@ -68,7 +68,7 @@ class PhotoRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 if (file.length() > MAX_IMAGE_SIZE) {
-                    return@withContext Result.failure(Exception("Файл слишком большой. Максимум 5MB"))
+                    return@withContext Result.failure(Exception("Файл слишком большой"))
                 }
 
                 val token = tokenProvider.getIdToken()

@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.flat_rent_app.domain.model.Chat
@@ -43,7 +44,7 @@ fun ChatRow(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = title.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                text = title.firstOrNull()?.uppercaseChar()?.toString() ?: stringResource(com.example.flat_rent_app.R.string.question_sign),
                 style = MaterialTheme.typography.titleMedium
             )
         }

@@ -35,7 +35,8 @@ fun ProfileScreenContent(
     onEditQuestionnaire: () -> Unit,
     onSignOut: () -> Unit,
     onGoHome: () -> Unit,
-    onGoChats: () -> Unit
+    onGoChats: () -> Unit,
+    onGoFavorites: () -> Unit
 ) {
     Scaffold(
         bottomBar = {
@@ -43,7 +44,8 @@ fun ProfileScreenContent(
                 selected = BottomTabs.PROFILE,
                 onHome = onGoHome,
                 onChats = onGoChats,
-                onProfile = { }
+                onProfile = { },
+                onFavorites = onGoFavorites
             )
         }
     ) { pad ->
@@ -166,6 +168,7 @@ fun ProfileScreenContent(
 fun ProfileScreen(
     onGoHome: () -> Unit,
     onGoChats: () -> Unit,
+    onGoFavorites: () -> Unit,
     onEditQuestionnaire: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -186,7 +189,8 @@ fun ProfileScreen(
         onEditQuestionnaire = onEditQuestionnaire,
         onSignOut = viewModel::signOut,
         onGoHome = onGoHome,
-        onGoChats = onGoChats
+        onGoChats = onGoChats,
+        onGoFavorites = onGoFavorites
     )
 }
 
@@ -195,9 +199,9 @@ fun ProfileScreen(
 fun ProfileScreenPreview() {
     MaterialTheme {
         ProfileScreenContent(
-            displayName = "Иван Иванов",
-            age = 232,
-            email = "ivan@mail.com",
+            displayName = "Имя Фамилия",
+            age = 22,
+            email = "user@mail.com",
             photoUrls = listOf(
                 "https://picsum.photos/seed/1/400/600",
                 "https://picsum.photos/seed/2/400/600",
@@ -206,7 +210,8 @@ fun ProfileScreenPreview() {
             onEditQuestionnaire = {},
             onSignOut = {},
             onGoHome = {},
-            onGoChats = {}
+            onGoChats = {},
+            onGoFavorites = {}
         )
     }
 }

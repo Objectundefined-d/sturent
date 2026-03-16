@@ -13,5 +13,6 @@ data class MainScreenState(
     val showProfileDetails: Boolean = false,
     val selectedProfile: SwipeProfile? = null,
     val selectedUniversityFilter: String = Constants.UNIVERSITY_ALL,
-    val matchChatId: String? = null
+    val matchChatId: String? = null,
+    val matchedUserId: String? = null
 )

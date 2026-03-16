@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.collections.emptyList
 
 @Singleton
 class SwipeRepositoryImpl @Inject constructor(
@@ -173,4 +174,62 @@ class SwipeRepositoryImpl @Inject constructor(
                 .update("seenByUids", com.google.firebase.firestore.FieldValue.arrayUnion(myUid))
                 .await()
         }
+
+    override suspend fun addToFavorites(userId: String): Result<Unit> =
+        runCatching {
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Нет авторизации")
+
+            db.collection("favorites")
+                .document(myUid)
+                .collection("items")
+                .document(userId)
+                .set(
+                    mapOf(
+                        "uid" to userId,
+                        "addedAtMillis" to System.currentTimeMillis()
+                    )
+                )
+                .await()
+            Unit
+        }.recoverCatching { t ->
+            throw RuntimeException(t.message ?: "Ошибка добавления в избранное", t)
+        }
+
+    override fun observeFavorites(): Flow<List<String>> = callbackFlow {
+        val myUid = authRepo.currentUid()
+        if (myUid == null) {
+            trySend(emptyList()); close(); return@callbackFlow
+        }
+
+        val reg = db.collection("favorites")
+            .document(myUid)
+            .collection("items")
+            .addSnapshotListener { snap, err ->
+                if (err != null || snap == null) {
+                    trySend(emptyList()); return@addSnapshotListener
+                }
+                val ids = snap.documents.mapNotNull { it.getString("uid") }
+                trySend(ids)
+            }
+
+        awaitClose { reg.remove() }
+    }
+
+    override suspend fun removeFromFavorites(userId: String): Result<Unit> =
+        runCatching {
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
+
+            db.collection("favorites")
+                .document(myUid)
+                .collection("items")
+                .document(userId)
+                .delete()
+                .await()
+
+            Unit
+        }.recoverCatching { t ->
+            throw RuntimeException(t.message ?: "Ошибка удаления из избранного", t)
+        }
 }
+
+

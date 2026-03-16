@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.presentation.viewmodel.mainviewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flat_rent_app.domain.model.SwipeProfile
@@ -8,7 +9,6 @@ import com.example.flat_rent_app.domain.repository.SwipeRepository
 import com.example.flat_rent_app.util.Constants
 import com.example.flat_rent_app.util.LikeOutCome
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -43,8 +43,6 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                delay(2000L)
-
                 val result = profileRepository.getFeedProfiles(limit = 10)
 
                 result.onSuccess { userProfiles ->
@@ -107,7 +105,10 @@ class MainViewModel @Inject constructor(
                         when (outcome) {
                             is LikeOutCome.Match -> {
                                 _state.update {
-                                    it.copy(matchChatId = outcome.chatId)
+                                    it.copy(
+                                        matchChatId = outcome.chatId,
+                                        matchedUserId = targetId
+                                        )
                                 }
                             }
                             LikeOutCome.LikedOnly -> { }
@@ -159,6 +160,13 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun addToFavorites(userId: String) {
+        viewModelScope.launch {
+            swipeRepository.addToFavorites(userId)
+            moveToNext()
+        }
+    }
+
     fun dismissMatch() {
         val matchId = _state.value.matchChatId
         if (matchId != null) {
@@ -166,7 +174,7 @@ class MainViewModel @Inject constructor(
                 swipeRepository.markMatchAsSeen(matchId)
             }
         }
-        _state.update { it.copy(matchChatId = null) }
+        _state.update { it.copy(matchChatId = null, matchedUserId = null) }
     }
 
     fun retry() {
