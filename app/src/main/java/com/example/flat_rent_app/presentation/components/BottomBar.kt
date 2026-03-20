@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.example.flat_rent_app.util.BottomTabs
-import com.example.flat_rent_app.util.Constants
 
 @Composable
 fun AppBottomBar(

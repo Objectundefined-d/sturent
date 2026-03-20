@@ -10,7 +10,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.ui.platform.LocalConfiguration
-import com.example.flat_rent_app.util.Constants
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue

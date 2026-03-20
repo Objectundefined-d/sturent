@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.flat_rent_app.domain.model.SwipeProfile
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import com.example.flat_rent_app.domain.repository.SwipeRepository
-import com.example.flat_rent_app.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

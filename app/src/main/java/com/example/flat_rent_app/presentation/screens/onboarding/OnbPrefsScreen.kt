@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.flat_rent_app.presentation.viewmodel.onboarding.OnboardingViewModel
-import com.example.flat_rent_app.util.Constants
 
 @Composable
 fun OnbPrefsScreen(
