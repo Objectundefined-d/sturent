@@ -14,7 +14,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import com.example.flat_rent_app.util.Constants
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,10 +49,13 @@ fun OnbNameScreenContent(
     onEduPlaceChange: (String) -> Unit,
     onNext: () -> Unit,
 ) {
-    val canGoNext = name.isNotBlank()
-            && city.isNotBlank()
-            && eduPlace.isNotBlank()
-            && gender != null
+    val state by viewModel.state.collectAsState()
+
+    val canGoNext =
+        state.name.isNotBlank() &&
+                state.age.isNotBlank() &&
+                state.city.isNotBlank() &&
+                state.eduPlace.isNotBlank()
 
     OnboardingScaffold(
         step = 1,
@@ -80,6 +82,73 @@ fun OnbNameScreenContent(
                 singleLine = true
             )
 
+            var ageExpanded by remember { mutableStateOf(false) }
+            OnbFieldLabel(label = "Возраст", icon = OnbIcon.Person)
+            ExposedDropdownMenuBox(
+                expanded = ageExpanded,
+                onExpandedChange = { ageExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = state.age,
+                    onValueChange = {},
+                    readOnly = true,
+                    placeholder = { Text("Выберите возраст") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = ageExpanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = ageExpanded,
+                    onDismissRequest = { ageExpanded = false }
+                ) {
+                    Constants.AGES_FOR_PROFILE.forEach { age ->
+                        DropdownMenuItem(
+                            text = { Text(age) },
+                            onClick = {
+                                viewModel.onAge(age)
+                                ageExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            var cityExpanded by remember { mutableStateOf(false) }
+            OnbFieldLabel(label = "Город", icon = OnbIcon.Location)
+            ExposedDropdownMenuBox(
+                expanded = cityExpanded,
+                onExpandedChange = { cityExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = state.city,
+                    onValueChange = {},
+                    readOnly = true,
+                    placeholder = { Text("Выберите город") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = cityExpanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = cityExpanded,
+                    onDismissRequest = { cityExpanded = false }
+                ) {
+                    Constants.CITIES_FOR_PROFILE.forEach { city ->
+                        DropdownMenuItem(
+                            text = { Text(city) },
+                            onClick = {
+                                viewModel.onCity(city)
+                                cityExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
             OutlinedTextField(
                 value = age,
                 onValueChange = onAgeChange,
@@ -132,6 +201,10 @@ fun OnbNameScreenContent(
                     value = eduPlace,
                     onValueChange = {},
                     readOnly = true,
+                    placeholder = { Text("Место учебы") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
                     placeholder = { Text(stringResource(R.string.onb_university_placeholder)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier

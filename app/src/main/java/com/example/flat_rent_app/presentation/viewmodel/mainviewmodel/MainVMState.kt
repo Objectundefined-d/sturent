@@ -1,7 +1,6 @@
 package com.example.flat_rent_app.presentation.viewmodel.mainviewmodel
 
 import com.example.flat_rent_app.domain.model.SwipeProfile
-import com.example.flat_rent_app.util.Constants
 
 
 data class MainScreenState(
