@@ -52,4 +52,9 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun signOut() {
         auth.signOut()
     }
+
+    override suspend fun deleteAccount(): Result<Unit> = runCatching {
+        auth.currentUser?.delete()?.await()
+            ?: throw IllegalStateException("Нет авторизации")
+    }
 }

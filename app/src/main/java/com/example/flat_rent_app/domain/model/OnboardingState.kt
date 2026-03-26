@@ -5,6 +5,7 @@ import android.net.Uri
 data class OnboardingState(
     val name: String = "",
     val age: String = "",
+    val gender: Gender? = null,
     val city: String = "",
     val eduPlace: String = "",
     val description: String = "",

@@ -27,13 +27,14 @@ class ChatRepositoryImpl @Inject constructor(
             trySend(emptyList()); close(); return@callbackFlow
         }
 
-        val reg = db.collection("userChats").document(myUid)
-            .collection("items")
-            .orderBy("lastMessageAtMillis", Query.Direction.DESCENDING)
-            .addSnapshotListener { snap, err ->
-                if (err != null || snap == null) {
-                    trySend(emptyList()); return@addSnapshotListener
-                }
+        val reg = db.collection("userChats")
+                    .document(myUid)
+                    .collection("items")
+                    .orderBy("lastMessageAtMillis", Query.Direction.DESCENDING)
+                    .addSnapshotListener { snap, err ->
+                    if (err != null || snap == null) {
+                        trySend(emptyList()); return@addSnapshotListener
+                    }
 
                 val list = snap.documents.mapNotNull { d ->
                     val otherUid = d.getString("otherUid") ?: return@mapNotNull null
@@ -90,34 +91,44 @@ class ChatRepositoryImpl @Inject constructor(
             val chatRef = db.collection("chats").document(chatId)
             val msgRef = chatRef.collection("messages").document()
 
-            val myIndex = db.collection("userChats").document(myUid).collection("items").document(chatId)
-            val otherIndex = db.collection("userChats").document(otherId).collection("items").document(chatId)
+            val myIndex =
+                db.collection("userChats").document(myUid).collection("items").document(chatId)
+            val otherIndex =
+                db.collection("userChats").document(otherId).collection("items").document(chatId)
 
             val batch = db.batch()
 
-            batch.set(msgRef, mapOf(
-                "senderUid" to myUid,
-                "text" to text,
-                "type" to "text",
-                "createdAt" to now
-            ))
+            batch.set(
+                msgRef, mapOf(
+                    "senderUid" to myUid,
+                    "text" to text,
+                    "type" to "text",
+                    "createdAt" to now
+                )
+            )
 
-            batch.set(chatRef, mapOf(
-                "lastMessageText" to text,
-                "lastMessageAt" to now,
-                "lastSenderUid" to myUid
-            ), SetOptions.merge())
+            batch.set(
+                chatRef, mapOf(
+                    "lastMessageText" to text,
+                    "lastMessageAt" to now,
+                    "lastSenderUid" to myUid
+                ), SetOptions.merge()
+            )
 
-            batch.set(myIndex, mapOf(
-                "lastMessageText" to text,
-                "lastMessageAt" to now
-            ), SetOptions.merge())
+            batch.set(
+                myIndex, mapOf(
+                    "lastMessageText" to text,
+                    "lastMessageAt" to now
+                ), SetOptions.merge()
+            )
 
-            batch.set(otherIndex, mapOf(
-                "lastMessageText" to text,
-                "lastMessageAt" to now,
-                "unreadCount" to FieldValue.increment(1)
-            ), SetOptions.merge())
+            batch.set(
+                otherIndex, mapOf(
+                    "lastMessageText" to text,
+                    "lastMessageAt" to now,
+                    "unreadCount" to FieldValue.increment(1)
+                ), SetOptions.merge()
+            )
 
             batch.commit().await()
             Unit

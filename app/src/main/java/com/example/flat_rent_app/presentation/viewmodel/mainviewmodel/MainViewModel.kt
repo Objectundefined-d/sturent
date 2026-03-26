@@ -1,12 +1,15 @@
 package com.example.flat_rent_app.presentation.viewmodel.mainviewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.SwipeProfile
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import com.example.flat_rent_app.domain.repository.SwipeRepository
+import com.example.flat_rent_app.util.Constants
+import com.example.flat_rent_app.util.LikeOutCome
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -24,6 +27,16 @@ class MainViewModel @Inject constructor(
 
     init {
         loadProfiles()
+        checkUnseenMatches()
+    }
+
+    private fun checkUnseenMatches() {
+        viewModelScope.launch {
+            val match = swipeRepository.getUnseenMatch()
+            if (match != null) {
+                _state.update { it.copy(matchChatId = match.matchId) }
+            }
+        }
     }
 
     fun loadProfiles() {
@@ -31,9 +44,7 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                delay(2000L)
-
-                val result = profileRepository.getFeedProfiles(limit = 10)
+                val result = profileRepository.getFeedProfiles(limit = 50)
 
                 result.onSuccess { userProfiles ->
                     val swipeProfiles = userProfiles.map { userProfile ->
@@ -41,6 +52,7 @@ class MainViewModel @Inject constructor(
                             uid = userProfile.uid,
                             name = extractName(userProfile.name),
                             age = userProfile.age,
+                            gender = userProfile.gender,
                             city = userProfile.city,
                             university = userProfile.eduPlace,
                             description = userProfile.description,
@@ -50,12 +62,15 @@ class MainViewModel @Inject constructor(
                                 ?.fullUrl
                         )
                     }
-                    var filtered = if (_state.value.selectedUniversityFilter ==
-                                                                        Constants.UNIVERSITY_ALL) {
-                        swipeProfiles
-                    } else {
-                        swipeProfiles.filter { it.university == _state.value.selectedUniversityFilter }
-                    }
+                    val currentState = _state.value
+
+                    val filtered = applyFilters(
+                        profiles = swipeProfiles,
+                        university = currentState.selectedUniversityFilter,
+                        genderFilter = currentState.selectedGenderFilter,
+                        ageMin = currentState.ageFilterMin,
+                        ageMax = currentState.ageFilterMax
+                    )
 
                     _state.update { it.copy(
                         profiles = filtered,
@@ -92,10 +107,20 @@ class MainViewModel @Inject constructor(
             viewModelScope.launch {
                 swipeRepository.likeUser(targetId)
                     .onSuccess { outcome ->
-                        println("Лайк отправлен: $outcome")
+                        when (outcome) {
+                            is LikeOutCome.Match -> {
+                                _state.update {
+                                    it.copy(
+                                        matchChatId = outcome.chatId,
+                                        matchedUserId = targetId
+                                        )
+                                }
+                            }
+                            LikeOutCome.LikedOnly -> { }
+                        }
                     }
                     .onFailure { error ->
-                        println("Ошибка лайка: ${error.message}")
+                        _state.update { it.copy(error = error.message) }
                     }
 
                 moveToNext()
@@ -140,6 +165,23 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun addToFavorites(userId: String) {
+        viewModelScope.launch {
+            swipeRepository.addToFavorites(userId)
+            moveToNext()
+        }
+    }
+
+    fun dismissMatch() {
+        val matchId = _state.value.matchChatId
+        if (matchId != null) {
+            viewModelScope.launch {
+                swipeRepository.markMatchAsSeen(matchId)
+            }
+        }
+        _state.update { it.copy(matchChatId = null, matchedUserId = null) }
+    }
+
     fun retry() {
         loadProfiles()
     }
@@ -182,8 +224,60 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun setUniversityFilter(university: String) {
-        _state.update { it.copy(selectedUniversityFilter = university) }
+    fun applyFilters(university: String, gender: String, minAge: Int, maxAge: Int) {
+        _state.update {
+            it.copy(
+                selectedUniversityFilter = university,
+                selectedGenderFilter = gender,
+                ageFilterMin = minAge,
+                ageFilterMax = maxAge,
+                showFilters = false
+            )
+        }
         loadProfiles()
     }
+
+    fun openFilters() {
+        _state.update { it.copy(showFilters = true) }
+    }
+    fun closeFilters() {
+        _state.update { it.copy(showFilters = false) }
+    }
+}
+
+private fun applyFilters(
+    profiles: List<SwipeProfile>,
+    university: String,
+    genderFilter: String,
+    ageMin: Int,
+    ageMax: Int
+): List<SwipeProfile> {
+    return profiles
+        .filter { profile ->
+            if (university == Constants.UNIVERSITY_ALL) {
+                true
+            } else {
+                profile.university == university
+            }
+        }
+        .filter { profile ->
+            when (genderFilter) {
+                Constants.GENDER_ANY -> true
+                Constants.GENDER_MALE -> {
+                    profile.gender == Gender.MALE
+                }
+                Constants.GENDER_FEMALE -> {
+                    profile.gender == Gender.FEMALE
+                }
+                else -> true
+            }
+        }
+        .filter { profile ->
+            val age = profile.age
+            if (age == null) {
+                true
+            } else {
+                age in ageMin..ageMax
+            }
+        }
 }

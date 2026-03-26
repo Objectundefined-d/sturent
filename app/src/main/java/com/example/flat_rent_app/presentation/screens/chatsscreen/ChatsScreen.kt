@@ -19,6 +19,7 @@ fun ChatsScreen(
     onOpenChat: (chatId: String, otherUid: String) -> Unit,
     onGoHome: () -> Unit,
     onGoProfile: () -> Unit,
+    onGoFavorites: () -> Unit,
     viewmodel: ChatsViewModel = hiltViewModel()
 ) {
     val items by viewmodel.items.collectAsState()
@@ -38,8 +39,9 @@ fun ChatsScreen(
             AppBottomBar(
                 selected = BottomTabs.CHATS,
                 onHome = onGoHome,
-                onChats = { /* уже тут */ },
-                onProfile = onGoProfile
+                onChats = { },
+                onProfile = onGoProfile,
+                onFavorites = onGoFavorites
             )
         }
     ) { pad ->
