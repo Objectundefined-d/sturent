@@ -53,7 +53,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainScreenState
-import com.example.flat_rent_app.util.Constants
 
 val LikeGreen = Color(0xFF38D986)
 private val NopeRed = Color(0xFFFF4458)
