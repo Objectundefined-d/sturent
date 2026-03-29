@@ -107,37 +107,38 @@ fun ChatScreen(
                 contentPadding = PaddingValues(vertical = 12.dp)
             ) {
                 items(messages, key = { it.messageId }) { msg ->
-                    var showMenu by remember { mutableStateOf(false) }
+                    var showDialog by remember { mutableStateOf(false) }
 
-                    Box {
-                        Bubble(msg = msg,
-                            isMine = msg.senderUid == ui.myUid,
-                            onLongClick = {
-                                if (msg.senderUid == ui.myUid) showMenu = true
+                    if (showDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDialog = false },
+                            title = { Text("Удалить сообщение?") },
+                            text = { Text("Выберите способ удаления") },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    viewmodel.deleteMessage(msg.messageId, forBoth = true)
+                                    showDialog = false
+                                }) { Text("У всех") }
+                            },
+                            dismissButton = {
+                                Row {
+                                    TextButton(onClick = { showDialog = false }) { Text("Отмена") }
+                                    TextButton(onClick = {
+                                        viewmodel.deleteMessage(msg.messageId, forBoth = false)
+                                        showDialog = false
+                                    }) { Text("Только у меня") }
+                                }
                             }
                         )
-
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Удалить у себя") },
-                                onClick = {
-                                    viewmodel.deleteMessage(msg.messageId, forBoth = false)
-                                    showMenu = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Удалить у всех") },
-                                onClick = {
-                                    viewmodel.deleteMessage(msg.messageId, forBoth = true)
-                                    showMenu = false
-                                }
-                            )
-                        }
                     }
 
+                    Bubble(
+                        msg = msg,
+                        isMine = msg.senderUid == ui.myUid,
+                        onLongClick = {
+                            if (msg.senderUid == ui.myUid) showDialog = true
+                        }
+                    )
                 }
             }
         }
