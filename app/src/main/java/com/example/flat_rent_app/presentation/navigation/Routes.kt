@@ -21,6 +21,9 @@ sealed class Routes(val route: String) {
     object ChatsScreen : Routes("chats")
 
     object FavoritesScreen : Routes("favorites")
+
+    object NotificationsSettingsScreen: Routes("notificationSettingsScreen")
+
     object ChatScreen : Routes("chat/{chatId}/{otherUid}") {
         fun create(chatId: String, otherUid: String) = "chat/$chatId/$otherUid"
     }

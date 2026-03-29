@@ -1,6 +1,5 @@
 package com.example.flat_rent_app.presentation.screens.chatsscreen
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack

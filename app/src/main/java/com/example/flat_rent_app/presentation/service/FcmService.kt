@@ -33,13 +33,44 @@ class FcmService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        val title = message.notification?.title ?: message.data["title"] ?: return
-        val body  = message.notification?.body  ?: message.data["body"]  ?: return
-        showNotification(title, body)
+
+        val title = message.data["title"] ?: return
+        val body = message.data["body"] ?: return
+        val type = message.data["type"] ?: "match"
+
+        val prefs = getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
+        val enabled = when (type) {
+            "message" -> prefs.getBoolean("notify_messages", true)
+            "match" -> prefs.getBoolean("notify_matches", true)
+            else -> true
+        }
+        if (!enabled) return
+
+        val channelId = when (type) {
+            "message" -> "messages_channel"
+            else -> "matches_channel"
+        }
+
+        showNotification(title, body, channelId)
     }
 
-    private fun showNotification(title: String, body: String) {
-        val channelId = "matches_channel"
+    private fun showNotification(title: String, body: String, channelId: String) {
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        manager.createNotificationChannel(
+            NotificationChannel(
+                "matches_channel",
+                "Совпадения",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+        )
+        manager.createNotificationChannel(
+            NotificationChannel(
+                "messages_channel",
+                "Сообщения",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+        )
 
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -58,14 +89,6 @@ class FcmService : FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .build()
 
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val channel = NotificationChannel(
-            channelId,
-            "Совпадения",
-            NotificationManager.IMPORTANCE_HIGH
-        )
-        manager.createNotificationChannel(channel)
         manager.notify(System.currentTimeMillis().toInt(), notification)
     }
 }
