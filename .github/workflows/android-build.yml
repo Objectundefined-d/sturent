@@ -1,6 +1,3 @@
-# Шаг 1: только сборка APK в GitHub Actions.
-# Дальше можно добавить отправку в Telegram и т.д.
-
 name: Android build (debug)
 
 on:
@@ -26,3 +23,20 @@ jobs:
 
       - name: Gradle assembleDebug
         run: chmod +x gradlew && ./gradlew assembleDebug --stacktrace
+
+      - name: Send APK to Telegram
+        if: success()
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          APK=$(find app/build/outputs/apk -name "*-debug.apk" | head -n1)
+          if [ ! -f "$APK" ]; then
+            echo "::error::APK не найден."
+            exit 1
+          fi
+          CAPTION="Sturent debug | ${{ github.ref_name }} | ${GITHUB_SHA:0:7}"
+          curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument" \
+            -F chat_id="${CHAT_ID}" \
+            -F document=@"${APK}" \
+            -F caption="${CAPTION}"
