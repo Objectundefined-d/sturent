@@ -16,8 +16,8 @@ import com.example.flat_rent_app.presentation.screens.profilescreen.ProfileScree
 import com.example.flat_rent_app.presentation.screens.questionnairescreen.QuestionnaireScreen
 import com.example.flat_rent_app.presentation.screens.editquestionnairescreen.EditQuestionnaireScreen
 import com.example.flat_rent_app.presentation.screens.favoritesscreen.FavoritesScreen
-import com.example.flat_rent_app.presentation.viewmodel.favoritesviewmodel.FavoritesViewModel
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainViewModel
+import com.example.flat_rent_app.presentation.screens.notificationssettingsscreen.NotificationsSettingsScreen
 
 @Composable
 fun AppGraph() {
@@ -53,7 +53,9 @@ fun AppGraph() {
                 },
                 onGoChats = { navController.navigate(Routes.ChatsScreen.route) },
                 onGoFavorites = { navController.navigate(Routes.FavoritesScreen.route) },
-                onEditQuestionnaire = { navController.navigate(Routes.EditQuestionnaire.route) })
+                onEditQuestionnaire = { navController.navigate(Routes.EditQuestionnaire.route) },
+                onGoSettings = { navController.navigate(Routes.NotificationsSettingsScreen.route) }
+            )
         }
 
         composable(Routes.FormScreen.route) {
@@ -66,6 +68,14 @@ fun AppGraph() {
                 onSaveComplete = { navController.popBackStack() }
             )
         }
+
+        composable(Routes.NotificationsSettingsScreen.route) {
+            NotificationsSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+
 
         composable(Routes.ChatsScreen.route) {
             ChatsScreen(onOpenChat = { chatId, otherUid ->
