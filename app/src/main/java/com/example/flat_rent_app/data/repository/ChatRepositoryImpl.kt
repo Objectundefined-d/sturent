@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.data.repository
 
+import android.util.Log
 import com.example.flat_rent_app.domain.model.Chat
 import com.example.flat_rent_app.domain.model.Message
 import com.example.flat_rent_app.domain.repository.AuthRepository
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.jvm.Throws
 
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
@@ -28,13 +30,13 @@ class ChatRepositoryImpl @Inject constructor(
         }
 
         val reg = db.collection("userChats")
-                    .document(myUid)
-                    .collection("items")
-                    .orderBy("lastMessageAtMillis", Query.Direction.DESCENDING)
-                    .addSnapshotListener { snap, err ->
-                    if (err != null || snap == null) {
-                        trySend(emptyList()); return@addSnapshotListener
-                    }
+            .document(myUid)
+            .collection("items")
+            .orderBy("lastMessageAtMillis", Query.Direction.DESCENDING)
+            .addSnapshotListener { snap, err ->
+                if (err != null || snap == null) {
+                    trySend(emptyList()); return@addSnapshotListener
+                }
 
                 val list = snap.documents.mapNotNull { d ->
                     val otherUid = d.getString("otherUid") ?: return@mapNotNull null
@@ -54,6 +56,8 @@ class ChatRepositoryImpl @Inject constructor(
 
 
     override fun observeMessages(chatId: String, limit: Long): Flow<List<Message>> = callbackFlow {
+        val myUid = authRepo.currentUid().orEmpty()
+
         val reg = db.collection("chats").document(chatId)
             .collection("messages")
             .orderBy("createdAt", Query.Direction.DESCENDING)
@@ -65,6 +69,10 @@ class ChatRepositoryImpl @Inject constructor(
 
                 val list = snap.documents.mapNotNull { d ->
                     val senderUid = d.getString("senderUid") ?: return@mapNotNull null
+
+                    val deletedFor = (d.get("deletedFor") as? List<*>) ?: emptyList<String>()
+                    if (myUid in deletedFor) return@mapNotNull null
+
                     Message(
                         messageId = d.id,
                         senderUid = senderUid,
@@ -138,7 +146,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun markRead(chatId: String): Result<Unit> =
         runCatching {
-            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Нет авторизации")
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
 
             db.collection("userChats").document(myUid)
                 .collection("items").document(chatId)
@@ -148,5 +156,132 @@ class ChatRepositoryImpl @Inject constructor(
             Unit
         }.recoverCatching { t ->
             throw RuntimeException(t.message ?: "Ошибка markRead", t)
+        }
+
+    override suspend fun deleteChat(
+        chatId: String,
+        otherUid: String,
+        forBoth: Boolean
+    ): Result<Unit> =
+        runCatching {
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
+            val batch = db.batch()
+
+            if (forBoth) {
+                val messages = db.collection("chats").document(chatId)
+                    .collection("messages").get().await()
+
+                messages.documents.forEach { doc ->
+                    batch.delete(doc.reference)
+                }
+
+                batch.delete(db.collection("chats").document(chatId))
+
+                batch.delete(
+                    db.collection("userChats")
+                        .document(myUid).collection("items").document(chatId)
+                )
+
+                batch.delete(
+                    db.collection("userChats")
+                        .document(otherUid).collection("items").document(chatId)
+                )
+            } else {
+
+                batch.delete(
+                    db.collection("userChats").document(myUid)
+                        .collection("items").document(chatId)
+                )
+            }
+
+            batch.commit().await()
+            Unit
+        }.recoverCatching { t ->
+            throw RuntimeException(t.message ?: "Ошибка удаления чата")
+        }
+
+
+    override suspend fun clearHistory(chatId: String, forBoth: Boolean): Result<Unit> =
+        runCatching {
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Нет авторизации")
+            val batch = db.batch()
+
+            val messages = db.collection("chats").document(chatId)
+                .collection("messages").get().await()
+
+            if (forBoth) {
+                messages.documents.forEach { doc -> batch.delete(doc.reference) }
+
+                batch.set(
+                    db.collection("chats").document(chatId),
+                    mapOf("lastMessageText" to null, "lastMessageAt" to null),
+                    SetOptions.merge()
+                )
+
+                val chatSnap = db.collection("chats").document(chatId).get().await()
+                val memberUids = (chatSnap.get("memberUids") as? List<*>)
+                    ?.mapNotNull { it as? String } ?: emptyList()
+
+                memberUids.forEach { uid ->
+                    val indexRef = db.collection("userChats")
+                        .document(uid).collection("items").document(chatId)
+                    batch.update(indexRef, "lastMessageText", null)
+                }
+            } else {
+                messages.documents.forEach { doc ->
+                    batch.update(doc.reference, "deletedFor", FieldValue.arrayUnion(myUid))
+                }
+
+                val indexRef = db.collection("userChats")
+                    .document(myUid).collection("items").document(chatId)
+                batch.update(indexRef, "lastMessageText", null)
+            }
+
+            batch.commit().await()
+            Unit
+        }.recoverCatching { t ->
+            throw RuntimeException(t.message ?: "Ошибка очистки истории", t)
+        }
+
+    override suspend fun deleteMessage(
+        chatId: String,
+        messageId: String,
+        forBoth: Boolean
+    ): Result<Unit> =
+        runCatching {
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
+            val messageRef = db.collection("chats").document(chatId)
+                .collection("messages").document(messageId)
+
+            if (forBoth) {
+                messageRef.delete().await()
+            } else {
+                messageRef.update("deletedFor", FieldValue.arrayUnion(myUid)).await()
+            }
+
+            val remaining = db.collection("chats").document(chatId)
+                .collection("messages")
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .await()
+
+            val lastText = remaining.documents.firstOrNull()?.getString("text")
+
+            val chatSnap = db.collection("chats").document(chatId).get().await()
+            val memberUids = (chatSnap.get("memberUids") as? List<*>)
+                ?.mapNotNull { it as? String } ?: emptyList()
+
+            val batch = db.batch()
+            memberUids.forEach { uid ->
+                val indexRef = db.collection("userChats")
+                    .document(uid).collection("items").document(chatId)
+                batch.update(indexRef, "lastMessageText", lastText)
+            }
+            batch.commit().await()
+
+            Unit
+        }.recoverCatching { t ->
+            throw RuntimeException(t.message ?: "Ошибка удаления сообщения", t)
         }
 }

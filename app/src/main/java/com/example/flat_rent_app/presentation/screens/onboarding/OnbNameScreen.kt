@@ -67,7 +67,6 @@ fun OnbNameScreenContent(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Имя
             OnbFieldLabel(label = stringResource(R.string.onb_name_question), icon = OnbIcon.Person)
             OnbTextField(
                 value = name,
@@ -76,7 +75,6 @@ fun OnbNameScreenContent(
                 singleLine = true
             )
 
-            // Возраст
             var ageExpanded by remember { mutableStateOf(false) }
             OnbFieldLabel(label = "Возраст", icon = OnbIcon.Person)
             ExposedDropdownMenuBox(
@@ -111,7 +109,6 @@ fun OnbNameScreenContent(
                 }
             }
 
-            // Пол
             Text(
                 text = stringResource(R.string.onb_gender_label),
                 style = MaterialTheme.typography.titleMedium,
@@ -137,7 +134,6 @@ fun OnbNameScreenContent(
                 }
             }
 
-            // Город
             var cityExpanded by remember { mutableStateOf(false) }
             OnbFieldLabel(label = stringResource(R.string.onb_city_label), icon = OnbIcon.Location)
             ExposedDropdownMenuBox(
@@ -172,7 +168,6 @@ fun OnbNameScreenContent(
                 }
             }
 
-            // ВУЗ
             var expanded by remember { mutableStateOf(false) }
             OnbFieldLabel(label = stringResource(R.string.onb_university_label), icon = OnbIcon.School)
             ExposedDropdownMenuBox(
@@ -207,7 +202,6 @@ fun OnbNameScreenContent(
                 }
             }
 
-            // Ошибка
             error?.let {
                 Text(
                     it,
