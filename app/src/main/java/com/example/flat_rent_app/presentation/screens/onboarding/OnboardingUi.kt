@@ -23,6 +23,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -41,7 +43,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
@@ -56,22 +57,14 @@ import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.WavingHand
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.tooling.preview.Preview
 
-@Immutable
-data class OnboardingPalette(
-    val topOrange: Color = Color(0xFFFFB74D),
-    val bottomOrange: Color = Color(0xFFFF3D00),
-    val accentOrange: Color = Color(0xFFFF6D00),
-    val lightOrange: Color = Color(0x33FF6D00),
-    val chipSelected: Color = Color(0xFF9FC5FF),
-    val chipSelectedText: Color = Color(0xFF0B3D91),
-    val labelBlue: Color = Color(0xFF1E88E5),
-    val cardGray: Color = Color(0xFFE8E8E8),
-)
-
-private val DefaultOnbPalette = OnboardingPalette()
+// Цвета приложения
+private val AppBlue = Color(0xFF1A73E8)
+private val AppBlack = Color(0xFF1C1C1E)
+private val AppWhite = Color.White
+private val AppGray = Color(0xFFF2F2F7)
+private val AppLightBlue = Color(0xFFE8F0FE)
 
 @Composable
 fun OnboardingScaffold(
@@ -143,12 +136,12 @@ fun OnbTextField(
         minLines = minLines
     )
 }
+
 @Composable
 fun OnboardingScreen(
     step: Int,
     title: String,
     modifier: Modifier = Modifier,
-    palette: OnboardingPalette = DefaultOnbPalette,
     emoji: String? = null,
     content: @Composable ColumnScope.() -> Unit,
     bottomBar: @Composable () -> Unit,
@@ -157,7 +150,9 @@ fun OnboardingScreen(
         modifier = modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(listOf(palette.topOrange, palette.bottomOrange))
+                Brush.verticalGradient(
+                    listOf(AppBlue, Color(0xFF0D47A1))
+                )
             )
     ) {
         Column(
@@ -166,7 +161,7 @@ fun OnboardingScreen(
                 .padding(horizontal = 18.dp)
                 .padding(top = 26.dp)
         ) {
-            Stepper(step = step, palette = palette)
+            Stepper(step = step)
             Spacer(Modifier.height(22.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -178,7 +173,7 @@ fun OnboardingScreen(
                         }
                     },
                     style = MaterialTheme.typography.headlineLarge.copy(
-                        color = Color.White,
+                        color = AppWhite,
                         fontWeight = FontWeight.ExtraBold,
                         lineHeight = 38.sp
                     ),
@@ -192,8 +187,7 @@ fun OnboardingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 190.dp),
-            shape = RoundedCornerShape(topStart = 42.dp, topEnd = 42.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = AppWhite),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Column(
@@ -215,19 +209,12 @@ fun OnboardingScreen(
     }
 }
 
-
 @Composable
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Preview(showBackground = true, showSystemUi = true)
 fun OnboardingScreenPreview() {
     OnboardingScreen(
         step = 1,
-        title = "",
-        modifier = Modifier,
-        palette = DefaultOnbPalette,
-        emoji = null,
+        title = "Как тебя зовут?",
         content = {},
         bottomBar = {},
     )
@@ -236,7 +223,6 @@ fun OnboardingScreenPreview() {
 @Composable
 private fun Stepper(
     step: Int,
-    palette: OnboardingPalette,
     total: Int = 4,
     circleSize: Dp = 32.dp,
 ) {
@@ -251,8 +237,7 @@ private fun Stepper(
                 index = i,
                 done = isDone,
                 active = isActive,
-                size = circleSize,
-                palette = palette
+                size = circleSize
             )
 
             if (i != total) {
@@ -260,7 +245,7 @@ private fun Stepper(
                     Modifier
                         .weight(1f)
                         .height(2.dp)
-                        .background(Color.White.copy(alpha = 0.35f))
+                        .background(AppWhite.copy(alpha = 0.35f))
                 )
             }
         }
@@ -272,36 +257,32 @@ private fun StepCircle(
     index: Int,
     done: Boolean,
     active: Boolean,
-    size: Dp,
-    palette: OnboardingPalette,
+    size: Dp
 ) {
     val bg = when {
-        done || active -> Color.White
-        else -> Color.White.copy(alpha = 0.28f)
+        done || active -> AppWhite
+        else -> AppWhite.copy(alpha = 0.28f)
     }
-    val border = when {
-        active -> palette.accentOrange
-        else -> Color.Transparent
-    }
+    val borderColor = if (active) AppBlue else Color.Transparent
+
     Box(
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
             .background(bg)
-            .border(width = 2.dp, color = border, shape = CircleShape),
+            .border(width = 2.dp, color = borderColor, shape = CircleShape),
         contentAlignment = Alignment.Center
     ) {
         when {
             done -> Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
-                tint = palette.accentOrange,
+                tint = AppBlue,
                 modifier = Modifier.size(18.dp)
             )
-
             else -> Text(
                 text = index.toString(),
-                color = if (active) palette.accentOrange else Color.White,
+                color = if (active) AppBlue else AppWhite,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -313,7 +294,6 @@ fun OnbBottomButtons(
     onBack: (() -> Unit)?,
     onNext: () -> Unit,
     nextEnabled: Boolean,
-    palette: OnboardingPalette = DefaultOnbPalette,
     nextText: String = "Далее",
     backText: String = "Назад",
 ) {
@@ -327,7 +307,6 @@ fun OnbBottomButtons(
             iconLeft = Icons.AutoMirrored.Filled.ArrowBack,
             enabled = onBack != null,
             onClick = { onBack?.invoke() },
-            palette = palette
         )
 
         PillButton(
@@ -335,7 +314,6 @@ fun OnbBottomButtons(
             iconRight = Icons.AutoMirrored.Filled.ArrowForward,
             enabled = nextEnabled,
             onClick = onNext,
-            palette = palette
         )
     }
 }
@@ -346,7 +324,6 @@ fun PillButton(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    palette: OnboardingPalette = DefaultOnbPalette,
     iconLeft: androidx.compose.ui.graphics.vector.ImageVector? = null,
     iconRight: androidx.compose.ui.graphics.vector.ImageVector? = null,
     leading: (@Composable () -> Unit)? = null,
@@ -357,19 +334,17 @@ fun PillButton(
         modifier = modifier,
         shape = RoundedCornerShape(26.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = palette.accentOrange,
-            disabledContainerColor = palette.accentOrange.copy(alpha = 0.35f),
-            contentColor = Color.White,
-            disabledContentColor = Color.White.copy(alpha = 0.75f)
+            containerColor = AppBlue,
+            disabledContainerColor = AppBlue.copy(alpha = 0.35f),
+            contentColor = AppWhite,
+            disabledContentColor = AppWhite.copy(alpha = 0.75f)
         ),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             horizontal = 18.dp,
             vertical = 12.dp
         )
     ) {
-        if (leading != null) {
-            leading()
-        }
+        if (leading != null) leading()
         if (iconLeft != null) {
             Icon(iconLeft, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
@@ -388,7 +363,6 @@ fun ChipFlowRow(
     items: List<String>,
     selected: Set<String>,
     onToggle: (String) -> Unit,
-    palette: OnboardingPalette = DefaultOnbPalette,
 ) {
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
@@ -404,21 +378,17 @@ fun ChipFlowRow(
                     .clip(RoundedCornerShape(999.dp))
                     .border(
                         width = 1.5.dp,
-                        color = palette.accentOrange.copy(alpha = 0.55f),
+                        color = AppBlue.copy(alpha = 0.55f),
                         shape = RoundedCornerShape(999.dp)
-                    )
-                    .background(if (isSelected) palette.chipSelected else Color.Transparent)
-                    .padding(horizontal = 14.dp, vertical = 10.dp)
-                    .clip(RoundedCornerShape(999.dp))
-                    .background(if (isSelected) palette.chipSelected else Color.Transparent)
-                    .then(Modifier),
-                color = if (isSelected) palette.chipSelected else Color.Transparent,
-                contentColor = if (isSelected) palette.chipSelectedText else palette.accentOrange,
+                    ),
+                color = if (isSelected) AppBlue else Color.Transparent,
+                contentColor = if (isSelected) AppWhite else AppBlue,
                 onClick = { onToggle(item) },
                 shape = RoundedCornerShape(999.dp)
             ) {
                 Text(
                     text = item,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
@@ -433,17 +403,20 @@ fun AboutCardTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    palette: OnboardingPalette = DefaultOnbPalette,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(210.dp),
         shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.cardColors(containerColor = palette.cardGray),
+        colors = CardDefaults.cardColors(containerColor = AppGray),
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
-        Box(Modifier.fillMaxSize().padding(16.dp)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
             if (value.isBlank()) {
                 Text(
                     text = placeholder,
@@ -454,8 +427,8 @@ fun AboutCardTextField(
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color(0xFF1B1B1B)),
-                cursorBrush = SolidColor(palette.accentOrange),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = AppBlack),
+                cursorBrush = SolidColor(AppBlue),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Default
@@ -472,12 +445,11 @@ fun PhotoSlotCard(
     title: String,
     countText: String,
     modifier: Modifier = Modifier,
-    palette: OnboardingPalette = DefaultOnbPalette,
 ) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = palette.cardGray),
+        colors = CardDefaults.cardColors(containerColor = AppGray),
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
@@ -485,7 +457,9 @@ fun PhotoSlotCard(
                 AsyncImage(
                     model = imageModel,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp)),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(24.dp)),
                     contentScale = ContentScale.Crop
                 )
             } else {
@@ -503,8 +477,12 @@ fun PhotoSlotCard(
                         modifier = Modifier.size(26.dp)
                     )
                     Spacer(Modifier.height(10.dp))
-                    Text(title, color = Color(0xFF555555), fontWeight = FontWeight.SemiBold)
-                    Text(countText, color = Color(0xFF777777), style = MaterialTheme.typography.labelMedium)
+                    Text(title, color = AppBlack, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        countText,
+                        color = Color(0xFF666666),
+                        style = MaterialTheme.typography.labelMedium
+                    )
                 }
             }
         }
@@ -514,7 +492,6 @@ fun PhotoSlotCard(
 @Composable
 fun OnbLabeledField(
     label: String,
-    palette: OnboardingPalette = DefaultOnbPalette,
     leadingIcon: @Composable (() -> Unit)? = null,
     field: @Composable () -> Unit,
 ) {
@@ -526,7 +503,7 @@ fun OnbLabeledField(
             }
             Text(
                 text = label,
-                color = palette.labelBlue,
+                color = AppBlue,
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -541,7 +518,6 @@ fun OnbOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    palette: OnboardingPalette = DefaultOnbPalette,
     singleLine: Boolean = true,
     trailingDropdown: Boolean = false,
     readOnly: Boolean = false,
@@ -569,26 +545,38 @@ fun OnbOutlinedTextField(
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = palette.accentOrange
+                    tint = AppBlue
                 )
             }
         } else null,
         shape = shape,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = palette.accentOrange,
-            unfocusedBorderColor = palette.accentOrange.copy(alpha = 0.65f),
-            cursorColor = palette.accentOrange,
-            focusedTextColor = Color(0xFF1B1B1B),
-            unfocusedTextColor = Color(0xFF1B1B1B)
+            focusedBorderColor = AppBlue,
+            unfocusedBorderColor = AppBlue.copy(alpha = 0.65f),
+            cursorColor = AppBlue,
+            focusedTextColor = AppBlack,
+            unfocusedTextColor = AppBlack
         )
     )
 }
 
 @Composable
-fun OnbIconName() = Icon(Icons.Filled.WavingHand, contentDescription = null, tint = DefaultOnbPalette.labelBlue)
+fun OnbIconName() = Icon(
+    Icons.Filled.WavingHand,
+    contentDescription = null,
+    tint = AppBlue
+)
 
 @Composable
-fun OnbIconCity() = Icon(Icons.Filled.LocationOn, contentDescription = null, tint = DefaultOnbPalette.labelBlue)
+fun OnbIconCity() = Icon(
+    Icons.Filled.LocationOn,
+    contentDescription = null,
+    tint = AppBlue
+)
 
 @Composable
-fun OnbIconEdu() = Icon(Icons.Filled.School, contentDescription = null, tint = DefaultOnbPalette.labelBlue)
+fun OnbIconEdu() = Icon(
+    Icons.Filled.School,
+    contentDescription = null,
+    tint = AppBlue
+)
