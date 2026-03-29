@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -23,8 +24,33 @@ fun ChatScreen(
     val ui by viewmodel.ui.collectAsState()
     val messages by viewmodel.messages.collectAsState()
     val otherProfile by viewmodel.otherProfile.collectAsState()
+    var showMenu by remember { mutableStateOf(false) }
+    var showClearDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { viewmodel.markRead() }
+
+    if (showClearDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearDialog = false },
+            title = { Text("Очистить историю?") },
+            text = { Text("Выберите способ очистки") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewmodel.clearHistory(forBoth = true)
+                    showClearDialog = false
+                }) { Text("У всех") }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = { showClearDialog = false }) { Text("Отмена") }
+                    TextButton(onClick = {
+                        viewmodel.clearHistory(forBoth = false)
+                        showClearDialog = false
+                    }) { Text("Только у меня") }
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -33,6 +59,23 @@ fun ChatScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Очистить историю") },
+                            onClick = {
+                                showMenu = false
+                                showClearDialog = true
+                            }
+                        )
                     }
                 }
             )
@@ -64,7 +107,37 @@ fun ChatScreen(
                 contentPadding = PaddingValues(vertical = 12.dp)
             ) {
                 items(messages, key = { it.messageId }) { msg ->
-                    Bubble(msg = msg, isMine = msg.senderUid == ui.myUid)
+                    var showMenu by remember { mutableStateOf(false) }
+
+                    Box {
+                        Bubble(msg = msg,
+                            isMine = msg.senderUid == ui.myUid,
+                            onLongClick = {
+                                if (msg.senderUid == ui.myUid) showMenu = true
+                            }
+                        )
+
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Удалить у себя") },
+                                onClick = {
+                                    viewmodel.deleteMessage(msg.messageId, forBoth = false)
+                                    showMenu = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Удалить у всех") },
+                                onClick = {
+                                    viewmodel.deleteMessage(msg.messageId, forBoth = true)
+                                    showMenu = false
+                                }
+                            )
+                        }
+                    }
+
                 }
             }
         }

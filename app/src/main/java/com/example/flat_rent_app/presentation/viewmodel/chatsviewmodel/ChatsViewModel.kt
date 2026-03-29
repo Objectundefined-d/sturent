@@ -9,11 +9,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatsViewModel @Inject constructor(
-    chatRepo: ChatRepository,
+    private val chatRepo: ChatRepository,
     private val profileRepo: ProfileRepository
 ) : ViewModel() {
 
@@ -51,4 +52,10 @@ class ChatsViewModel @Inject constructor(
                 }
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun deleteChat(chatId: String, otherUid: String, forBoth: Boolean) = viewModelScope.launch {
+        chatRepo.deleteChat(chatId, otherUid, forBoth)
+    }
+
+
 }

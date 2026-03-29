@@ -2,6 +2,7 @@ package com.example.flat_rent_app.presentation.screens.chatsscreen.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flat_rent_app.domain.model.Chat
 
@@ -27,12 +29,16 @@ import com.example.flat_rent_app.domain.model.Chat
 fun ChatRow(
     chat: Chat,
     title: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -76,4 +82,21 @@ fun ChatRow(
             Badge { Text(chat.unreadCount.toString()) }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatRowPreview() {
+    ChatRow(
+        chat = Chat(
+            chatId = "123",
+            otherUid = "456",
+            lastMessageText = "Привет, как дела?",
+            lastMessageAt = null,
+            unreadCount = 3L
+        ),
+        title = "Иван Иванов",
+        onClick = {},
+        onLongClick = {}
+    )
 }
