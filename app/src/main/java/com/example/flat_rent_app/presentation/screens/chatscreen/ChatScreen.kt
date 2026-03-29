@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,7 +42,7 @@ fun ChatScreen(
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { showClearDialog = false }) { Text("Отмена") }
+                    TextButton(onClick = { } ) { Text("Отмена") }
                     TextButton(onClick = {
                         viewmodel.clearHistory(forBoth = false)
                         showClearDialog = false
@@ -58,7 +58,7 @@ fun ChatScreen(
                 title = { Text(otherProfile?.name?.takeIf { it.isNotBlank() } ?: ui.otherUid) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
                 actions = {
@@ -67,7 +67,9 @@ fun ChatScreen(
                     }
                     DropdownMenu(
                         expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
+                        onDismissRequest = {
+                            showMenu = false
+                        }
                     ) {
                         DropdownMenuItem(
                             text = { Text("Очистить историю") },
