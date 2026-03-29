@@ -1,0 +1,28 @@
+# Шаг 1: только сборка APK в GitHub Actions.
+# Дальше можно добавить отправку в Telegram и т.д.
+
+name: Android build (debug)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - feature-CI/CD
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Gradle assembleDebug
+        run: chmod +x gradlew && ./gradlew assembleDebug --stacktrace
