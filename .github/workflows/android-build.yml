@@ -4,11 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
-      - master
       - develop
-      - feature-CI/CD
-
 jobs:
   build:
     runs-on: ubuntu-latest
