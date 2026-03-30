@@ -7,7 +7,6 @@ import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.SwipeProfile
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import com.example.flat_rent_app.domain.repository.SwipeRepository
-import com.example.flat_rent_app.util.Constants
 import com.example.flat_rent_app.util.LikeOutCome
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -252,32 +251,23 @@ private fun applyFilters(
     ageMin: Int,
     ageMax: Int
 ): List<SwipeProfile> {
-    return profiles
+    val result = profiles
         .filter { profile ->
-            if (university == Constants.UNIVERSITY_ALL) {
-                true
-            } else {
-                profile.university == university
-            }
+            university == Constants.UNIVERSITY_ALL || profile.university == university
         }
         .filter { profile ->
             when (genderFilter) {
-                Constants.GENDER_ANY -> true
-                Constants.GENDER_MALE -> {
-                    profile.gender == Gender.MALE
-                }
-                Constants.GENDER_FEMALE -> {
-                    profile.gender == Gender.FEMALE
-                }
+                Constants.GENDER_MALE -> profile.gender == Gender.MALE
+                Constants.GENDER_FEMALE -> profile.gender == Gender.FEMALE
                 else -> true
             }
         }
         .filter { profile ->
-            val age = profile.age
-            if (age == null) {
-                true
-            } else {
-                age in ageMin..ageMax
-            }
+            val age = profile.age ?: return@filter true
+            age in ageMin..ageMax
         }
+
+    Log.d("FILTER", "До фильтра: ${profiles.size}, после: ${result.size}, university=$university, gender=$genderFilter, age=$ageMin..$ageMax")
+
+    return result
 }

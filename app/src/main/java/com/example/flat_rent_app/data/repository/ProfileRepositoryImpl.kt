@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.data.repository
 
+import android.util.Log
 import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.ProfilePhoto
 import com.example.flat_rent_app.domain.model.UserProfile
@@ -79,14 +80,24 @@ class ProfileRepositoryImpl @Inject constructor(
         runCatching {
             val myUid = authRepo.currentUid() ?: throw IllegalStateException("Нет авторизации")
 
+            Log.d("FIRESTORE", "getFeedProfiles uid=$myUid")
+
             val snap = db.collection("users")
                 .orderBy("updatedAtMillis", Query.Direction.DESCENDING)
                 .limit(limit.toLong())
                 .get()
                 .await()
 
+            Log.d("FIRESTORE", "Всего документов: ${snap.documents.size}")
+
             snap.documents.mapNotNull { d ->
-                if (d.id == myUid) null else d.toUserProfile()
+                if (d.id == myUid) return@mapNotNull null
+                try {
+                    d.toUserProfile()
+                } catch (e: Exception) {
+                    Log.e("FIRESTORE", "Ошибка маппинга документа ${d.id}: ${e.message}")
+                    null
+                }
             }
         }.recoverCatching { t ->
             throw RuntimeException(t.message ?: "Ошибка загрузки кандидатов", t)

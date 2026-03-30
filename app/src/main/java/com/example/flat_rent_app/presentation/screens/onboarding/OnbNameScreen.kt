@@ -7,31 +7,28 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import com.example.flat_rent_app.util.Constants
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.RadioButton
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.R
+import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.presentation.viewmodel.onboarding.OnboardingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,10 +47,10 @@ fun OnbNameScreenContent(
     onEduPlaceChange: (String) -> Unit,
     onNext: () -> Unit,
 ) {
-    val canGoNext = name.isNotBlank()
-            && city.isNotBlank()
-            && eduPlace.isNotBlank()
-            && gender != null
+    val canGoNext = name.isNotBlank() &&
+            age.isNotBlank() &&
+            city.isNotBlank() &&
+            eduPlace.isNotBlank()
 
     OnboardingScaffold(
         step = 1,
@@ -61,9 +58,7 @@ fun OnbNameScreenContent(
         title = stringResource(R.string.onb_name_title),
         footer = {
             OnboardingFooter(
-                onNext = {
-                    if (canGoNext) onNext() else onNameChange(name)
-                },
+                onNext = onNext,
                 nextEnabled = canGoNext
             )
         }
@@ -80,14 +75,39 @@ fun OnbNameScreenContent(
                 singleLine = true
             )
 
-            OutlinedTextField(
-                value = age,
-                onValueChange = onAgeChange,
-                label = { Text(stringResource(R.string.onb_age_label)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            var ageExpanded by remember { mutableStateOf(false) }
+            OnbFieldLabel(label = "Возраст", icon = OnbIcon.Person)
+            ExposedDropdownMenuBox(
+                expanded = ageExpanded,
+                onExpandedChange = { ageExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = age,
+                    onValueChange = {},
+                    readOnly = true,
+                    placeholder = { Text("Выберите возраст") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = ageExpanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = ageExpanded,
+                    onDismissRequest = { ageExpanded = false }
+                ) {
+                    Constants.AGES_FOR_PROFILE.forEach { ageOption ->
+                        DropdownMenuItem(
+                            text = { Text(ageOption) },
+                            onClick = {
+                                onAgeChange(ageOption)
+                                ageExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
 
             Text(
                 text = stringResource(R.string.onb_gender_label),
@@ -114,13 +134,39 @@ fun OnbNameScreenContent(
                 }
             }
 
+            var cityExpanded by remember { mutableStateOf(false) }
             OnbFieldLabel(label = stringResource(R.string.onb_city_label), icon = OnbIcon.Location)
-            OnbTextField(
-                value = city,
-                onValueChange = onCityChange,
-                placeholder = stringResource(R.string.onb_city_placeholder),
-                singleLine = true
-            )
+            ExposedDropdownMenuBox(
+                expanded = cityExpanded,
+                onExpandedChange = { cityExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = city,
+                    onValueChange = {},
+                    readOnly = true,
+                    placeholder = { Text(stringResource(R.string.onb_city_placeholder)) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = cityExpanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = cityExpanded,
+                    onDismissRequest = { cityExpanded = false }
+                ) {
+                    Constants.CITIES_FOR_PROFILE.forEach { cityOption ->
+                        DropdownMenuItem(
+                            text = { Text(cityOption) },
+                            onClick = {
+                                onCityChange(cityOption)
+                                cityExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
 
             var expanded by remember { mutableStateOf(false) }
             OnbFieldLabel(label = stringResource(R.string.onb_university_label), icon = OnbIcon.School)
@@ -133,7 +179,9 @@ fun OnbNameScreenContent(
                     onValueChange = {},
                     readOnly = true,
                     placeholder = { Text(stringResource(R.string.onb_university_placeholder)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor()

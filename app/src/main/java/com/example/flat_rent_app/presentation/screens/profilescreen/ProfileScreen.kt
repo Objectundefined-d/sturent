@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +27,7 @@ import com.example.flat_rent_app.presentation.components.AppBottomBar
 import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 import com.example.flat_rent_app.util.BottomTabs
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreenContent(
     displayName: String,
@@ -38,6 +40,7 @@ fun ProfileScreenContent(
     onGoChats: () -> Unit,
     onGoFavorites: () -> Unit,
     onDeleteAccount: () -> Unit,
+    onGoSettings: () -> Unit,
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -68,6 +71,16 @@ fun ProfileScreenContent(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Профиль") },
+                actions = {
+                    IconButton(onClick = onGoSettings) {
+                        Icon(Icons.Default.Settings, contentDescription = "Настройки")
+                    }
+                }
+            )
+        },
         bottomBar = {
             AppBottomBar(
                 selected = BottomTabs.PROFILE,
@@ -211,6 +224,7 @@ fun ProfileScreen(
     onGoChats: () -> Unit,
     onGoFavorites: () -> Unit,
     onEditQuestionnaire: () -> Unit,
+    onGoSettings: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val user by viewModel.user.collectAsState(initial = null)
@@ -232,7 +246,8 @@ fun ProfileScreen(
         onGoHome = onGoHome,
         onGoChats = onGoChats,
         onGoFavorites = onGoFavorites,
-        onDeleteAccount = viewModel::deleteAccount
+        onDeleteAccount = viewModel::deleteAccount,
+        onGoSettings = onGoSettings
     )
 }
 
@@ -254,7 +269,8 @@ fun ProfileScreenPreview() {
             onGoHome = {},
             onGoChats = {},
             onGoFavorites = {},
-            onDeleteAccount = {}
+            onDeleteAccount = {},
+            onGoSettings = { }
         )
     }
 }

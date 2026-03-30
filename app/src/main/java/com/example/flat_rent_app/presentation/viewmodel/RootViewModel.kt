@@ -16,11 +16,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.core.content.edit
 
 @HiltViewModel
 class RootViewModel @Inject constructor(
     authRepo: AuthRepository,
-    private val profileRepo: ProfileRepository
+    private val profileRepo: ProfileRepository,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
     val user: StateFlow<AuthUser?> =
@@ -41,9 +43,17 @@ class RootViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            var prevUid: String? = null
             user.collect { u ->
                 if (u != null) {
+                    if (prevUid != null && prevUid != u.uid) {
+                        context.getSharedPreferences("notification_prefs", android.content.Context.MODE_PRIVATE)
+                            .edit { clear() }
+                    }
+                    prevUid = u.uid
                     saveFcmToken()
+                } else {
+                    prevUid = null
                 }
             }
         }
