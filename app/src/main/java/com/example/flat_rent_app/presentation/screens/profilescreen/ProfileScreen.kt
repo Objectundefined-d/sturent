@@ -41,37 +41,8 @@ fun ProfileScreenContent(
     onGoHome: () -> Unit,
     onGoChats: () -> Unit,
     onGoFavorites: () -> Unit,
-    onDeleteAccount: () -> Unit,
     onGoSettings: () -> Unit,
 ) {
-    var showDeleteDialog by remember { mutableStateOf(false) }
-
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Удалить аккаунт?") },
-            text = { Text("Это действие нельзя отменить. Все данные будут удалены.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        onDeleteAccount()
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text("Удалить")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Отмена")
-                }
-            }
-        )
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -180,7 +151,7 @@ fun ProfileScreenContent(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
+                    modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
                 )
             }
 
@@ -203,18 +174,6 @@ fun ProfileScreenContent(
                 )
             ) {
                 Text("Выйти")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = { showDeleteDialog = true },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text("Удалить аккаунт")
             }
         }
     }
@@ -248,7 +207,6 @@ fun ProfileScreen(
         onGoHome = onGoHome,
         onGoChats = onGoChats,
         onGoFavorites = onGoFavorites,
-        onDeleteAccount = viewModel::deleteAccount,
         onGoSettings = onGoSettings
     )
 }
@@ -271,7 +229,6 @@ fun ProfileScreenPreviewLight() {
             onGoHome = {},
             onGoChats = {},
             onGoFavorites = {},
-            onDeleteAccount = {},
             onGoSettings = {}
         )
     }
@@ -292,7 +249,6 @@ fun ProfileScreenPreviewDark() {
             onGoHome = {},
             onGoChats = {},
             onGoFavorites = {},
-            onDeleteAccount = {},
             onGoSettings = {}
         )
     }

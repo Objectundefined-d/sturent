@@ -1,6 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.settingsscreen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,13 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flat_rent_app.R
@@ -28,6 +29,7 @@ import com.example.flat_rent_app.presentation.viewmodel.settingsviewmodel.Settin
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
+    onDeleteAccount: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -42,7 +44,8 @@ fun SettingsScreen(
         onThemeChange = { value ->
             viewModel.setNewTheme(value)
             themeController.setDark(value)
-        }
+        },
+        onDeleteAccount = onDeleteAccount
     )
 }
 
@@ -54,8 +57,35 @@ fun SettingsScreenContent(
     onNotifyMatchesChange: (Boolean) -> Unit,
     onNotifyMessagesChange: (Boolean) -> Unit,
     onThemeChange: (Boolean) -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onDeleteAccount: () -> Unit,
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Удалить аккаунт?") },
+            text = { Text("Это действие нельзя отменить. Все данные будут удалены.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteAccount()
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text("Удалить") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Отмена")
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -141,6 +171,31 @@ fun SettingsScreenContent(
                                 )
                             }
                         )
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                        Text(
+                            text = "Аккаунт",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    text = "Удалить аккаунт",
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            trailingContent = {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            modifier = Modifier.clickable { showDeleteDialog = true }
+                        )
                     }
                 }
             }
@@ -163,7 +218,8 @@ fun SettingsScreenPreviewLight() {
             onNotifyMatchesChange = {},
             onNotifyMessagesChange = {},
             onThemeChange = {},
-            onRetry = {}
+            onRetry = {},
+            onDeleteAccount = {}
         )
     }
 }
@@ -183,7 +239,8 @@ fun SettingsScreenPreviewDark() {
             onNotifyMatchesChange = {},
             onNotifyMessagesChange = {},
             onThemeChange = {},
-            onRetry = {}
+            onRetry = {},
+            onDeleteAccount = {}
         )
     }
 }
@@ -198,7 +255,8 @@ fun SettingsScreenPreviewError() {
             onNotifyMatchesChange = {},
             onNotifyMessagesChange = {},
             onThemeChange = {},
-            onRetry = {}
+            onRetry = {},
+            onDeleteAccount = {}
         )
     }
 }

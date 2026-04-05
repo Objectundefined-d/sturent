@@ -70,14 +70,14 @@ fun ChatScreenContent(
                 }) {
                     Text(
                         "У всех",
-                        color = MaterialTheme.colorScheme.error  // ← деструктивное действие
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             },
             dismissButton = {
                 Row {
                     TextButton(onClick = { showClearDialog = false }) {
-                        Text("Отмена")  // цвет по умолчанию — onSurface
+                        Text("Отмена")
                     }
                     TextButton(onClick = {
                         onClearHistory(false)
@@ -96,7 +96,7 @@ fun ChatScreenContent(
                 title = {
                     Text(
                         text = title,
-                        color = MaterialTheme.colorScheme.onSurface  // текст на TopAppBar
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 navigationIcon = {
@@ -104,7 +104,7 @@ fun ChatScreenContent(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface  // иконка на TopAppBar
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },

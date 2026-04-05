@@ -17,6 +17,7 @@ import com.example.flat_rent_app.presentation.screens.editquestionnairescreen.Ed
 import com.example.flat_rent_app.presentation.screens.favoritesscreen.FavoritesScreen
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainViewModel
 import com.example.flat_rent_app.presentation.screens.settingsscreen.SettingsScreen
+import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 
 @Composable
 fun AppGraph() {
@@ -65,12 +66,12 @@ fun AppGraph() {
         }
 
         composable(Routes.SettingsScreen.route) {
+            val profileViewModel: ProfileViewModel = hiltViewModel()
             SettingsScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onDeleteAccount = profileViewModel::deleteAccount
             )
         }
-
-
 
         composable(Routes.ChatsScreen.route) {
             ChatsScreen(onOpenChat = { chatId, otherUid ->
