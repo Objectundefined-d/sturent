@@ -110,6 +110,16 @@
     <string name="messages_notifications">Уведомления о сообщениях</string>
     <string name="external_view">Внешний вид</string>
     <string name="dark_theme">Тёмная тема</string>
-
+    <string name="letter_sended">Письмо отправлено на вашу почту</string>
+    <string name="change_password_q">Изменить пароль?</string>
+    <string name="blablabla">Письмо со ссылкой для смены пароля будет отправлено на вашу почту</string>
+    <string name="cancel">Отмена</string>
+    <string name="settings">Настройки</string>
+    <string name="account">Аккаунт</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="blabla">Письмо будет отправлено на вашу почту</string>
+    <string name="delete_acc">Удалить аккаунт</string>
+    <string name="delete_acc_q">Удалить аккаунт?</string>
+    <string name="delete_acc_attention">Все данные будут удалены. Это действие нельзя будет отменить</string>
 
 </resources>
