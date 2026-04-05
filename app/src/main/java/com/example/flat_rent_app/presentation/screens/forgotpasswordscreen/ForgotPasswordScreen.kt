@@ -30,8 +30,7 @@ import com.example.flat_rent_app.presentation.viewmodel.forgotpasswordviewmodel.
 
 @Composable
 fun ForgotPasswordScreen(
-    onBack: () -> Unit,
-    viewModel: ForgotPasswordViewModel = hiltViewModel()
+    onBack: () -> Unit, viewModel: ForgotPasswordViewModel = hiltViewModel()
 ) {
     if (viewModel.isSuccess) {
         AlertDialog(
@@ -43,8 +42,7 @@ fun ForgotPasswordScreen(
                     viewModel.resetSuccess()
                     onBack()
                 }) { Text(text = stringResource(R.string.ok)) }
-            }
-        )
+            })
     }
 
 
@@ -78,8 +76,7 @@ fun ForgotPasswordScreen(
                 { Text(it, color = MaterialTheme.colorScheme.error) }
             },
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Done
+                keyboardType = KeyboardType.Email, imeAction = ImeAction.Done
             ),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -106,8 +103,7 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         TextButton(
-            onClick = onBack,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            onClick = onBack, modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Text(text = stringResource(R.string.forgot_password_back))
         }

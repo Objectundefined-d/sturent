@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.presentation.screens.loginscreen
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flat_rent_app.R
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,20 +172,44 @@ fun LoginScreen(
     )
 }
 
-@Preview(showSystemUi = true, showBackground = true)
+@Preview(showBackground = true, showSystemUi = true, name = "Light",
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreenContent(
-        email = "test@mail.com",
-        password = "123456",
-        error = null,
-        loading = false,
-        passVisible = false,
-        onBack = {},
-        onForgotPassword = {},
-        onEmailChange = {},
-        onPasswordChange = {},
-        onLoginClick = {},
-        onTogglePasswordVisibility = {}
-    )
+    FlatrentappTheme {
+        LoginScreenContent(
+            email = "test@mail.com",
+            password = "123456",
+            error = null,
+            loading = false,
+            passVisible = false,
+            onBack = {},
+            onForgotPassword = {},
+            onEmailChange = {},
+            onPasswordChange = {},
+            onLoginClick = {},
+            onTogglePasswordVisibility = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun LoginScreenPreviewDark() {
+    FlatrentappTheme {
+        LoginScreenContent(
+            email = "test@mail.com",
+            password = "123456",
+            error = null,
+            loading = false,
+            passVisible = false,
+            onBack = {},
+            onForgotPassword = {},
+            onEmailChange = {},
+            onPasswordChange = {},
+            onLoginClick = {},
+            onTogglePasswordVisibility = {}
+        )
+    }
 }

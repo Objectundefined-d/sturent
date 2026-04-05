@@ -86,7 +86,7 @@
     <string name="match_title">У вас мэтч</string>
     <string name="match_subtitle">Пользователь уже лайкнул тебя</string>
     <string name="match_write">Написать</string>
-    <string name="match_continue">Продолжить смотреть</string>
+    <string name="match_continue">Продолжить поиск</string>
 
     <!-- Onboarding -->
     <string name="onb_about_title">Расскажите о себе</string>

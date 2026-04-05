@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.presentation.screens.favoritesscreen
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -24,6 +25,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,6 +40,7 @@ import com.example.flat_rent_app.presentation.viewmodel.favoritesviewmodel.Favor
 import com.example.flat_rent_app.util.BottomTabs
 import kotlinx.coroutines.launch
 import com.example.flat_rent_app.R
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,9 +71,48 @@ fun FavoritesScreen(
         }
     }
 
+    FavoriteScreenContent(
+        error = state.error,
+        isLoading = state.isLoading,
+        profiles = state.profiles,
+        onGoHome = onGoHome,
+        onGoProfile = onGoProfile,
+        onGoChats = onGoChats,
+        retry = viewModel::retry,
+        openProfile = viewModel::openProfile,
+        swipeLeft = viewModel::swipeLeft,
+        swipeRight = viewModel::swipeRight
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FavoriteScreenContent(
+    error: String?,
+    isLoading: Boolean,
+    profiles: List<UserProfile>,
+    onGoHome: () -> Unit,
+    onGoProfile: () -> Unit,
+    onGoChats: () -> Unit,
+    retry: () -> Unit,
+    openProfile: (UserProfile) -> Unit = { },
+    swipeLeft: (String) -> Unit = { },
+    swipeRight: (String) -> Unit = { }
+) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = stringResource(R.string.favorites)) })
+            TopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.favorites),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
         },
         bottomBar = {
             AppBottomBar(
@@ -87,24 +130,26 @@ fun FavoritesScreen(
                 .fillMaxSize()
         ) {
             when {
-                state.isLoading -> CircularProgressIndicator(
+                isLoading -> CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
 
-                state.profiles.isEmpty() -> Text(
+                profiles.isEmpty() -> Text(
                     text = stringResource(R.string.no_favorites),
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.align(Alignment.Center)
                 )
 
-                state.error != null -> Column(
+                error != null -> Column(
                     modifier = Modifier.align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = stringResource(R.string.smth_wrong), color = Color.White)
-                    // убрать !!
-                    Text(text = state.error!!, color = Color.Gray, fontSize = 14.sp)
-                    Button(onClick = { viewModel.retry() }) { Text(text = stringResource(R.string.repeat)) }
+                    Text(
+                        text = stringResource(R.string.smth_wrong),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
+                    Button(onClick = { retry() }) { Text(text = stringResource(R.string.repeat)) }
                 }
 
                 else -> LazyColumn(
@@ -112,12 +157,12 @@ fun FavoritesScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(state.profiles) { profile ->
+                    items(profiles) { profile ->
                         FavoriteCard(
                             profile = profile,
-                            onClick = { viewModel.openProfile(profile) },
-                            onSwipeLeft = { viewModel.swipeLeft(profile.uid) },
-                            onSwipeRight = { viewModel.swipeRight(profile.uid) }
+                            onClick = { openProfile(profile) },
+                            onSwipeLeft = { swipeLeft(profile.uid) },
+                            onSwipeRight = { swipeRight(profile.uid) }
                         )
                     }
                 }
@@ -145,7 +190,14 @@ fun FavoriteCard(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF38D986).copy(alpha = (offsetX.value / threshold).coerceIn(0f, 1f))),
+                    .background(
+                        Color(0xFF38D986).copy(
+                            alpha = (offsetX.value / threshold).coerceIn(
+                                0f,
+                                1f
+                            )
+                        )
+                    ),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Icon(
@@ -162,7 +214,14 @@ fun FavoriteCard(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFFF4458).copy(alpha = (-offsetX.value / threshold).coerceIn(0f, 1f))),
+                    .background(
+                        Color(0xFFFF4458).copy(
+                            alpha = (-offsetX.value / threshold).coerceIn(
+                                0f,
+                                1f
+                            )
+                        )
+                    ),
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Icon(
@@ -179,7 +238,9 @@ fun FavoriteCard(
         Card(
             onClick = onClick,
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1C1C1E)),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer { translationX = offsetX.value }
@@ -197,11 +258,13 @@ fun FavoriteCard(
                                         onSwipeRight()
                                         offsetX.snapTo(0f)
                                     }
+
                                     offsetX.value < -threshold -> {
                                         offsetX.animateTo(-2000f, tween(300))
                                         onSwipeLeft()
                                         offsetX.snapTo(0f)
                                     }
+
                                     else -> offsetX.animateTo(0f, tween(300))
                                 }
                             }
@@ -218,19 +281,59 @@ fun FavoriteCard(
                     model = profile.photoSlots.getOrNull(profile.mainPhotoIndex)?.fullUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(60.dp).clip(CircleShape)
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
                 )
                 Column {
                     Text(
                         text = "${profile.name}, ${profile.age ?: ""}",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    Text(text = profile.city, fontSize = 14.sp, color = Color.Gray)
+                    Text(text = profile.city, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
+    }
+}
+
+@Preview(
+    showBackground = true, showSystemUi = true, name = "Light",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Composable
+fun PreviewFavoritesLight() {
+    FlatrentappTheme {
+        FavoriteScreenContent(
+            error = null,
+            isLoading = false,
+            profiles = emptyList(),
+            onGoHome = {},
+            onGoProfile = {},
+            onGoChats = {},
+            retry = {}
+        )
+    }
+}
+
+@Preview(
+    showBackground = true, showSystemUi = true, name = "Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun PreviewFavoritesDark() {
+    FlatrentappTheme {
+        FavoriteScreenContent(
+            error = null,
+            isLoading = false,
+            profiles = emptyList(),
+            onGoHome = {},
+            onGoProfile = {},
+            onGoChats = {},
+            retry = {}
+        )
     }
 }
 

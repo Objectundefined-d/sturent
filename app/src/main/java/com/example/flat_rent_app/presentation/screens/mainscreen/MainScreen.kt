@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.presentation.screens.mainscreen
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -52,6 +53,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainScreenState
 
 val LikeGreen = Color(0xFF38D986)
@@ -689,53 +691,89 @@ fun AgeRangeSlider(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewGenderRadioGroup() {
-    GenderRadioGroup(
-        selectedGender = Constants.GENDER_ANY,
-        onSelect = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewAgeRangeSlider() {
-    AgeRangeSlider(
-        ageRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat(),
-        onRangeChange = {}
-    )
-}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewFiltersScreen() {
-    val fakeState = MainScreenState()
-    FiltersScreen(
-        state = fakeState,
-        onClose = {},
-        onApplyFilters = { _, _, _, _ -> }
-    )
+    FlatrentappTheme {
+        val fakeState = MainScreenState()
+        FiltersScreen(
+            state = fakeState,
+            onClose = {},
+            onApplyFilters = { _, _, _, _ -> }
+        )
+    }
 }
 
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewMainScreen() {
-    MainScreenContent(
-        profiles = emptyList(),
-        currentIndex = -1,
-        isLoading = false,
-        error = null,
-        showAllViewed = false,
-        swipeRight = {},
-        swipeLeft = {},
-        openProfileDetails = {},
-        onGoChats = { },
-        onGoProfile = { },
-        onGoFavorites = { },
-        onAddToFavorites = { },
-        retry = {},
-        onOpenFilters = {}
-    )
+    FlatrentappTheme {
+        MainScreenContent(
+            profiles = emptyList(),
+            currentIndex = -1,
+            isLoading = false,
+            error = null,
+            showAllViewed = false,
+            swipeRight = {},
+            swipeLeft = {},
+            openProfileDetails = {},
+            onGoChats = { },
+            onGoProfile = { },
+            onGoFavorites = { },
+            onAddToFavorites = { },
+            retry = {},
+            onOpenFilters = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Dark", showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun PreviewMainScreenDark() {
+    FlatrentappTheme {
+        MainScreenContent(
+            profiles = emptyList(),
+            currentIndex = -1,
+            isLoading = false,
+            error = null,
+            showAllViewed = false,
+            swipeRight = {},
+            swipeLeft = {},
+            openProfileDetails = {},
+            onGoChats = { },
+            onGoProfile = { },
+            onGoFavorites = { },
+            onAddToFavorites = { },
+            retry = {},
+            onOpenFilters = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun MatchBottomSheetPreview() {
+    FlatrentappTheme {
+        MatchBottomSheet(
+            onSendMessage = {},
+            onContinue = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Dark", showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun MatchBottomSheetPreviewDark() {
+    FlatrentappTheme {
+        MatchBottomSheet(
+            onSendMessage = {},
+            onContinue = {}
+        )
+    }
 }

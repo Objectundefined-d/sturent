@@ -9,10 +9,14 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.flat_rent_app.domain.model.Message
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.Bubble
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.InputBar
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatUiState
 import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,10 +28,35 @@ fun ChatScreen(
     val ui by viewmodel.ui.collectAsState()
     val messages by viewmodel.messages.collectAsState()
     val otherProfile by viewmodel.otherProfile.collectAsState()
-    var showMenu by remember { mutableStateOf(false) }
-    var showClearDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { viewmodel.markRead() }
+
+    ChatScreenContent(
+        ui = ui,
+        messages = messages,
+        title = otherProfile?.name?.takeIf { it.isNotBlank() } ?: ui.otherUid,
+        onBack = onBack,
+        onInput = viewmodel::onInput,
+        onSend = viewmodel::send,
+        onDeleteMessage = { msgId, forBoth -> viewmodel.deleteMessage(msgId, forBoth) },
+        onClearHistory = { forBoth -> viewmodel.clearHistory(forBoth) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChatScreenContent(
+    ui: ChatUiState,
+    messages: List<Message>,
+    title: String,
+    onBack: () -> Unit,
+    onInput: (String) -> Unit,
+    onSend: () -> Unit,
+    onDeleteMessage: (messageId: String, forBoth: Boolean) -> Unit,
+    onClearHistory: (forBoth: Boolean) -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
+    var showClearDialog by remember { mutableStateOf(false) }
 
     if (showClearDialog) {
         AlertDialog(
@@ -36,17 +65,26 @@ fun ChatScreen(
             text = { Text("Выберите способ очистки") },
             confirmButton = {
                 TextButton(onClick = {
-                    viewmodel.clearHistory(forBoth = true)
+                    onClearHistory(true)
                     showClearDialog = false
-                }) { Text("У всех") }
+                }) {
+                    Text(
+                        "У всех",
+                        color = MaterialTheme.colorScheme.error  // ← деструктивное действие
+                    )
+                }
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { showClearDialog = false } ) { Text("Отмена") }
+                    TextButton(onClick = { showClearDialog = false }) {
+                        Text("Отмена")  // цвет по умолчанию — onSurface
+                    }
                     TextButton(onClick = {
-                        viewmodel.clearHistory(forBoth = false)
+                        onClearHistory(false)
                         showClearDialog = false
-                    }) { Text("Только у меня") }
+                    }) {
+                        Text("Только у меня")
+                    }
                 }
             }
         )
@@ -55,21 +93,32 @@ fun ChatScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(otherProfile?.name?.takeIf { it.isNotBlank() } ?: ui.otherUid) },
+                title = {
+                    Text(
+                        text = title,
+                        color = MaterialTheme.colorScheme.onSurface  // текст на TopAppBar
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface  // иконка на TopAppBar
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                     DropdownMenu(
                         expanded = showMenu,
-                        onDismissRequest = {
-                            showMenu = false
-                        }
+                        onDismissRequest = { showMenu = false }
                     ) {
                         DropdownMenuItem(
                             text = { Text("Очистить историю") },
@@ -86,10 +135,11 @@ fun ChatScreen(
             InputBar(
                 text = ui.input,
                 sending = ui.sending,
-                onTextChange = viewmodel::onInput,
-                onSend = viewmodel::send
+                onTextChange = onInput,
+                onSend = onSend
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { pad ->
         Column(modifier = Modifier.padding(pad).fillMaxSize()) {
 
@@ -118,17 +168,26 @@ fun ChatScreen(
                             text = { Text("Выберите способ удаления") },
                             confirmButton = {
                                 TextButton(onClick = {
-                                    viewmodel.deleteMessage(msg.messageId, forBoth = true)
+                                    onDeleteMessage(msg.messageId, true)
                                     showDialog = false
-                                }) { Text("У всех") }
+                                }) {
+                                    Text(
+                                        "У всех",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             },
                             dismissButton = {
                                 Row {
-                                    TextButton(onClick = { showDialog = false }) { Text("Отмена") }
+                                    TextButton(onClick = { showDialog = false }) {
+                                        Text("Отмена")
+                                    }
                                     TextButton(onClick = {
-                                        viewmodel.deleteMessage(msg.messageId, forBoth = false)
+                                        onDeleteMessage(msg.messageId, false)
                                         showDialog = false
-                                    }) { Text("Только у меня") }
+                                    }) {
+                                        Text("Только у меня")
+                                    }
                                 }
                             }
                         )
@@ -147,3 +206,56 @@ fun ChatScreen(
     }
 }
 
+@Preview(showBackground = true, showSystemUi = true, name = "Light")
+@Composable
+fun ChatScreenPreviewLight() {
+    FlatrentappTheme {
+        ChatScreenContent(
+            ui = ChatUiState(
+                myUid = "me",
+                chatId = "chat1",
+                otherUid = "other",
+                input = "",
+                sending = false
+            ),
+            messages = listOf(
+                Message(messageId = "1", senderUid = "me", text = "Привет!", createdAt = 0),
+                Message(messageId = "2", senderUid = "other", text = "Привет, как дела?", createdAt = 1),
+                Message(messageId = "3", senderUid = "me", text = "Отлично, ищу соседа", createdAt = 2),
+            ),
+            title = "Иван Иванов",
+            onBack = {},
+            onInput = {},
+            onSend = {},
+            onDeleteMessage = { _, _ -> },
+            onClearHistory = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark",
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun ChatScreenPreviewDark() {
+    FlatrentappTheme {
+        ChatScreenContent(
+            ui = ChatUiState(
+                myUid = "me",
+                chatId = "chat1",
+                otherUid = "other",
+                input = "Набираю сообщение...",
+                sending = false
+            ),
+            messages = listOf(
+                Message(messageId = "1", senderUid = "me", text = "Привет!", createdAt = 0),
+                Message(messageId = "2", senderUid = "other", text = "Привет, как дела?", createdAt = 1),
+            ),
+            title = "Иван Иванов",
+            onBack = {},
+            onInput = {},
+            onSend = {},
+            onDeleteMessage = { _, _ -> },
+            onClearHistory = {}
+        )
+    }
+}
