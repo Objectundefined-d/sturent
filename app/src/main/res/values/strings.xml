@@ -104,4 +104,12 @@
     <string name="onb_university_label">Учебное заведение</string>
     <string name="onb_university_placeholder">Место учебы</string>
 
+    <!-- Settings -->
+    <string name="notifications">Уведомления</string>
+    <string name="matches_notifications">Уведомления о мэтчах</string>
+    <string name="messages_notifications">Уведомления о сообщениях</string>
+    <string name="external_view">Внешний вид</string>
+    <string name="dark_theme">Тёмная тема</string>
+
+
 </resources>
