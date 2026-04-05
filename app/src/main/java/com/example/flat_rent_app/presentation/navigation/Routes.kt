@@ -5,7 +5,6 @@ sealed class Routes(val route: String) {
     object RegScreen : Routes("registration")
     object HomeScreen : Routes("home")
     object ProfileScreen : Routes("profile")
-    object FormScreen : Routes("form")
     object OnbNameScreen : Routes("onboardingName")
 
     object OnbPhotoScreen : Routes("onboardingPhoto")
@@ -22,7 +21,7 @@ sealed class Routes(val route: String) {
 
     object FavoritesScreen : Routes("favorites")
 
-    object NotificationsSettingsScreen: Routes("notificationSettingsScreen")
+    object SettingsScreen: Routes("SettingsScreen")
 
     object ChatScreen : Routes("chat/{chatId}/{otherUid}") {
         fun create(chatId: String, otherUid: String) = "chat/$chatId/$otherUid"

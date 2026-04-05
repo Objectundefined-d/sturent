@@ -13,11 +13,11 @@ import com.example.flat_rent_app.presentation.screens.chatscreen.ChatScreen
 import com.example.flat_rent_app.presentation.screens.chatsscreen.ChatsScreen
 import com.example.flat_rent_app.presentation.screens.mainscreen.MainScreen
 import com.example.flat_rent_app.presentation.screens.profilescreen.ProfileScreen
-import com.example.flat_rent_app.presentation.screens.questionnairescreen.QuestionnaireScreen
 import com.example.flat_rent_app.presentation.screens.editquestionnairescreen.EditQuestionnaireScreen
 import com.example.flat_rent_app.presentation.screens.favoritesscreen.FavoritesScreen
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainViewModel
-import com.example.flat_rent_app.presentation.screens.notificationssettingsscreen.NotificationsSettingsScreen
+import com.example.flat_rent_app.presentation.screens.settingsscreen.SettingsScreen
+import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 
 @Composable
 fun AppGraph() {
@@ -54,12 +54,8 @@ fun AppGraph() {
                 onGoChats = { navController.navigate(Routes.ChatsScreen.route) },
                 onGoFavorites = { navController.navigate(Routes.FavoritesScreen.route) },
                 onEditQuestionnaire = { navController.navigate(Routes.EditQuestionnaire.route) },
-                onGoSettings = { navController.navigate(Routes.NotificationsSettingsScreen.route) }
+                onGoSettings = { navController.navigate(Routes.SettingsScreen.route) }
             )
-        }
-
-        composable(Routes.FormScreen.route) {
-            QuestionnaireScreen(onBack = { navController.popBackStack() })
         }
 
         composable(Routes.EditQuestionnaire.route) {
@@ -69,13 +65,13 @@ fun AppGraph() {
             )
         }
 
-        composable(Routes.NotificationsSettingsScreen.route) {
-            NotificationsSettingsScreen(
-                onBack = { navController.popBackStack() }
+        composable(Routes.SettingsScreen.route) {
+            val profileViewModel: ProfileViewModel = hiltViewModel()
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onDeleteAccount = profileViewModel::deleteAccount
             )
         }
-
-
 
         composable(Routes.ChatsScreen.route) {
             ChatsScreen(onOpenChat = { chatId, otherUid ->

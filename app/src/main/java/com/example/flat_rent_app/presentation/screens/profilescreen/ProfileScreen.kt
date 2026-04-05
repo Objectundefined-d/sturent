@@ -26,6 +26,8 @@ import coil.compose.AsyncImage
 import com.example.flat_rent_app.presentation.components.AppBottomBar
 import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 import com.example.flat_rent_app.util.BottomTabs
+import android.content.res.Configuration
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,37 +41,8 @@ fun ProfileScreenContent(
     onGoHome: () -> Unit,
     onGoChats: () -> Unit,
     onGoFavorites: () -> Unit,
-    onDeleteAccount: () -> Unit,
     onGoSettings: () -> Unit,
 ) {
-    var showDeleteDialog by remember { mutableStateOf(false) }
-
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Удалить аккаунт?") },
-            text = { Text("Это действие нельзя отменить. Все данные будут удалены.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        onDeleteAccount()
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text("Удалить")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Отмена")
-                }
-            }
-        )
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -154,9 +127,9 @@ fun ProfileScreenContent(
                                         .clip(CircleShape)
                                         .background(
                                             if (pagerState.currentPage == index)
-                                                Color.White
+                                                MaterialTheme.colorScheme.onPrimary
                                             else
-                                                Color.White.copy(alpha = 0.5f)
+                                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
                                         )
                                 )
                             }
@@ -178,7 +151,7 @@ fun ProfileScreenContent(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
+                    modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
                 )
             }
 
@@ -186,12 +159,12 @@ fun ProfileScreenContent(
                 onClick = onEditQuestionnaire,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp)
+                    .padding(bottom = 24.dp)
             ) {
                 Text("Редактировать анкету")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
             Button(
                 onClick = onSignOut,
@@ -201,18 +174,6 @@ fun ProfileScreenContent(
                 )
             ) {
                 Text("Выйти")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = { showDeleteDialog = true },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text("Удалить аккаунт")
             }
         }
     }
@@ -246,15 +207,15 @@ fun ProfileScreen(
         onGoHome = onGoHome,
         onGoChats = onGoChats,
         onGoFavorites = onGoFavorites,
-        onDeleteAccount = viewModel::deleteAccount,
         onGoSettings = onGoSettings
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, name = "Light",
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
-fun ProfileScreenPreview() {
-    MaterialTheme {
+fun ProfileScreenPreviewLight() {
+    FlatrentappTheme {
         ProfileScreenContent(
             displayName = "Имя Фамилия",
             age = 22,
@@ -262,15 +223,33 @@ fun ProfileScreenPreview() {
             photoUrls = listOf(
                 "https://picsum.photos/seed/1/400/600",
                 "https://picsum.photos/seed/2/400/600",
-                "https://picsum.photos/seed/3/400/600"
             ),
             onEditQuestionnaire = {},
             onSignOut = {},
             onGoHome = {},
             onGoChats = {},
             onGoFavorites = {},
-            onDeleteAccount = {},
-            onGoSettings = { }
+            onGoSettings = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun ProfileScreenPreviewDark() {
+    FlatrentappTheme {
+        ProfileScreenContent(
+            displayName = "Имя Фамилия",
+            age = 22,
+            email = "user@mail.com",
+            photoUrls = emptyList(),
+            onEditQuestionnaire = {},
+            onSignOut = {},
+            onGoHome = {},
+            onGoChats = {},
+            onGoFavorites = {},
+            onGoSettings = {}
         )
     }
 }
