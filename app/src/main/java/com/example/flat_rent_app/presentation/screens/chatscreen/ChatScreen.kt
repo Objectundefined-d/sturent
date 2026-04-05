@@ -42,7 +42,7 @@ fun ChatScreen(
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { } ) { Text("Отмена") }
+                    TextButton(onClick = { showClearDialog = false } ) { Text("Отмена") }
                     TextButton(onClick = {
                         viewmodel.clearHistory(forBoth = false)
                         showClearDialog = false
