@@ -5,5 +5,9 @@ data class SettingsUiState(
     val notifyMessages: Boolean = true,
     val isDarkTheme: Boolean = false,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val actionError: String? = null,
+    val passwordResetSent: Boolean = false,
+    val emailVerificationSent: Boolean = false,
+    val emailUpdateSent: Boolean = false
 )

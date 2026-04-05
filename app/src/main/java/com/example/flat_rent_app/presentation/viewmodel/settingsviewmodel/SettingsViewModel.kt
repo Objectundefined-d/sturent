@@ -19,7 +19,7 @@ import androidx.core.content.edit
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    authRepo: AuthRepository,
+    private val authRepo: AuthRepository,
     private val db: FirebaseFirestore
 ) : ViewModel() {
 
@@ -97,5 +97,41 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun sendPasswordReset() = viewModelScope.launch {
+        val email = authRepo.currentUserEmail() ?: run {
+            _state.update { it.copy(error = "Не авторизован") }
+            return@launch
+        }
+        authRepo.sendPasswordReset(email)
+            .onSuccess { _state.update { it.copy(passwordResetSent = true) } }
+            .onFailure { e -> _state.update { it.copy(error = e.message ?: "Ошибка отправки") } }
+    }
 
+    fun consumePasswordReset() {
+        _state.update { it.copy(passwordResetSent = false) }
+    }
+
+    fun sendEmailVerification() = viewModelScope.launch {
+        authRepo.sendEmailVerification()
+            .onSuccess { _state.update { it.copy(emailVerificationSent = true) } }
+            .onFailure { e -> _state.update { it.copy(actionError = e.message ?: "Ошибка") } }
+    }
+
+    fun consumeActionError() {
+        _state.update { it.copy(actionError = null) }
+    }
+
+    fun updateEmail(newEmail: String, password: String) = viewModelScope.launch {
+        authRepo.updateEmail(newEmail, password)
+            .onSuccess { _state.update { it.copy(emailUpdateSent = true) } }
+            .onFailure { e -> _state.update { it.copy(error = e.message ?: "Ошибка") } }
+    }
+
+    fun consumeEmailVerification() {
+        _state.update { it.copy(emailVerificationSent = false) }
+    }
+
+    fun consumeEmailUpdate() {
+        _state.update { it.copy(emailUpdateSent = false) }
+    }
 }
