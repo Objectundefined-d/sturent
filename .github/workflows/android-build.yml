@@ -6,7 +6,6 @@ on:
     branches:
       - main
       - develop
-      - feature-CI/CD
 
 jobs:
   build:
@@ -26,41 +25,30 @@ jobs:
           VERSION_CODE=$((GITHUB_RUN_NUMBER + 1))
           echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
           if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-            echo "BUILD_KIND=release" >> "$GITHUB_ENV"
             echo "VERSION_NAME=1.0.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
-          elif [ "${GITHUB_REF}" = "refs/heads/develop" ]; then
-            echo "BUILD_KIND=debug" >> "$GITHUB_ENV"
+          else
             echo "VERSION_NAME=1.0-dev.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
-          elif [ "${GITHUB_REF}" = "refs/heads/feature-CI/CD" ]; then
-            echo "BUILD_KIND=both" >> "$GITHUB_ENV"
-            echo "VERSION_NAME_RELEASE=1.0.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
-            echo "VERSION_NAME_DEBUG=1.0-dev.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
           fi
 
       - name: Gradle assembleRelease (unsigned, signing in next step)
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature-CI/CD'
+        if: github.ref == 'refs/heads/main'
         run: |
           chmod +x gradlew
-          if [ "${GITHUB_REF}" = "refs/heads/feature-CI/CD" ]; then
-            VN="${VERSION_NAME_RELEASE}"
-          else
-            VN="${VERSION_NAME}"
-          fi
           ./gradlew :app:assembleRelease \
             -PciExternalSigning \
             -PciVersionCode="${VERSION_CODE}" \
-            -PciVersionName="${VN}" \
+            -PciVersionName="${VERSION_NAME}" \
             --stacktrace
 
       - name: Setup Android SDK (build-tools for APK signing)
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature-CI/CD'
+        if: github.ref == 'refs/heads/main'
         uses: android-actions/setup-android@v3
         with:
           packages: "tools platform-tools build-tools;33.0.0"
 
       - name: Sign release APK
         id: sign_app
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature-CI/CD'
+        if: github.ref == 'refs/heads/main'
         uses: r0adkll/sign-android-release@v1
         env:
           BUILD_TOOLS_VERSION: "33.0.0"
@@ -72,45 +60,30 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
       - name: Prepare artifacts (release)
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature-CI/CD'
+        if: github.ref == 'refs/heads/main'
         run: |
           mkdir -p artifacts
           echo "${VERSION_CODE}" > artifacts/version.txt
-          if [ "${GITHUB_REF}" = "refs/heads/feature-CI/CD" ]; then
-            echo "${VERSION_NAME_RELEASE}" > artifacts/version_name.txt
-            cp "${{ steps.sign_app.outputs.signedReleaseFile }}" artifacts/sturent-release.apk
-          else
-            echo "${VERSION_NAME}" > artifacts/version_name.txt
-            cp "${{ steps.sign_app.outputs.signedReleaseFile }}" artifacts/sturent.apk
-          fi
+          echo "${VERSION_NAME}" > artifacts/version_name.txt
+          cp "${{ steps.sign_app.outputs.signedReleaseFile }}" artifacts/sturent.apk
 
       - name: Gradle assembleDebug
-        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature-CI/CD'
+        if: github.ref == 'refs/heads/develop'
         run: |
           chmod +x gradlew
-          if [ "${GITHUB_REF}" = "refs/heads/feature-CI/CD" ]; then
-            VN="${VERSION_NAME_DEBUG}"
-          else
-            VN="${VERSION_NAME}"
-          fi
           ./gradlew :app:assembleDebug \
             -PciVersionCode="${VERSION_CODE}" \
-            -PciVersionName="${VN}" \
+            -PciVersionName="${VERSION_NAME}" \
             --stacktrace
 
       - name: Prepare artifacts (debug)
-        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature-CI/CD'
+        if: github.ref == 'refs/heads/develop'
         run: |
+          mkdir -p artifacts
+          echo "${VERSION_CODE}" > artifacts/version.txt
+          echo "${VERSION_NAME}" > artifacts/version_name.txt
           APK=$(find app/build/outputs/apk -name "*-debug.apk" | head -n1)
-          if [ "${GITHUB_REF}" = "refs/heads/develop" ]; then
-            mkdir -p artifacts
-            echo "${VERSION_CODE}" > artifacts/version.txt
-            echo "${VERSION_NAME}" > artifacts/version_name.txt
-            cp "$APK" artifacts/sturent.apk
-          else
-            cp "$APK" artifacts/sturent-debug.apk
-            echo "${VERSION_NAME_DEBUG}" > artifacts/version_name_debug.txt
-          fi
+          cp "$APK" artifacts/sturent.apk
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -136,23 +109,9 @@ jobs:
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           VERSION_CODE=$(cat artifacts/version.txt)
-          SHA="${GITHUB_SHA:0:7}"
-          if [ "${{ github.ref }}" = "refs/heads/feature-CI/CD" ]; then
-            VNR=$(cat artifacts/version_name.txt)
-            VND=$(cat artifacts/version_name_debug.txt)
-            curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument" \
-              -F chat_id="${CHAT_ID}" \
-              -F document=@artifacts/sturent-release.apk \
-              -F caption="Sturent release (QA branch) | v${VNR} (${VERSION_CODE}) | ${SHA}"
-            curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument" \
-              -F chat_id="${CHAT_ID}" \
-              -F document=@artifacts/sturent-debug.apk \
-              -F caption="Sturent debug (QA branch) | v${VND} (${VERSION_CODE}) | ${SHA}"
-          else
-            VERSION_NAME=$(cat artifacts/version_name.txt)
-            CAPTION="Sturent | v${VERSION_NAME} (${VERSION_CODE}) | ${SHA}"
-            curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument" \
-              -F chat_id="${CHAT_ID}" \
-              -F document=@artifacts/sturent.apk \
-              -F caption="${CAPTION}"
-          fi
+          VERSION_NAME=$(cat artifacts/version_name.txt)
+          CAPTION="Sturent | v${VERSION_NAME} (${VERSION_CODE}) | ${GITHUB_SHA:0:7}"
+          curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument" \
+            -F chat_id="${CHAT_ID}" \
+            -F document=@artifacts/sturent.apk \
+            -F caption="${CAPTION}"
