@@ -86,7 +86,7 @@
     <string name="match_title">У вас мэтч</string>
     <string name="match_subtitle">Пользователь уже лайкнул тебя</string>
     <string name="match_write">Написать</string>
-    <string name="match_continue">Продолжить смотреть</string>
+    <string name="match_continue">Продолжить поиск</string>
 
     <!-- Onboarding -->
     <string name="onb_about_title">Расскажите о себе</string>
@@ -103,5 +103,23 @@
     <string name="onb_city_placeholder">Город обучения</string>
     <string name="onb_university_label">Учебное заведение</string>
     <string name="onb_university_placeholder">Место учебы</string>
+
+    <!-- Settings -->
+    <string name="notifications">Уведомления</string>
+    <string name="matches_notifications">Уведомления о мэтчах</string>
+    <string name="messages_notifications">Уведомления о сообщениях</string>
+    <string name="external_view">Внешний вид</string>
+    <string name="dark_theme">Тёмная тема</string>
+    <string name="letter_sended">Письмо отправлено на вашу почту</string>
+    <string name="change_password_q">Изменить пароль?</string>
+    <string name="blablabla">Письмо со ссылкой для смены пароля будет отправлено на вашу почту</string>
+    <string name="cancel">Отмена</string>
+    <string name="settings">Настройки</string>
+    <string name="account">Аккаунт</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="blabla">Письмо будет отправлено на вашу почту</string>
+    <string name="delete_acc">Удалить аккаунт</string>
+    <string name="delete_acc_q">Удалить аккаунт?</string>
+    <string name="delete_acc_attention">Все данные будут удалены. Это действие нельзя будет отменить</string>
 
 </resources>
