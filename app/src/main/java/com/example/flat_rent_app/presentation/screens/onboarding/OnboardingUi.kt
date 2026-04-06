@@ -68,15 +68,23 @@ import com.example.flat_rent_app.R
 
 @Immutable
 data class OnboardingPalette(
-    val accent: Color = Color(0xFF6650A4),
-    val accentContainer: Color = Color(0xFFF3EEFF),
-    val cardGray: Color = Color(0xFFF5F5F7),
-    val label: Color = Color(0xFF6650A4),
-    val border: Color = Color(0xFFE1D9F7),
-    val textSecondary: Color = Color(0xFF6F6F7A),
+    val accent: Color,
+    val accentContainer: Color,
+    val cardGray: Color,
+    val label: Color,
+    val border: Color,
+    val textSecondary: Color,
 )
 
-private val DefaultOnbPalette = OnboardingPalette()
+@Composable
+private fun rememberOnboardingPalette(): OnboardingPalette = OnboardingPalette(
+    accent = MaterialTheme.colorScheme.primary,
+    accentContainer = MaterialTheme.colorScheme.primaryContainer,
+    cardGray = MaterialTheme.colorScheme.surfaceVariant,
+    label = MaterialTheme.colorScheme.primary,
+    border = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f),
+    textSecondary = MaterialTheme.colorScheme.onSurfaceVariant,
+)
 
 @Composable
 fun OnboardingScaffold(
@@ -156,7 +164,7 @@ fun OnboardingScreen(
     totalSteps: Int,
     title: String,
     modifier: Modifier = Modifier,
-    palette: OnboardingPalette = DefaultOnbPalette,
+    palette: OnboardingPalette = rememberOnboardingPalette(),
     content: @Composable ColumnScope.() -> Unit,
     bottomBar: @Composable () -> Unit,
 ) {
@@ -320,7 +328,7 @@ fun OnbBottomButtons(
     onBack: (() -> Unit)?,
     onNext: () -> Unit,
     nextEnabled: Boolean,
-    palette: OnboardingPalette = DefaultOnbPalette,
+    palette: OnboardingPalette = rememberOnboardingPalette(),
     nextText: String = "Далее",
     backText: String = "Назад",
 ) {
@@ -370,7 +378,7 @@ fun ChipFlowRow(
     items: List<String>,
     selected: Set<String>,
     onToggle: (String) -> Unit,
-    palette: OnboardingPalette = DefaultOnbPalette,
+    palette: OnboardingPalette = rememberOnboardingPalette(),
 ) {
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
@@ -384,7 +392,7 @@ fun ChipFlowRow(
                 modifier = Modifier
                     .fillMaxWidth(0.48f)
                     .clip(RoundedCornerShape(24.dp)),
-                color = if (isSelected) palette.accentContainer else Color.White,
+                color = if (isSelected) palette.accentContainer else MaterialTheme.colorScheme.surface,
                 contentColor = if (isSelected) palette.accent else MaterialTheme.colorScheme.onSurface,
                 onClick = { onToggle(item) },
                 shape = RoundedCornerShape(24.dp),
@@ -411,7 +419,7 @@ fun AboutCardTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    palette: OnboardingPalette = DefaultOnbPalette,
+    palette: OnboardingPalette = rememberOnboardingPalette(),
 ) {
     Card(
         modifier = Modifier
@@ -454,7 +462,7 @@ fun PhotoSlotCard(
     title: String,
     countText: String,
     modifier: Modifier = Modifier,
-    palette: OnboardingPalette = DefaultOnbPalette,
+    palette: OnboardingPalette = rememberOnboardingPalette(),
 ) {
     Card(
         modifier = modifier,
@@ -504,7 +512,7 @@ fun PhotoSlotCard(
 @Composable
 fun OnbLabeledField(
     label: String,
-    palette: OnboardingPalette = DefaultOnbPalette,
+    palette: OnboardingPalette = rememberOnboardingPalette(),
     leadingIcon: @Composable (() -> Unit)? = null,
     field: @Composable () -> Unit,
 ) {
@@ -531,7 +539,7 @@ fun OnbOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    palette: OnboardingPalette = DefaultOnbPalette,
+    palette: OnboardingPalette = rememberOnboardingPalette(),
     singleLine: Boolean = true,
     trailingDropdown: Boolean = false,
     readOnly: Boolean = false,
@@ -563,10 +571,10 @@ fun OnbOutlinedTextField(
 }
 
 @Composable
-fun OnbIconName() = Icon(Icons.Filled.WavingHand, contentDescription = null, tint = DefaultOnbPalette.label)
+fun OnbIconName() = Icon(Icons.Filled.WavingHand, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
 
 @Composable
-fun OnbIconCity() = Icon(Icons.Filled.LocationOn, contentDescription = null, tint = DefaultOnbPalette.label)
+fun OnbIconCity() = Icon(Icons.Filled.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
 
 @Composable
-fun OnbIconEdu() = Icon(Icons.Filled.School, contentDescription = null, tint = DefaultOnbPalette.label)
+fun OnbIconEdu() = Icon(Icons.Filled.School, contentDescription = null, tint = MaterialTheme.colorScheme.primary)

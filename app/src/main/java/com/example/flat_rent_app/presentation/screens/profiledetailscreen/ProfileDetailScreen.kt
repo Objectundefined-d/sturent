@@ -30,7 +30,7 @@ fun ProfileDetailScreen(
                 title = {
                     Text(
                         "Профиль",
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 navigationIcon = {
@@ -38,12 +38,12 @@ fun ProfileDetailScreen(
                         Icon(
                             Icons.Default.Close,
                             contentDescription = "Закрыть",
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         }
@@ -74,8 +74,8 @@ fun ProfileDetailScreen(
                             .background(
                                 brush = androidx.compose.ui.graphics.Brush.verticalGradient(
                                     colors = listOf(
-                                        Color(0xFF6A11CB),
-                                        Color(0xFF2575FC)
+                                        MaterialTheme.colorScheme.primary,
+                                        MaterialTheme.colorScheme.primaryContainer
                                     )
                                 )
                             )
@@ -113,7 +113,7 @@ fun ProfileDetailScreen(
                         Icon(
                             Icons.Default.LocationOn,
                             contentDescription = "Город",
-                            tint = Color.Gray,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -121,7 +121,7 @@ fun ProfileDetailScreen(
                             Text(
                                 text = "Местоположение",
                                 fontSize = 14.sp,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 text = profile.city,
@@ -139,7 +139,7 @@ fun ProfileDetailScreen(
                         Icon(
                             Icons.Default.School,
                             contentDescription = "Образование",
-                            tint = Color.Gray,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -147,7 +147,7 @@ fun ProfileDetailScreen(
                             Text(
                                 text = "Образование",
                                 fontSize = 14.sp,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 text = profile.university,
@@ -163,7 +163,7 @@ fun ProfileDetailScreen(
                         Text(
                             text = "О себе",
                             fontSize = 14.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -178,7 +178,7 @@ fun ProfileDetailScreen(
                         Text(
                             text = "Ищет",
                             fontSize = 14.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(

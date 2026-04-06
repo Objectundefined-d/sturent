@@ -110,9 +110,9 @@ fun ProfileScreenContent(
                                         .clip(CircleShape)
                                         .background(
                                             if (pagerState.currentPage == index)
-                                                Color.White
+                                                MaterialTheme.colorScheme.onSurface
                                             else
-                                                Color.White.copy(alpha = 0.5f)
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
                                         )
                                 )
                             }
