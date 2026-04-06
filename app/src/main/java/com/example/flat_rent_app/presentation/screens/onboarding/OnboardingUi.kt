@@ -243,7 +243,6 @@ private fun OnboardingScreenPreview() {
 @Composable
 private fun Stepper(
     step: Int,
-    palette: OnboardingPalette,
     total: Int = 4,
     circleSize: Dp = 28.dp,
 ) {
@@ -258,8 +257,7 @@ private fun Stepper(
                 index = i,
                 done = isDone,
                 active = isActive,
-                size = circleSize,
-                palette = palette
+                size = circleSize
             )
 
             if (i != total) {
@@ -280,8 +278,7 @@ private fun StepCircle(
     index: Int,
     done: Boolean,
     active: Boolean,
-    size: Dp,
-    palette: OnboardingPalette,
+    size: Dp
 ) {
     val background = when {
         done || active -> palette.accent
@@ -320,7 +317,6 @@ fun OnbBottomButtons(
     onBack: (() -> Unit)?,
     onNext: () -> Unit,
     nextEnabled: Boolean,
-    palette: OnboardingPalette = DefaultOnbPalette,
     nextText: String = "Далее",
     backText: String = "Назад",
 ) {
@@ -370,7 +366,6 @@ fun ChipFlowRow(
     items: List<String>,
     selected: Set<String>,
     onToggle: (String) -> Unit,
-    palette: OnboardingPalette = DefaultOnbPalette,
 ) {
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
@@ -411,7 +406,6 @@ fun AboutCardTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    palette: OnboardingPalette = DefaultOnbPalette,
 ) {
     Card(
         modifier = Modifier
@@ -454,7 +448,6 @@ fun PhotoSlotCard(
     title: String,
     countText: String,
     modifier: Modifier = Modifier,
-    palette: OnboardingPalette = DefaultOnbPalette,
 ) {
     Card(
         modifier = modifier,
@@ -504,7 +497,6 @@ fun PhotoSlotCard(
 @Composable
 fun OnbLabeledField(
     label: String,
-    palette: OnboardingPalette = DefaultOnbPalette,
     leadingIcon: @Composable (() -> Unit)? = null,
     field: @Composable () -> Unit,
 ) {
@@ -531,7 +523,6 @@ fun OnbOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    palette: OnboardingPalette = DefaultOnbPalette,
     singleLine: Boolean = true,
     trailingDropdown: Boolean = false,
     readOnly: Boolean = false,

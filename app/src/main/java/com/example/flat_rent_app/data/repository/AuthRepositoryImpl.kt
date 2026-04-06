@@ -27,6 +27,30 @@ class AuthRepositoryImpl @Inject constructor(
         return auth.currentUser?.uid
     }
 
+    override fun currentUserEmail(): String? {
+        return auth.currentUser?.email
+    }
+
+    override suspend fun sendPasswordReset(email: String): Result<Unit> = runCatching {
+        auth.sendPasswordResetEmail(email).await()
+    }
+
+    override suspend fun sendEmailVerification(): Result<Unit> = runCatching {
+        auth.currentUser?.sendEmailVerification()?.await()
+            ?: throw IllegalStateException("Не авторизован")
+    }
+
+    override suspend fun updateEmail(newEmail: String, password: String): Result<Unit> = runCatching {
+        val user = auth.currentUser ?: throw IllegalStateException("Не авторизован")
+        val email = user.email ?: throw IllegalStateException("Нет email")
+
+        val credential = com.google.firebase.auth.EmailAuthProvider
+            .getCredential(email, password)
+        user.reauthenticate(credential).await()
+
+        user.verifyBeforeUpdateEmail(newEmail.trim()).await()
+    }
+
     override suspend fun signIn(
         email: String,
         password: String
@@ -51,5 +75,10 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun signOut() {
         auth.signOut()
+    }
+
+    override suspend fun deleteAccount(): Result<Unit> = runCatching {
+        auth.currentUser?.delete()?.await()
+            ?: throw IllegalStateException("Не авторизован")
     }
 }

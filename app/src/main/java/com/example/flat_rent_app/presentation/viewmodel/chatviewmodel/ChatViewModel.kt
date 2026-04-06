@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.presentation.viewmodel.chatviewmodel
 
+import android.R
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -52,5 +53,19 @@ class ChatViewModel @Inject constructor(
 
     fun markRead() = viewModelScope.launch {
         chatRepo.markRead(chatId)
+    }
+
+    fun deleteMessage(messageId: String, forBoth: Boolean) = viewModelScope.launch {
+        chatRepo.deleteMessage(ui.value.chatId, messageId, forBoth)
+            .onFailure { e ->
+                _ui.update { it.copy(error = e.message ?: "Ошибка удаления") }
+            }
+    }
+
+    fun clearHistory(forBoth: Boolean) = viewModelScope.launch {
+        chatRepo.clearHistory(ui.value.chatId, forBoth)
+            .onFailure { e ->
+                _ui.update { it.copy(error = e.message ?: "Ошибка удаления") }
+            }
     }
 }
