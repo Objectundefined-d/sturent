@@ -59,12 +59,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.ui.tooling.preview.Preview
 
-// Цвета приложения
 private val AppBlue = Color(0xFF1A73E8)
 private val AppBlack = Color(0xFF1C1C1E)
 private val AppWhite = Color.White
 private val AppGray = Color(0xFFF2F2F7)
-private val AppLightBlue = Color(0xFFE8F0FE)
 
 @Composable
 fun OnboardingScaffold(
