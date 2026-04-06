@@ -2,19 +2,37 @@ package com.example.flat_rent_app.presentation.screens.onboarding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.WavingHand
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -22,56 +40,40 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import coil.compose.AsyncImage
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.WavingHand
-import androidx.compose.material.icons.filled.GpsFixed
-import androidx.compose.material.icons.filled.SelfImprovement
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.example.flat_rent_app.R
 
 @Immutable
 data class OnboardingPalette(
-    val topOrange: Color = Color(0xFFFFB74D),
-    val bottomOrange: Color = Color(0xFFFF3D00),
-    val accentOrange: Color = Color(0xFFFF6D00),
-    val lightOrange: Color = Color(0x33FF6D00),
-    val chipSelected: Color = Color(0xFF9FC5FF),
-    val chipSelectedText: Color = Color(0xFF0B3D91),
-    val labelBlue: Color = Color(0xFF1E88E5),
-    val cardGray: Color = Color(0xFFE8E8E8),
+    val accent: Color = Color(0xFF6650A4),
+    val accentContainer: Color = Color(0xFFF3EEFF),
+    val cardGray: Color = Color(0xFFF5F5F7),
+    val label: Color = Color(0xFF6650A4),
+    val border: Color = Color(0xFFE1D9F7),
+    val textSecondary: Color = Color(0xFF6F6F7A),
 )
 
 private val DefaultOnbPalette = OnboardingPalette()
@@ -86,8 +88,8 @@ fun OnboardingScaffold(
 ) {
     OnboardingScreen(
         step = step,
+        totalSteps = totalSteps,
         title = title,
-        emoji = null,
         content = { content() },
         bottomBar = footer
     )
@@ -146,93 +148,95 @@ fun OnbTextField(
         minLines = minLines
     )
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
     step: Int,
+    totalSteps: Int,
     title: String,
     modifier: Modifier = Modifier,
     palette: OnboardingPalette = DefaultOnbPalette,
-    emoji: String? = null,
     content: @Composable ColumnScope.() -> Unit,
     bottomBar: @Composable () -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(listOf(palette.topOrange, palette.bottomOrange))
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = { Text("") }
             )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .padding(top = 26.dp)
-        ) {
-            Stepper(step = step, palette = palette)
-            Spacer(Modifier.height(22.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = buildString {
-                        append(title)
-                        if (!emoji.isNullOrBlank()) {
-                            append(" ")
-                            append(emoji)
-                        }
-                    },
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        color = Color.White,
-                        fontWeight = FontWeight.ExtraBold,
-                        lineHeight = 38.sp
-                    ),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+        },
+        bottomBar = {
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 10.dp
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                ) {
+                    bottomBar()
+                }
             }
         }
-
-        Card(
+    ) { padding ->
+        Column(
             modifier = Modifier
+                .padding(padding)
                 .fillMaxSize()
-                .padding(top = 190.dp),
-            shape = RoundedCornerShape(topStart = 42.dp, topEnd = 42.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(Modifier.height(8.dp))
+
+            androidx.compose.foundation.Image(
+                painter = painterResource(id = R.drawable.ic_login_home),
+                contentDescription = null,
+                modifier = Modifier.size(84.dp)
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(Modifier.height(18.dp))
+
+            Stepper(
+                step = step,
+                total = totalSteps,
+                palette = palette
+            )
+
+            Spacer(Modifier.height(24.dp))
+
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 18.dp)
-                    .padding(top = 22.dp, bottom = 18.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(14.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                    content = content
-                )
-
-                bottomBar()
-            }
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                content = content
+            )
         }
     }
 }
 
-
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-fun OnboardingScreenPreview() {
+private fun OnboardingScreenPreview() {
     OnboardingScreen(
         step = 1,
-        title = "",
-        modifier = Modifier,
-        palette = DefaultOnbPalette,
-        emoji = null,
+        totalSteps = 4,
+        title = "Расскажи о себе",
         content = {},
-        bottomBar = {},
+        bottomBar = {}
     )
 }
 
@@ -241,7 +245,7 @@ private fun Stepper(
     step: Int,
     palette: OnboardingPalette,
     total: Int = 4,
-    circleSize: Dp = 32.dp,
+    circleSize: Dp = 28.dp,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -262,8 +266,9 @@ private fun Stepper(
                 Box(
                     Modifier
                         .weight(1f)
-                        .height(2.dp)
-                        .background(Color.White.copy(alpha = 0.35f))
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(999.dp))
+                        .background(if (i < step) palette.accent else palette.border)
                 )
             }
         }
@@ -278,34 +283,33 @@ private fun StepCircle(
     size: Dp,
     palette: OnboardingPalette,
 ) {
-    val bg = when {
-        done || active -> Color.White
-        else -> Color.White.copy(alpha = 0.28f)
+    val background = when {
+        done || active -> palette.accent
+        else -> palette.accentContainer
     }
-    val border = when {
-        active -> palette.accentOrange
-        else -> Color.Transparent
-    }
+    val contentColor = if (done || active) Color.White else palette.accent
+
     Box(
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
-            .background(bg)
-            .border(width = 2.dp, color = border, shape = CircleShape),
+            .background(background)
+            .border(1.dp, palette.border, CircleShape),
         contentAlignment = Alignment.Center
     ) {
-        when {
-            done -> Icon(
+        if (done) {
+            Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
-                tint = palette.accentOrange,
-                modifier = Modifier.size(18.dp)
+                tint = contentColor,
+                modifier = Modifier.size(16.dp)
             )
-
-            else -> Text(
+        } else {
+            Text(
                 text = index.toString(),
-                color = if (active) palette.accentOrange else Color.White,
-                fontWeight = FontWeight.Bold
+                color = contentColor,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }
@@ -322,65 +326,40 @@ fun OnbBottomButtons(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        PillButton(
-            text = backText,
-            iconLeft = Icons.AutoMirrored.Filled.ArrowBack,
-            enabled = onBack != null,
-            onClick = { onBack?.invoke() },
-            palette = palette
-        )
+        if (onBack != null) {
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(52.dp),
+                shape = RoundedCornerShape(28.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, palette.border),
+                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(backText, fontWeight = FontWeight.SemiBold)
+            }
+        }
 
-        PillButton(
-            text = nextText,
-            iconRight = Icons.AutoMirrored.Filled.ArrowForward,
-            enabled = nextEnabled,
+        Button(
             onClick = onNext,
-            palette = palette
-        )
-    }
-}
-
-@Composable
-fun PillButton(
-    text: String,
-    enabled: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    palette: OnboardingPalette = DefaultOnbPalette,
-    iconLeft: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    iconRight: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    leading: (@Composable () -> Unit)? = null,
-) {
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier,
-        shape = RoundedCornerShape(26.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = palette.accentOrange,
-            disabledContainerColor = palette.accentOrange.copy(alpha = 0.35f),
-            contentColor = Color.White,
-            disabledContentColor = Color.White.copy(alpha = 0.75f)
-        ),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            horizontal = 18.dp,
-            vertical = 12.dp
-        )
-    ) {
-        if (leading != null) {
-            leading()
-        }
-        if (iconLeft != null) {
-            Icon(iconLeft, contentDescription = null, modifier = Modifier.size(18.dp))
+            enabled = nextEnabled,
+            modifier = Modifier
+                .weight(if (onBack != null) 1f else 1f)
+                .height(52.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+            ),
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
+        ) {
+            Text(nextText, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.width(8.dp))
-        }
-        Text(text, fontWeight = FontWeight.Bold)
-        if (iconRight != null) {
-            Spacer(Modifier.width(8.dp))
-            Icon(iconRight, contentDescription = null, modifier = Modifier.size(18.dp))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
         }
     }
 }
@@ -404,27 +383,23 @@ fun ChipFlowRow(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth(0.48f)
-                    .clip(RoundedCornerShape(999.dp))
-                    .border(
-                        width = 1.5.dp,
-                        color = palette.accentOrange.copy(alpha = 0.55f),
-                        shape = RoundedCornerShape(999.dp)
-                    )
-                    .background(if (isSelected) palette.chipSelected else Color.Transparent)
-                    .padding(horizontal = 14.dp, vertical = 10.dp)
-                    .clip(RoundedCornerShape(999.dp))
-                    .background(if (isSelected) palette.chipSelected else Color.Transparent)
-                    .then(Modifier),
-                color = if (isSelected) palette.chipSelected else Color.Transparent,
-                contentColor = if (isSelected) palette.chipSelectedText else palette.accentOrange,
+                    .clip(RoundedCornerShape(24.dp)),
+                color = if (isSelected) palette.accentContainer else Color.White,
+                contentColor = if (isSelected) palette.accent else MaterialTheme.colorScheme.onSurface,
                 onClick = { onToggle(item) },
-                shape = RoundedCornerShape(999.dp)
+                shape = RoundedCornerShape(24.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (isSelected) palette.accent else palette.border
+                )
             ) {
                 Text(
                     text = item,
-                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -442,23 +417,27 @@ fun AboutCardTextField(
         modifier = Modifier
             .fillMaxWidth()
             .height(210.dp),
-        shape = RoundedCornerShape(26.dp),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = palette.cardGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Box(Modifier.fillMaxSize().padding(16.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
             if (value.isBlank()) {
                 Text(
                     text = placeholder,
-                    color = Color(0xFF6B6B6B),
+                    color = palette.textSecondary,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color(0xFF1B1B1B)),
-                cursorBrush = SolidColor(palette.accentOrange),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Default
@@ -479,16 +458,18 @@ fun PhotoSlotCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = palette.cardGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
             if (imageModel != null) {
                 AsyncImage(
                     model = imageModel,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp)),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(28.dp)),
                     contentScale = ContentScale.Crop
                 )
             } else {
@@ -502,12 +483,18 @@ fun PhotoSlotCard(
                     Icon(
                         imageVector = Icons.Filled.CameraAlt,
                         contentDescription = null,
-                        tint = Color(0xFF666666),
+                        tint = palette.textSecondary,
                         modifier = Modifier.size(26.dp)
                     )
                     Spacer(Modifier.height(10.dp))
-                    Text(title, color = Color(0xFF555555), fontWeight = FontWeight.SemiBold)
-                    Text(countText, color = Color(0xFF777777), style = MaterialTheme.typography.labelMedium)
+                    Text(title, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
+                    if (countText.isNotBlank()) {
+                        Text(
+                            countText,
+                            color = palette.textSecondary,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
                 }
             }
         }
@@ -529,15 +516,15 @@ fun OnbLabeledField(
             }
             Text(
                 text = label,
-                color = palette.labelBlue,
-                style = MaterialTheme.typography.labelLarge
+                color = palette.label,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
             )
         }
         field()
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnbOutlinedTextField(
     modifier: Modifier = Modifier,
@@ -551,47 +538,35 @@ fun OnbOutlinedTextField(
     onClick: (() -> Unit)? = null,
     minLines: Int = 1,
 ) {
-    val shape = RoundedCornerShape(18.dp)
+    val shape = RoundedCornerShape(28.dp)
     OutlinedTextField(
         modifier = modifier
             .fillMaxWidth()
-            .then(
-                if (onClick != null) Modifier
-                    .clip(shape)
-                    .background(Color.Transparent)
-                else Modifier
-            ),
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder) },
+        placeholder = { Text(placeholder, color = palette.textSecondary) },
         singleLine = singleLine,
         readOnly = readOnly,
         minLines = minLines,
-        trailingIcon = if (trailingDropdown) {
-            {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = null,
-                    tint = palette.accentOrange
-                )
-            }
-        } else null,
         shape = shape,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = palette.accentOrange,
-            unfocusedBorderColor = palette.accentOrange.copy(alpha = 0.65f),
-            cursorColor = palette.accentOrange,
-            focusedTextColor = Color(0xFF1B1B1B),
-            unfocusedTextColor = Color(0xFF1B1B1B)
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = palette.border,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent
         )
     )
 }
 
 @Composable
-fun OnbIconName() = Icon(Icons.Filled.WavingHand, contentDescription = null, tint = DefaultOnbPalette.labelBlue)
+fun OnbIconName() = Icon(Icons.Filled.WavingHand, contentDescription = null, tint = DefaultOnbPalette.label)
 
 @Composable
-fun OnbIconCity() = Icon(Icons.Filled.LocationOn, contentDescription = null, tint = DefaultOnbPalette.labelBlue)
+fun OnbIconCity() = Icon(Icons.Filled.LocationOn, contentDescription = null, tint = DefaultOnbPalette.label)
 
 @Composable
-fun OnbIconEdu() = Icon(Icons.Filled.School, contentDescription = null, tint = DefaultOnbPalette.labelBlue)
+fun OnbIconEdu() = Icon(Icons.Filled.School, contentDescription = null, tint = DefaultOnbPalette.label)
