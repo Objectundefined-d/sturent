@@ -52,10 +52,18 @@ jobs:
             -PciVersionName="${VN}" \
             --stacktrace
 
+      - name: Setup Android SDK (build-tools for APK signing)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature-CI/CD'
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "tools platform-tools build-tools;33.0.0"
+
       - name: Sign release APK
         id: sign_app
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature-CI/CD'
         uses: r0adkll/sign-android-release@v1
+        env:
+          BUILD_TOOLS_VERSION: "33.0.0"
         with:
           releaseDirectory: app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
