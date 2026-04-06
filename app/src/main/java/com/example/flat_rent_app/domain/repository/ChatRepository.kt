@@ -10,4 +10,7 @@ interface ChatRepository {
 
     suspend fun sendMessage(chatId: String, otherId: String, text: String): Result<Unit>
     suspend fun markRead(chatId: String): Result<Unit>
+    suspend fun deleteChat(chatId: String, otherUid: String, forBoth: Boolean): Result<Unit>
+    suspend fun clearHistory(chatId: String, forBoth: Boolean): Result<Unit>
+    suspend fun deleteMessage(chatId: String, messageId: String, forBoth: Boolean): Result<Unit>
 }

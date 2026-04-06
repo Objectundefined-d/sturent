@@ -10,18 +10,30 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flat_rent_app.domain.model.Message
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Bubble(msg: Message, isMine: Boolean) {
+fun Bubble(
+    msg: Message,
+    isMine: Boolean,
+    onLongClick: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+            color = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+            modifier = Modifier.combinedClickable(
+                onClick = {},
+                onLongClick = onLongClick
+            )
         ) {
             Text(
                 text = msg.text,
@@ -30,4 +42,14 @@ fun Bubble(msg: Message, isMine: Boolean) {
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun BubblePreview() {
+    Bubble(
+        msg = Message(),
+        isMine = true,
+        onLongClick = {}
+    )
 }

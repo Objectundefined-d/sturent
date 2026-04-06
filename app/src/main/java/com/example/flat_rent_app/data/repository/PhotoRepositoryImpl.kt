@@ -28,7 +28,7 @@ class PhotoRepositoryImpl @Inject constructor(
 ) : PhotoRepository {
 
     companion object {
-        private const val BASE_URL = "https://flat-rent-server.onrender.com"
+        private const val BASE_URL = "https://flatrentserver-production.up.railway.app"
         private const val MAX_IMAGE_SIZE = 5 * 1024 * 1024
     }
 
@@ -68,7 +68,7 @@ class PhotoRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 if (file.length() > MAX_IMAGE_SIZE) {
-                    return@withContext Result.failure(Exception("Файл слишком большой. Максимум 5MB"))
+                    return@withContext Result.failure(Exception("Файл слишком большой"))
                 }
 
                 val token = tokenProvider.getIdToken()

@@ -13,7 +13,7 @@ class AuthTokenInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
 
-        if (originalRequest.url.host.contains("onrender.com")) {
+        if (originalRequest.url.host.contains("railway.app")) {
             val token = runBlocking { tokenProvider.getIdToken() }
 
             if (token != null) {

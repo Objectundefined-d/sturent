@@ -4,6 +4,7 @@ data class SwipeProfile(
     val uid: String = "",
     val name: String = "",
     val age: Int? = 0,
+    val gender: Gender? = null,
     val city: String = "",
     val university: String = "",
     val description: String = "",

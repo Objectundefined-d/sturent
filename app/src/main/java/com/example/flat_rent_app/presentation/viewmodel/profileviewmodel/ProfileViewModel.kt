@@ -38,4 +38,14 @@ class ProfileViewModel @Inject constructor(
     fun signOut() {
         viewModelScope.launch { authRepo.signOut() }
     }
+
+    private val _deleteState = MutableStateFlow<String?>(null)
+    val deleteError: StateFlow<String?> = _deleteState
+
+    fun deleteAccount() {
+        viewModelScope.launch {
+            authRepo.deleteAccount()
+                .onFailure { _deleteState.value = it.message }
+        }
+    }
 }
