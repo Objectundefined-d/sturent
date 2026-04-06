@@ -7,16 +7,34 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val ciVersionCode = providers.gradleProperty("ciVersionCode").orNull?.toIntOrNull()
+val ciVersionName = providers.gradleProperty("ciVersionName").orNull
+
 android {
     namespace = "com.example.flat_rent_app"
     compileSdk = 36
+
+    signingConfigs {
+        val keystorePath = System.getenv("RELEASE_KEYSTORE_FILE")
+        if (!keystorePath.isNullOrBlank()) {
+            val keystoreFile = rootProject.file(keystorePath)
+            if (keystoreFile.exists()) {
+                create("releaseSigning") {
+                    storeFile = keystoreFile
+                    storePassword = System.getenv("KEY_STORE_PASSWORD")
+                    keyAlias = System.getenv("KEY_ALIAS").orEmpty()
+                    keyPassword = System.getenv("KEY_PASSWORD")
+                }
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = "com.example.flat_rent_app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = ciVersionCode ?: 1
+        versionName = ciVersionName ?: "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -28,6 +46,14 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val releaseSigning = signingConfigs.findByName("releaseSigning")
+            when {
+                // CI: неподписанный APK → подпись шагом sign-android-release в workflow
+                project.hasProperty("ciExternalSigning") -> signingConfig = null
+                releaseSigning != null -> signingConfig = releaseSigning
+                project.hasProperty("ciUseDebugSigning") -> signingConfig =
+                    signingConfigs.getByName("debug")
+            }
         }
     }
     compileOptions {
