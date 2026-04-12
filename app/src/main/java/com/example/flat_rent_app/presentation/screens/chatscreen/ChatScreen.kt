@@ -142,72 +142,73 @@ fun ChatScreenContent(
 
     if (selectedMessage != null && !showEditDialog && !showReadTimeDialog) {
         val clipboardManager = LocalClipboardManager.current
-        AlertDialog(
+        ModalBottomSheet(
             onDismissRequest = { selectedMessage = null },
-            title = { Text("Действия") },
-            text = {
-                Column {
+            sheetState = rememberModalBottomSheetState()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp)
+            ) {
+                ListItem(
+                    headlineContent = { Text("Копировать") },
+                    leadingContent = { Icon(Icons.Default.ContentCopy, null) },
+                    modifier = Modifier.clickable {
+                        clipboardManager.setText(AnnotatedString(selectedMessage!!.text))
+                        selectedMessage = null
+                    }
+                )
+                if (selectedMessage!!.senderUid == state.myUid) {
                     ListItem(
-                        headlineContent = { Text("Копировать") },
-                        leadingContent = { Icon(Icons.Default.ContentCopy, null) },
+                        headlineContent = { Text("Редактировать") },
+                        leadingContent = { Icon(Icons.Default.Edit, null) },
+                        modifier = Modifier.clickable { showEditDialog = true }
+                    )
+                    ListItem(
+                        headlineContent = { Text("Время прочтения") },
+                        leadingContent = { Icon(Icons.Default.DoneAll, null) },
+                        modifier = Modifier.clickable { showReadTimeDialog = true }
+                    )
+                    ListItem(
+                        headlineContent = { Text("Удалить у себя") },
+                        leadingContent = {
+                            Icon(Icons.Default.Delete, null,
+                                tint = MaterialTheme.colorScheme.error)
+                        },
                         modifier = Modifier.clickable {
-                            clipboardManager.setText(AnnotatedString(selectedMessage!!.text))
+                            onDeleteMessage(selectedMessage!!.messageId, false)
                             selectedMessage = null
                         }
                     )
-                    if (selectedMessage!!.senderUid == state.myUid) {
-                        ListItem(
-                            headlineContent = { Text("Редактировать") },
-                            leadingContent = { Icon(Icons.Default.Edit, null) },
-                            modifier = Modifier.clickable { showEditDialog = true }
-                        )
-                        ListItem(
-                            headlineContent = { Text("Время прочтения") },
-                            leadingContent = { Icon(Icons.Default.DoneAll, null) },
-                            modifier = Modifier.clickable { showReadTimeDialog = true }
-                        )
-                        ListItem(
-                            headlineContent = { Text("Удалить у себя") },
-                            leadingContent = {
-                                Icon(Icons.Default.Delete, null,
-                                    tint = MaterialTheme.colorScheme.error)
-                            },
-                            modifier = Modifier.clickable {
-                                onDeleteMessage(selectedMessage!!.messageId, false)
-                                selectedMessage = null
-                            }
-                        )
-                        ListItem(
-                            headlineContent = {
-                                Text("Удалить у всех",
-                                    color = MaterialTheme.colorScheme.error)
-                            },
-                            leadingContent = {
-                                Icon(Icons.Default.Delete, null,
-                                    tint = MaterialTheme.colorScheme.error)
-                            },
-                            modifier = Modifier.clickable {
-                                onDeleteMessage(selectedMessage!!.messageId, true)
-                                selectedMessage = null
-                            }
-                        )
-                    } else {
-                        ListItem(
-                            headlineContent = { Text("Удалить у себя") },
-                            leadingContent = {
-                                Icon(Icons.Default.Delete, null,
-                                    tint = MaterialTheme.colorScheme.error)
-                            },
-                            modifier = Modifier.clickable {
-                                onDeleteMessage(selectedMessage!!.messageId, false)
-                                selectedMessage = null
-                            }
-                        )
-                    }
+                    ListItem(
+                        headlineContent = {
+                            Text("Удалить у всех", color = MaterialTheme.colorScheme.error)
+                        },
+                        leadingContent = {
+                            Icon(Icons.Default.Delete, null,
+                                tint = MaterialTheme.colorScheme.error)
+                        },
+                        modifier = Modifier.clickable {
+                            onDeleteMessage(selectedMessage!!.messageId, true)
+                            selectedMessage = null
+                        }
+                    )
+                } else {
+                    ListItem(
+                        headlineContent = { Text("Удалить у себя") },
+                        leadingContent = {
+                            Icon(Icons.Default.Delete, null,
+                                tint = MaterialTheme.colorScheme.error)
+                        },
+                        modifier = Modifier.clickable {
+                            onDeleteMessage(selectedMessage!!.messageId, false)
+                            selectedMessage = null
+                        }
+                    )
                 }
-            },
-            confirmButton = {}
-        )
+            }
+        }
     }
 
     if (showClearDialog) {
@@ -295,7 +296,7 @@ fun ChatScreenContent(
                         ) {
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                             ) {
                                 Text(
                                     text = formatDateHeader(msg.createdAt),
@@ -325,7 +326,7 @@ fun ChatScreenContent(
             ) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                 ) {
                     Text(
                         text = currentDateHeader,
