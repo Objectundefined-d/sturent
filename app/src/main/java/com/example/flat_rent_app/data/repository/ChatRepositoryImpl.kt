@@ -3,6 +3,7 @@ package com.example.flat_rent_app.data.repository
 import android.util.Log
 import com.example.flat_rent_app.domain.model.Chat
 import com.example.flat_rent_app.domain.model.Message
+import com.example.flat_rent_app.domain.model.MessageStatus
 import com.example.flat_rent_app.domain.repository.AuthRepository
 import com.example.flat_rent_app.domain.repository.ChatRepository
 import com.google.firebase.firestore.FieldValue
@@ -73,12 +74,19 @@ class ChatRepositoryImpl @Inject constructor(
                     val deletedFor = (d.get("deletedFor") as? List<*>) ?: emptyList<String>()
                     if (myUid in deletedFor) return@mapNotNull null
 
+                    val status = when (d.getString("status")) {
+                        "read" -> MessageStatus.READ
+                        "sent" -> MessageStatus.SENT
+                        else -> MessageStatus.SENDING
+                    }
+
                     Message(
                         messageId = d.id,
                         senderUid = senderUid,
                         text = d.getString("text").orEmpty(),
                         type = d.getString("type") ?: "text",
-                        createdAt = d.getLong("createdAt") ?: 0L
+                        createdAt = d.getLong("createdAt") ?: 0L,
+                        status = status
                     )
                 }.reversed()
 
@@ -111,7 +119,8 @@ class ChatRepositoryImpl @Inject constructor(
                     "senderUid" to myUid,
                     "text" to text,
                     "type" to "text",
-                    "createdAt" to now
+                    "createdAt" to now,
+                    "status" to "sent"
                 )
             )
 
@@ -153,7 +162,22 @@ class ChatRepositoryImpl @Inject constructor(
                 .set(mapOf("unreadCount" to 0L), SetOptions.merge())
                 .await()
 
+            val unread = db.collection("chats").document(chatId)
+                .collection("messages")
+                .whereEqualTo("status", "sent")
+                .get()
+                .await()
+
+            val batch = db.batch()
+            unread.documents.forEach { doc ->
+                val senderUid = doc.getString("senderUid")
+                if (senderUid != myUid) {
+                    batch.update(doc.reference, "status", "read")
+                }
+            }
+            batch.commit().await()
             Unit
+
         }.recoverCatching { t ->
             throw RuntimeException(t.message ?: "Ошибка markRead", t)
         }
