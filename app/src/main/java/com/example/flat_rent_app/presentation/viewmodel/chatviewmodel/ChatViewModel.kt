@@ -71,4 +71,11 @@ class ChatViewModel @Inject constructor(
                 _state.update { it.copy(error = e.message ?: "Ошибка удаления") }
             }
     }
+
+    fun editMessage(messageId: String, newText: String) = viewModelScope.launch {
+        chatRepo.editMessage(state.value.chatId, messageId, newText)
+            .onFailure { e ->
+                _state.update { it.copy(error = e.message ?: "Ошибка редактирования") }
+            }
+    }
 }

@@ -75,8 +75,9 @@ class ChatRepositoryImpl @Inject constructor(
                     if (myUid in deletedFor) return@mapNotNull null
 
                     val hasPendingWrites = d.metadata.hasPendingWrites()
+                    val editedAt = d.getLong("editedAt")
                     val status = when {
-                        hasPendingWrites -> MessageStatus.SENDING
+                        hasPendingWrites && editedAt == null -> MessageStatus.SENDING
                         d.getString("status") == "read" -> MessageStatus.READ
                         else -> MessageStatus.SENT
                     }
@@ -87,7 +88,8 @@ class ChatRepositoryImpl @Inject constructor(
                         text = d.getString("text").orEmpty(),
                         type = d.getString("type") ?: "text",
                         createdAt = d.getLong("createdAt") ?: 0L,
-                        status = status
+                        status = status,
+                        readAt = d.getLong("readAt")
                     )
                 }.reversed()
 
@@ -173,7 +175,10 @@ class ChatRepositoryImpl @Inject constructor(
             unread.documents.forEach { doc ->
                 val senderUid = doc.getString("senderUid")
                 if (senderUid != myUid) {
-                    batch.update(doc.reference, "status", "read")
+                    batch.update(doc.reference, mapOf(
+                        "status" to "read",
+                        "readAt" to System.currentTimeMillis()
+                    ))
                 }
             }
             batch.commit().await()
@@ -308,5 +313,15 @@ class ChatRepositoryImpl @Inject constructor(
             Unit
         }.recoverCatching { t ->
             throw RuntimeException(t.message ?: "Ошибка удаления сообщения", t)
+        }
+
+    override suspend fun editMessage(chatId: String, messageId: String, newText: String): Result<Unit> =
+        runCatching {
+            db.collection("chats").document(chatId)
+                .collection("messages").document(messageId)
+                .update(mapOf(
+                    "text" to newText,
+                    "editedAt" to System.currentTimeMillis()
+                )).await()
         }
 }

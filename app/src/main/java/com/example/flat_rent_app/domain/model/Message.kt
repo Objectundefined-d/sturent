@@ -6,7 +6,8 @@ data class Message(
     val text: String = "",
     val type: String = "text",
     val createdAt: Long = 0L,
-    val status: MessageStatus = MessageStatus.SENT
+    val status: MessageStatus = MessageStatus.SENT,
+    val readAt: Long? = null
 )
 
 enum class MessageStatus {

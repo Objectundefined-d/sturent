@@ -26,6 +26,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import com.example.flat_rent_app.domain.model.MessageStatus
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -55,6 +58,16 @@ fun Bubble(
                     text = msg.text,
                     color = if (isMine) MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = SimpleDateFormat("HH:mm", Locale.getDefault())
+                        .format(Date(msg.createdAt)),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isMine)
+                        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
 
                 if (isMine) {
