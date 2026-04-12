@@ -74,10 +74,11 @@ class ChatRepositoryImpl @Inject constructor(
                     val deletedFor = (d.get("deletedFor") as? List<*>) ?: emptyList<String>()
                     if (myUid in deletedFor) return@mapNotNull null
 
-                    val status = when (d.getString("status")) {
-                        "read" -> MessageStatus.READ
-                        "sent" -> MessageStatus.SENT
-                        else -> MessageStatus.SENDING
+                    val hasPendingWrites = d.metadata.hasPendingWrites()
+                    val status = when {
+                        hasPendingWrites -> MessageStatus.SENDING
+                        d.getString("status") == "read" -> MessageStatus.READ
+                        else -> MessageStatus.SENT
                     }
 
                     Message(

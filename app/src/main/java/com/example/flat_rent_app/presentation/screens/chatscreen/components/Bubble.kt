@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DoneAll
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
@@ -77,6 +78,12 @@ fun Bubble(
                             tint = iconColor,
                             modifier = Modifier.size(14.dp)
                         )
+                        MessageStatus.FAILED -> Icon(
+                            Icons.Default.ErrorOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(14.dp)
+                        )
                     }
                 }
             }
@@ -114,6 +121,18 @@ fun BubblePreviewMineSending() {
     FlatrentappTheme {
         Bubble(
             msg = Message(text = "Отправляется", status = MessageStatus.SENDING),
+            isMine = true,
+            onLongClick = {}
+        )
+    }
+}
+
+@Preview(name = "Ошибка отправки")
+@Composable
+fun BubblePreviewMineFailed() {
+    FlatrentappTheme {
+        Bubble(
+            msg = Message(text = "Отправляется", status = MessageStatus.FAILED),
             isMine = true,
             onLongClick = {}
         )

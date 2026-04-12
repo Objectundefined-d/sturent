@@ -6,11 +6,12 @@ data class Message(
     val text: String = "",
     val type: String = "text",
     val createdAt: Long = 0L,
-    val status: MessageStatus = MessageStatus.SENDING
+    val status: MessageStatus = MessageStatus.SENT
 )
 
 enum class MessageStatus {
     SENDING,
     SENT,
-    READ
+    READ,
+    FAILED
 }

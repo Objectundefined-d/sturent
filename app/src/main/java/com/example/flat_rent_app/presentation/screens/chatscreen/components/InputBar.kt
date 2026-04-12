@@ -24,9 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatUiState
 
 @Composable
 fun InputBar(
+    error: String?,
     text: String,
     sending: Boolean,
     onTextChange: (String) -> Unit,
@@ -48,7 +50,7 @@ fun InputBar(
                 onValueChange = onTextChange,
                 placeholder = {
                     Text(
-                        "Сообщение…",
+                        text = error ?: "Сообщение…",
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
@@ -67,7 +69,7 @@ fun InputBar(
 
             IconButton(
                 onClick = onSend,
-                enabled = !sending && text.isNotBlank()
+                enabled = text.isNotBlank()
             ) {
                 if (sending) {
                     CircularProgressIndicator(
@@ -90,35 +92,35 @@ fun InputBar(
     }
 }
 
-@Preview(showBackground = true, name = "Light — пустое")
+@Preview(showBackground = true, name = "пустое")
 @Composable
 fun InputBarPreviewEmpty() {
     FlatrentappTheme {
-        InputBar(text = "", sending = false, onTextChange = {}, onSend = {})
+        InputBar(text = "", sending = false, onTextChange = {}, onSend = {}, error = null)
     }
 }
 
-@Preview(showBackground = true, name = "Light — с текстом")
+@Preview(showBackground = true, name = "с текстом")
 @Composable
 fun InputBarPreviewWithText() {
     FlatrentappTheme {
-        InputBar(text = "Привет!", sending = false, onTextChange = {}, onSend = {})
+        InputBar(text = "Привет", sending = false, onTextChange = {}, onSend = {}, error = null)
     }
 }
 
-@Preview(showBackground = true, name = "Light — отправка")
+@Preview(showBackground = true, name = "отправка")
 @Composable
 fun InputBarPreviewSending() {
     FlatrentappTheme {
-        InputBar(text = "Привет!", sending = true, onTextChange = {}, onSend = {})
+        InputBar(text = "", sending = true, onTextChange = {}, onSend = {}, error = "Ошибка")
     }
 }
 
-@Preview(showBackground = true, name = "Dark — с текстом",
+@Preview(showBackground = true, name = "с текстом, темная тема",
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun InputBarPreviewDark() {
     FlatrentappTheme {
-        InputBar(text = "Привет!", sending = false, onTextChange = {}, onSend = {})
+        InputBar(text = "Привет", sending = false, onTextChange = {}, onSend = {}, error = null)
     }
 }

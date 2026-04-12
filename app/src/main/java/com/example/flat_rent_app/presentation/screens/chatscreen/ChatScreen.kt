@@ -25,16 +25,16 @@ fun ChatScreen(
     onBack: () -> Unit,
     viewmodel: ChatViewModel = hiltViewModel()
 ) {
-    val ui by viewmodel.ui.collectAsState()
+    val state by viewmodel.state.collectAsState()
     val messages by viewmodel.messages.collectAsState()
     val otherProfile by viewmodel.otherProfile.collectAsState()
 
     LaunchedEffect(Unit) { viewmodel.markRead() }
 
     ChatScreenContent(
-        ui = ui,
+        state = state,
         messages = messages,
-        title = otherProfile?.name?.takeIf { it.isNotBlank() } ?: ui.otherUid,
+        title = otherProfile?.name?.takeIf { it.isNotBlank() } ?: state.otherUid,
         onBack = onBack,
         onInput = viewmodel::onInput,
         onSend = viewmodel::send,
@@ -46,7 +46,7 @@ fun ChatScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreenContent(
-    ui: ChatUiState,
+    state: ChatUiState,
     messages: List<Message>,
     title: String,
     onBack: () -> Unit,
@@ -133,8 +133,9 @@ fun ChatScreenContent(
         },
         bottomBar = {
             InputBar(
-                text = ui.input,
-                sending = ui.sending,
+                error = state.error,
+                text = state.input,
+                sending = state.sending,
                 onTextChange = onInput,
                 onSend = onSend
             )
@@ -142,15 +143,6 @@ fun ChatScreenContent(
         containerColor = MaterialTheme.colorScheme.background
     ) { pad ->
         Column(modifier = Modifier.padding(pad).fillMaxSize()) {
-
-            ui.error?.let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(12.dp)
-                )
-            }
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -192,12 +184,11 @@ fun ChatScreenContent(
                             }
                         )
                     }
-
                     Bubble(
                         msg = msg,
-                        isMine = msg.senderUid == ui.myUid,
+                        isMine = msg.senderUid == state.myUid,
                         onLongClick = {
-                            if (msg.senderUid == ui.myUid) showDialog = true
+                            if (msg.senderUid == state.myUid) showDialog = true
                         }
                     )
                 }
@@ -211,7 +202,7 @@ fun ChatScreenContent(
 fun ChatScreenPreviewLight() {
     FlatrentappTheme {
         ChatScreenContent(
-            ui = ChatUiState(
+            state = ChatUiState(
                 myUid = "me",
                 chatId = "chat1",
                 otherUid = "other",
@@ -239,12 +230,13 @@ fun ChatScreenPreviewLight() {
 fun ChatScreenPreviewDark() {
     FlatrentappTheme {
         ChatScreenContent(
-            ui = ChatUiState(
+            state = ChatUiState(
                 myUid = "me",
                 chatId = "chat1",
                 otherUid = "other",
-                input = "Набираю сообщение...",
-                sending = false
+                input = "Набираю сообщение",
+                sending = false,
+                error = "Ошибка"
             ),
             messages = listOf(
                 Message(messageId = "1", senderUid = "me", text = "Привет!", createdAt = 0),
