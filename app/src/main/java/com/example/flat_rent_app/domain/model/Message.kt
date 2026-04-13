@@ -5,5 +5,14 @@ data class Message(
     val senderUid: String = "",
     val text: String = "",
     val type: String = "text",
-    val createdAt: Long = 0L
+    val createdAt: Long = 0L,
+    val status: MessageStatus = MessageStatus.SENT,
+    val readAt: Long? = null
 )
+
+enum class MessageStatus {
+    SENDING,
+    SENT,
+    READ,
+    FAILED
+}
