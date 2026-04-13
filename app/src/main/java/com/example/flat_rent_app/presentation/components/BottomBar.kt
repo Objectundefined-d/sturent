@@ -1,6 +1,7 @@
 package com.example.flat_rent_app.presentation.components
 
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Favorite
@@ -26,7 +27,6 @@ fun AppBottomBar(
     onFavorites: () -> Unit
 ) {
     NavigationBar(
-        modifier = Modifier.height(56.dp),
         tonalElevation = 0.dp
     ) {
         NavigationBarItem(
@@ -58,7 +58,6 @@ fun AppBottomBar(
                 indicatorColor = MaterialTheme.colorScheme.surface
             )
         )
-
         NavigationBarItem(
             selected = selected == BottomTabs.PROFILE,
             onClick = onProfile,

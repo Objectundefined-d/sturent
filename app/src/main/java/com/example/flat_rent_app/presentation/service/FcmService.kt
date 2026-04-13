@@ -40,8 +40,8 @@ class FcmService : FirebaseMessagingService() {
 
         val prefs = getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
         val enabled = when (type) {
-            "message" -> prefs.getBoolean("notify_messages", true)
-            "match" -> prefs.getBoolean("notify_matches", true)
+            "message" -> prefs.getBoolean("notifyMessages", true)
+            "match" -> prefs.getBoolean("notifyMatches", true) 
             else -> true
         }
         if (!enabled) return
