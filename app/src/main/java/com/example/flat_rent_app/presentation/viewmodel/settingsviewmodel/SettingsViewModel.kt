@@ -24,8 +24,6 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val prefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
-    private val myUid = authRepo.currentUid()
-
     private val _state = MutableStateFlow(
         SettingsUiState(
             isDarkTheme = prefs.getBoolean("dark_theme", false)
@@ -40,7 +38,7 @@ class SettingsViewModel @Inject constructor(
 
     fun loadSettings() = viewModelScope.launch {
         _state.update { it.copy(isLoading = true, error = null) }
-        val uid = myUid ?: return@launch
+        val uid = authRepo.currentUid() ?: return@launch
 
         try {
             val doc = db.collection("users").document(uid).get().await()
@@ -69,25 +67,29 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setNotifyMatches(newValue: Boolean) {
-        _state.update { it.copy(notifyMatches = newValue) }
+        val uid = authRepo.currentUid() ?: return
 
+        _state.update {
+            it.copy(notifyMatches = newValue)
+        }
         prefs.edit {
             putBoolean("notifyMatches", newValue)
         }
-        myUid?.let {
-            db.collection("users").document(myUid).update("notifyMatches", newValue)
-        }
+
+        db.collection("users").document(uid).update("notifyMatches", newValue)
     }
 
     fun setNotifyMessages(newValue: Boolean) {
-        _state.update{ it.copy(notifyMessages = newValue) }
+        val uid = authRepo.currentUid() ?: return
 
+        _state.update {
+            it.copy(notifyMessages = newValue)
+        }
         prefs.edit {
             putBoolean("notifyMessages", newValue)
         }
-        myUid?.let {
-            db.collection("users").document(myUid).update("notifyMessages", newValue)
-        }
+
+        db.collection("users").document(uid).update("notifyMessages", newValue)
     }
 
     fun setNewTheme(newValue: Boolean) {

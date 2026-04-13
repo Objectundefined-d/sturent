@@ -3,6 +3,7 @@ package com.example.flat_rent_app.data.repository
 import com.example.flat_rent_app.domain.model.AuthUser
 import com.example.flat_rent_app.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -13,6 +14,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
+    private val db: FirebaseFirestore
 ): AuthRepository {
     override val currentUser: Flow<AuthUser?> =  callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { fa ->
@@ -74,6 +76,13 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun signOut() {
+        val uid = auth.currentUser?.uid ?: throw IllegalStateException("Не авторизован")
+
+        runCatching {
+            db.collection("users").document(uid)
+                .update("fcmToken", null)
+                .await()
+        }
         auth.signOut()
     }
 
