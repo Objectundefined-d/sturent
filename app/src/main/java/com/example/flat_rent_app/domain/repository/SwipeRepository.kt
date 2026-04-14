@@ -17,6 +17,8 @@ interface SwipeRepository {
 
     suspend fun addToFavorites(userId: String) : Result<Unit>
 
+    suspend fun addToBlackList(userId: String) : Result<Unit>
+
     fun observeFavorites() : Flow<List<String>>
 
     suspend fun removeFromFavorites(userId: String) : Result<Unit>

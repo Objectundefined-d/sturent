@@ -195,6 +195,28 @@ class SwipeRepositoryImpl @Inject constructor(
             throw RuntimeException(t.message ?: "Ошибка добавления в избранное", t)
         }
 
+    override suspend fun addToBlackList(userId: String): Result<Unit> =
+        runCatching {
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
+
+            db.collection("blackList")
+                .document(myUid)
+                .collection("items")
+                .document(userId)
+                .set(
+                    mapOf(
+                        "uid" to userId,
+                        "addedAtMillis" to System.currentTimeMillis()
+                    )
+                )
+                .await()
+            Unit
+
+        }.recoverCatching { t ->
+            throw RuntimeException(t.message ?: "Ошибка добавления в чёрный список", t)
+        }
+
+
 
     override fun observeFavorites(): Flow<List<String>> = callbackFlow {
         val myUid = authRepo.currentUid()

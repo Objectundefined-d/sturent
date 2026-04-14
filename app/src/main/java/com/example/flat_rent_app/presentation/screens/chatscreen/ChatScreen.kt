@@ -30,6 +30,7 @@ import com.example.flat_rent_app.R
 import com.example.flat_rent_app.domain.model.Message
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.Bubble
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.InputBar
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileDetailScreen
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatUiState
 import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatViewModel
@@ -51,6 +52,17 @@ fun ChatScreen(
 
     LaunchedEffect(Unit) { viewmodel.markRead() }
 
+    if (state.showProfileDetails) {
+        val profile = otherProfile?.toSwipeProfile()
+        if (profile != null) {
+            ProfileDetailScreen(
+                profile = profile,
+                onBack = viewmodel::closeProfileDetails
+            )
+            return
+        }
+    }
+
     ChatScreenContent(
         state = state,
         messages = messages,
@@ -60,7 +72,8 @@ fun ChatScreen(
         onSend = viewmodel::send,
         onDeleteMessage = { msgId, forBoth -> viewmodel.deleteMessage(msgId, forBoth) },
         onClearHistory = { forBoth -> viewmodel.clearHistory(forBoth) },
-        onEditMessage = { msgId, text -> viewmodel.editMessage(msgId, text) }
+        onEditMessage = { msgId, text -> viewmodel.editMessage(msgId, text) },
+        onOpenProfileDetails = viewmodel::openProfile
     )
 }
 
@@ -75,7 +88,8 @@ fun ChatScreenContent(
     onSend: () -> Unit,
     onDeleteMessage: (messageId: String, forBoth: Boolean) -> Unit,
     onClearHistory: (forBoth: Boolean) -> Unit,
-    onEditMessage: (messageId: String, newText: String) -> Unit
+    onEditMessage: (messageId: String, newText: String) -> Unit,
+    onOpenProfileDetails: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
@@ -236,10 +250,11 @@ fun ChatScreenContent(
         )
     }
 
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = title) },
+                title = { TextButton(onClick = onOpenProfileDetails ) { Text(text = title) } },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
@@ -383,7 +398,8 @@ fun ChatScreenPreviewLight() {
             onSend = {},
             onDeleteMessage = { _, _ -> },
             onClearHistory = {},
-            onEditMessage = { _, _ -> }
+            onEditMessage = { _, _ -> },
+            onOpenProfileDetails = {}
         )
     }
 }
@@ -412,7 +428,8 @@ fun ChatScreenPreviewDark() {
             onSend = {},
             onDeleteMessage = { _, _ -> },
             onClearHistory = {},
-            onEditMessage = { _, _ -> }
+            onEditMessage = { _, _ -> },
+            onOpenProfileDetails = {}
         )
     }
 }

@@ -1,6 +1,5 @@
 package com.example.flat_rent_app.presentation.viewmodel.chatviewmodel
 
-import android.R
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -77,5 +76,15 @@ class ChatViewModel @Inject constructor(
             .onFailure { e ->
                 _state.update { it.copy(error = e.message ?: "Ошибка редактирования") }
             }
+    }
+
+    fun openProfile() {
+        _state.update { it.copy(showProfileDetails = true) }
+    }
+
+    fun closeProfileDetails() {
+        _state.update {
+            it.copy(showProfileDetails = false)
+        }
     }
 }
