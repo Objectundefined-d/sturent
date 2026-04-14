@@ -195,6 +195,7 @@ class SwipeRepositoryImpl @Inject constructor(
             throw RuntimeException(t.message ?: "Ошибка добавления в избранное", t)
         }
 
+
     override fun observeFavorites(): Flow<List<String>> = callbackFlow {
         val myUid = authRepo.currentUid()
         if (myUid == null) {

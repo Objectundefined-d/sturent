@@ -21,10 +21,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.domain.model.Message
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.Bubble
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.InputBar
@@ -214,7 +216,7 @@ fun ChatScreenContent(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Очистить историю?") },
+            title = { Text(stringResource(R.string.delete_history)) },
             text = { Text("Выберите способ очистки") },
             confirmButton = {
                 TextButton(onClick = {
@@ -273,7 +275,9 @@ fun ChatScreenContent(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { pad ->
-        Box(modifier = Modifier.padding(pad).fillMaxSize()) {
+        Box(modifier = Modifier
+            .padding(pad)
+            .fillMaxSize()) {
             LazyColumn(
                 state = listState,
                 modifier = Modifier

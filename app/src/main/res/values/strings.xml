@@ -121,5 +121,6 @@
     <string name="delete_acc">Удалить аккаунт</string>
     <string name="delete_acc_q">Удалить аккаунт?</string>
     <string name="delete_acc_attention">Все данные будут удалены. Это действие нельзя будет отменить</string>
+    <string name="delete_history">Очистить историю?</string>
 
 </resources>
