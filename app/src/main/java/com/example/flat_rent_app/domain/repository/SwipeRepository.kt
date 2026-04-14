@@ -6,20 +6,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface SwipeRepository {
     suspend fun likeUser(targetId: String): Result<LikeOutCome>
-
     suspend fun passUser(targetId: String): Result<Unit>
-
     fun observeMatches(): Flow<List<Match>>
-
     suspend fun getUnseenMatch() : Match?
-
     suspend fun markMatchAsSeen(matchId: String) : Result<Unit>
-
     suspend fun addToFavorites(userId: String) : Result<Unit>
-
+    suspend fun addToSkipList(userId: String) : Result<Unit>
     suspend fun addToBlackList(userId: String) : Result<Unit>
-
     fun observeFavorites() : Flow<List<String>>
-
     suspend fun removeFromFavorites(userId: String) : Result<Unit>
 }

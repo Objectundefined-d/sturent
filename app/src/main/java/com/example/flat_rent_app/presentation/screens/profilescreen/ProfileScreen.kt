@@ -27,6 +27,8 @@ import com.example.flat_rent_app.presentation.components.AppBottomBar
 import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 import com.example.flat_rent_app.util.BottomTabs
 import android.content.res.Configuration
+import androidx.compose.ui.res.stringResource
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,10 +48,10 @@ fun ProfileScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Профиль") },
+                title = { Text(stringResource(R.string.profile)) },
                 actions = {
                     IconButton(onClick = onGoSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Настройки")
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
                     }
                 }
             )
@@ -107,7 +109,7 @@ fun ProfileScreenContent(
                     ) { page ->
                         AsyncImage(
                             model = photoUrls[page],
-                            contentDescription = "Фото ${page + 1}",
+                            contentDescription = stringResource(R.string.photo_page, page + 1),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
@@ -140,8 +142,9 @@ fun ProfileScreenContent(
 
             Spacer(modifier = Modifier.height(28.dp))
 
+            val ageText = age?.toString() ?: stringResource(R.string.not_specified)
             Text(
-                text = "$displayName, $age",
+                text = stringResource(R.string.user_name_age, displayName, ageText),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -161,7 +164,7 @@ fun ProfileScreenContent(
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
             ) {
-                Text("Редактировать анкету")
+                Text(stringResource(R.string.edit_questionnaire))
             }
 
             Spacer(modifier = Modifier.height(64.dp))
@@ -173,7 +176,7 @@ fun ProfileScreenContent(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Выйти")
+                Text(stringResource(R.string.quit))
             }
         }
     }
@@ -196,8 +199,8 @@ fun ProfileScreen(
     ProfileScreenContent(
         displayName = when {
             !userProfile?.name.isNullOrBlank() -> userProfile?.name!!
-            !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@") ?: "Пользователь"
-            else -> "Пользователь"
+            !user?.email.isNullOrBlank() -> user?.email?.substringBefore(stringResource(R.string.sobaka)) ?: stringResource(R.string.user)
+            else -> stringResource(R.string.user)
         },
         age = userProfile?.age,
         email = user?.email,

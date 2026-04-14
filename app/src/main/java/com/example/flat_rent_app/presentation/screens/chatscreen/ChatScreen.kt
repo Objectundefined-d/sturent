@@ -31,6 +31,7 @@ import com.example.flat_rent_app.domain.model.Message
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.Bubble
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.InputBar
 import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileDetailScreen
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatUiState
 import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatViewModel
@@ -57,7 +58,9 @@ fun ChatScreen(
         if (profile != null) {
             ProfileDetailScreen(
                 profile = profile,
-                onBack = viewmodel::closeProfileDetails
+                onBack = viewmodel::closeProfileDetails,
+                onAddToSkipList = {  },
+                mode = ProfileScreenMode.FROMCHAT
             )
             return
         }
@@ -115,7 +118,7 @@ fun ChatScreenContent(
         var editText by remember { mutableStateOf(selectedMessage!!.text) }
         AlertDialog(
             onDismissRequest = { showEditDialog = false },
-            title = { Text("Редактировать сообщение") },
+            title = { Text(stringResource(R.string.edit_the_message)) },
             text = {
                 OutlinedTextField(
                     value = editText,
@@ -128,30 +131,38 @@ fun ChatScreenContent(
                     onEditMessage(selectedMessage!!.messageId, editText)
                     showEditDialog = false
                     selectedMessage = null
-                }) { Text("Сохранить") }
+                }) { Text(stringResource(R.string.save)) }
             },
             dismissButton = {
-                TextButton(onClick = { showEditDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showEditDialog = false }) { Text(text = stringResource(R.string.cancel)) }
             }
         )
     }
 
     if (showReadTimeDialog && selectedMessage != null) {
+        val message = selectedMessage ?: return
+        val sentDateString = SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
+            .format(Date(message.createdAt))
+        val readDateString = message.readAt?.let {
+            SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault()).format(Date(it))
+        }
         AlertDialog(
             onDismissRequest = { showReadTimeDialog = false },
-            title = { Text("Информация о сообщении") },
+            title = { Text(stringResource(R.string.information_about_message)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Отправлено: ${SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
-                        .format(Date(selectedMessage!!.createdAt))}")
-                    selectedMessage!!.readAt?.let {
-                        Text("Прочитано: ${SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
-                            .format(Date(it))}")
-                    } ?: Text("Не прочитано")
+                    Text(stringResource(R.string.sent_at, sentDateString))
+                    if (readDateString != null) {
+                        Text(stringResource(R.string.read_at, readDateString))
+                    } else {
+                        Text(stringResource(R.string.not_readed))
+                    }
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showReadTimeDialog = false }) { Text("OK") }
+                TextButton(onClick = { showReadTimeDialog = false }) {
+                    Text(stringResource(R.string.ok))
+                }
             }
         )
     }
@@ -168,7 +179,7 @@ fun ChatScreenContent(
                     .padding(bottom = 32.dp)
             ) {
                 ListItem(
-                    headlineContent = { Text("Копировать") },
+                    headlineContent = { Text(text = stringResource(R.string.copy)) },
                     leadingContent = { Icon(Icons.Default.ContentCopy, null) },
                     modifier = Modifier.clickable {
                         clipboardManager.setText(AnnotatedString(selectedMessage!!.text))
@@ -177,17 +188,17 @@ fun ChatScreenContent(
                 )
                 if (selectedMessage!!.senderUid == state.myUid) {
                     ListItem(
-                        headlineContent = { Text("Редактировать") },
+                        headlineContent = { Text(text = stringResource(R.string.edit)) },
                         leadingContent = { Icon(Icons.Default.Edit, null) },
                         modifier = Modifier.clickable { showEditDialog = true }
                     )
                     ListItem(
-                        headlineContent = { Text("Время прочтения") },
+                        headlineContent = { Text(stringResource(R.string.read_time)) },
                         leadingContent = { Icon(Icons.Default.DoneAll, null) },
                         modifier = Modifier.clickable { showReadTimeDialog = true }
                     )
                     ListItem(
-                        headlineContent = { Text("Удалить у себя") },
+                        headlineContent = { Text(stringResource(R.string.delete_for_you)) },
                         leadingContent = {
                             Icon(Icons.Default.Delete, null,
                                 tint = MaterialTheme.colorScheme.error)
@@ -199,7 +210,7 @@ fun ChatScreenContent(
                     )
                     ListItem(
                         headlineContent = {
-                            Text("Удалить у всех", color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.delete_for_both), color = MaterialTheme.colorScheme.error)
                         },
                         leadingContent = {
                             Icon(Icons.Default.Delete, null,
@@ -212,7 +223,7 @@ fun ChatScreenContent(
                     )
                 } else {
                     ListItem(
-                        headlineContent = { Text("Удалить у себя") },
+                        headlineContent = { Text(stringResource(R.string.delete_for_you)) },
                         leadingContent = {
                             Icon(Icons.Default.Delete, null,
                                 tint = MaterialTheme.colorScheme.error)
@@ -231,20 +242,20 @@ fun ChatScreenContent(
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
             title = { Text(stringResource(R.string.delete_history)) },
-            text = { Text("Выберите способ очистки") },
+            text = { Text(stringResource(R.string.choose_cleaning_method)) },
             confirmButton = {
                 TextButton(onClick = {
                     onClearHistory(true)
                     showClearDialog = false
-                }) { Text("У всех", color = MaterialTheme.colorScheme.error) }
+                }) { Text(stringResource(R.string.for_both), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { showClearDialog = false }) { Text("Отмена") }
+                    TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.cancel)) }
                     TextButton(onClick = {
                         onClearHistory(false)
                         showClearDialog = false
-                    }) { Text("Только у меня") }
+                    }) { Text(stringResource(R.string.only_for_me)) }
                 }
             }
         )
@@ -269,7 +280,7 @@ fun ChatScreenContent(
                         onDismissRequest = { showMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Очистить историю") },
+                            text = { Text(stringResource(R.string.clean_history)) },
                             onClick = {
                                 showMenu = false
                                 showClearDialog = true

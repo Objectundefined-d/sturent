@@ -1,7 +1,6 @@
 package com.example.flat_rent_app.presentation.screens.mainscreen
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -30,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -53,6 +51,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainScreenState
 
@@ -157,7 +156,7 @@ fun ProfileCard(
                     )
             ) {
                 Text(
-                    text = "👤",
+                    text = stringResource(R.string.default_photo),
                     fontSize = 96.sp,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -190,8 +189,9 @@ fun ProfileCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                val ageText = age?.toString() ?: stringResource(R.string.not_specified)
                 Text(
-                    text = "$name, $age",
+                    text = stringResource(R.string.user_name_age_format, name, ageText),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -467,7 +467,7 @@ fun FilterButton(
     IconButton(onClick = onClick, modifier = modifier) {
         Icon(
             Icons.Default.FilterAlt,
-            contentDescription = "Открыть фильтры"
+            contentDescription = stringResource(R.string.open_filters)
         )
     }
 }
@@ -495,10 +495,13 @@ fun MainScreen(
 
     if (state.showProfileDetails) {
         val profile = state.selectedProfile
+
         if (profile != null) {
             ProfileDetailScreen(
                 profile = profile,
-                onBack = viewModel::closeProfileDetails
+                onBack = viewModel::closeProfileDetails,
+                onAddToSkipList = { viewModel.addToSkipList(profile.uid) },
+                mode = ProfileScreenMode.FROMSWIPE
             )
             return
         }
@@ -567,10 +570,10 @@ fun FiltersScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Фильтры") },
+                title = { Text(stringResource(R.string.filters)) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(Icons.Default.Close, contentDescription = "Закрыть")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                     }
                 }
             )
@@ -583,20 +586,24 @@ fun FiltersScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Text("ВУЗ", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.vuz), fontWeight = FontWeight.Bold)
             DropdownMenuForUniversity(
                 selectedUniversity = selectedUniversity,
                 onSelect = { selectedUniversity = it }
             )
 
-            Text("Пол", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.sex), fontWeight = FontWeight.Bold)
             GenderRadioGroup(
                 selectedGender = selectedGender,
                 onSelect = { selectedGender = it }
             )
 
             Text(
-                text = "Возраст: ${ageRange.start.toInt()}–${ageRange.endInclusive.toInt()}",
+                text = stringResource(
+                    R.string.age_range_format,
+                    ageRange.start.toInt(),
+                    ageRange.endInclusive.toInt()
+                ),
                 fontWeight = FontWeight.Bold
             )
             AgeRangeSlider(
@@ -614,7 +621,7 @@ fun FiltersScreen(
                     selectedUniversity = Constants.UNIVERSITY_ALL
                     selectedGender = Constants.GENDER_ANY
                     ageRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat()
-                }) { Text("Сбросить") }
+                }) { Text(stringResource(R.string.reset)) }
 
                 Button(onClick = {
                     onApplyFilters(
@@ -623,7 +630,7 @@ fun FiltersScreen(
                         ageRange.start.toInt(),
                         ageRange.endInclusive.toInt()
                     )
-                }) { Text("Применить") }
+                }) { Text(stringResource(R.string.apply)) }
             }
         }
     }
@@ -659,7 +666,9 @@ fun GenderRadioGroup(
         Constants.GENDERS_LIST.forEach { gender ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
             ) {
                 RadioButton(selected = selectedGender == gender, onClick = { onSelect(gender) })
                 Spacer(Modifier.width(8.dp))

@@ -46,23 +46,26 @@ fun SettingsScreen(
     var newEmail by remember { mutableStateOf("") }
     var passwordForEmail by remember { mutableStateOf("") }
 
+    val messageOne = stringResource(R.string.letter_sended_to_post)
     LaunchedEffect(state.passwordResetSent) {
         if (state.passwordResetSent) {
-            snackbarHostState.showSnackbar("Письмо отправлено на вашу почту")
+            snackbarHostState.showSnackbar(messageOne)
             viewModel.consumePasswordReset()
         }
     }
 
+    val messageTwo = stringResource(R.string.confirm_message_sent)
     LaunchedEffect(state.emailVerificationSent) {
         if (state.emailVerificationSent) {
-            snackbarHostState.showSnackbar("Письмо подтверждения отправлено")
+            snackbarHostState.showSnackbar(messageTwo)
             viewModel.consumeEmailVerification()
         }
     }
 
+    val messageThree = stringResource(R.string.confirm_message_sent)
     LaunchedEffect(state.emailUpdateSent) {
         if (state.emailUpdateSent) {
-            snackbarHostState.showSnackbar("Письмо для подтверждения нового email отправлено")
+            snackbarHostState.showSnackbar(messageThree)
             viewModel.consumeEmailUpdate()
             newEmail = ""
             passwordForEmail = ""
@@ -79,16 +82,16 @@ fun SettingsScreen(
     if (showVerifyDialog) {
         AlertDialog(
             onDismissRequest = { showVerifyDialog = false },
-            title = { Text("Подтвердить почту?") },
-            text = { Text("Письмо с ссылкой подтверждения будет отправлено на вашу почту") },
+            title = { Text(stringResource(R.string.confirm_email_q)) },
+            text = { Text(stringResource(R.string.confirmation_email_will_be_sent_to_your_email_address)) },
             confirmButton = {
                 TextButton(onClick = {
                     showVerifyDialog = false
                     viewModel.sendEmailVerification()
-                }) { Text("Отправить") }
+                }) { Text(stringResource(R.string.send)) }
             },
             dismissButton = {
-                TextButton(onClick = { showVerifyDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showVerifyDialog = false }) { Text(stringResource(R.string.cancellation)) }
             }
         )
     }
@@ -100,14 +103,14 @@ fun SettingsScreen(
                 newEmail = ""
                 passwordForEmail = ""
             },
-            title = { Text("Изменить почту") },
+            title = { Text(stringResource(R.string.change_email)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Введите новый email и текущий пароль для подтверждения")
+                    Text(stringResource(R.string.enter_new_email_and_current_password_confirm))
                     OutlinedTextField(
                         value = newEmail,
                         onValueChange = { newEmail = it },
-                        label = { Text("Новый email") },
+                        label = { Text(stringResource(R.string.new_email)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         modifier = Modifier.fillMaxWidth()
@@ -115,7 +118,7 @@ fun SettingsScreen(
                     OutlinedTextField(
                         value = passwordForEmail,
                         onValueChange = { passwordForEmail = it },
-                        label = { Text("Текущий пароль") },
+                        label = { Text(stringResource(R.string.new_password)) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth()
@@ -129,14 +132,14 @@ fun SettingsScreen(
                         viewModel.updateEmail(newEmail, passwordForEmail)
                     },
                     enabled = newEmail.isNotBlank() && passwordForEmail.isNotBlank()
-                ) { Text("Изменить") }
+                ) { Text(stringResource(R.string.change)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showUpdateEmailDialog = false
                     newEmail = ""
                     passwordForEmail = ""
-                }) { Text("Отмена") }
+                }) { Text(stringResource(R.string.cancellation)) }
             }
         )
     }
@@ -154,7 +157,7 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showPasswordDialog = false }) {
-                    Text(text = stringResource(R.string.cancel))
+                    Text(stringResource(R.string.cancellation))
                 }
             }
         )
@@ -342,8 +345,8 @@ fun SettingsScreenContent(
                             modifier = Modifier.clickable { showDeleteDialog = true }
                         )
                         ListItem(
-                            headlineContent = { Text("Подтвердить почту") },
-                            supportingContent = { Text("Отправить письмо подтверждения") },
+                            headlineContent = { Text(stringResource(R.string.confirm_email)) },
+                            supportingContent = { Text(stringResource(R.string.send_confirm_message)) },
                             trailingContent = {
                                 Icon(Icons.Default.ChevronRight, contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -352,8 +355,8 @@ fun SettingsScreenContent(
                         )
                         HorizontalDivider()
                         ListItem(
-                            headlineContent = { Text("Изменить почту") },
-                            supportingContent = { Text("Потребуется текущий пароль") },
+                            headlineContent = { Text(stringResource(R.string.change_email)) },
+                            supportingContent = { Text(stringResource(R.string.need_current_password)) },
                             trailingContent = {
                                 Icon(Icons.Default.ChevronRight, contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant)

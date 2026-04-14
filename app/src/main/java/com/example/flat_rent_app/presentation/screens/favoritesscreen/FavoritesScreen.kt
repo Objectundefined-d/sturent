@@ -40,6 +40,7 @@ import com.example.flat_rent_app.presentation.viewmodel.favoritesviewmodel.Favor
 import com.example.flat_rent_app.util.BottomTabs
 import kotlinx.coroutines.launch
 import com.example.flat_rent_app.R
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,7 +56,9 @@ fun FavoritesScreen(
     if (state.selectedProfile != null) {
         ProfileDetailScreen(
             profile = state.selectedProfile!!.toSwipeProfile(),
-            onBack = viewModel::closeProfile
+            onBack = viewModel::closeProfile,
+            onAddToSkipList = {  },
+            mode = ProfileScreenMode.FROMCHAT
         )
         return
     }
@@ -287,7 +290,11 @@ fun FavoriteCard(
                 )
                 Column {
                     Text(
-                        text = "${profile.name}, ${profile.age ?: ""}",
+                        text = stringResource(
+                            R.string.user_name_age_comma,
+                            profile.name,
+                            profile.age?.toString() ?: ""
+                        ),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface

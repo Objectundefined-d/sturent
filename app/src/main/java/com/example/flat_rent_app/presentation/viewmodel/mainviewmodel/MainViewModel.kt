@@ -171,6 +171,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun addToSkipList(userId: String) {
+        viewModelScope.launch {
+            swipeRepository.addToSkipList(userId)
+            closeProfileDetails()
+            moveToNext()
+        }
+    }
+
     fun dismissMatch() {
         val matchId = _state.value.matchChatId
         if (matchId != null) {
