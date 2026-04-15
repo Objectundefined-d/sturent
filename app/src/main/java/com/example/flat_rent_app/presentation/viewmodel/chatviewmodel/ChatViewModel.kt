@@ -4,9 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flat_rent_app.domain.model.Message
-import com.example.flat_rent_app.domain.model.MessageStatus
 import com.example.flat_rent_app.domain.model.UserProfile
 import com.example.flat_rent_app.domain.repository.AuthRepository
+import com.example.flat_rent_app.domain.repository.BlackListRepository
 import com.example.flat_rent_app.domain.repository.ChatRepository
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +18,7 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val chatRepo: ChatRepository,
+    private val blackListRepo: BlackListRepository,
     authRepo: AuthRepository,
     profileRepo: ProfileRepository
 ) : ViewModel() {
@@ -80,6 +81,10 @@ class ChatViewModel @Inject constructor(
 
     fun openProfile() {
         _state.update { it.copy(showProfileDetails = true) }
+    }
+
+    fun blockUser() = viewModelScope.launch {
+        blackListRepo.blockUser(_state.value.otherUid)
     }
 
     fun closeProfileDetails() {

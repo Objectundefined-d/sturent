@@ -1,6 +1,5 @@
 package com.example.flat_rent_app.data.repository
 
-import android.util.Log
 import com.example.flat_rent_app.domain.model.Chat
 import com.example.flat_rent_app.domain.model.Message
 import com.example.flat_rent_app.domain.model.MessageStatus
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.jvm.Throws
 
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
@@ -69,10 +67,15 @@ class ChatRepositoryImpl @Inject constructor(
                 }
 
                 val list = snap.documents.mapNotNull { d ->
+                    val blockedMessage = d.getBoolean("blockedMessage") ?: false
                     val senderUid = d.getString("senderUid") ?: return@mapNotNull null
 
+                    if (blockedMessage && senderUid != myUid)
+                        return@mapNotNull null
+
                     val deletedFor = (d.get("deletedFor") as? List<*>) ?: emptyList<String>()
-                    if (myUid in deletedFor) return@mapNotNull null
+                    if (myUid in deletedFor)
+                        return@mapNotNull null
 
                     val hasPendingWrites = d.metadata.hasPendingWrites()
                     val editedAt = d.getLong("editedAt")
@@ -102,14 +105,16 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun sendMessage(chatId: String, otherId: String, text: String): Result<Unit> =
         runCatching {
-            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Нет авторизации")
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
             if (text.isBlank()) throw IllegalArgumentException("Пустое сообщение")
 
-            val now = System.currentTimeMillis()
+            val blockedByOther = db.collection("blacklist").document(otherId)
+                .collection("blocked").document(myUid)
+                .get().await().exists()
 
+            val now = System.currentTimeMillis()
             val chatRef = db.collection("chats").document(chatId)
             val msgRef = chatRef.collection("messages").document()
-
             val myIndex =
                 db.collection("userChats").document(myUid).collection("items").document(chatId)
             val otherIndex =
@@ -123,7 +128,8 @@ class ChatRepositoryImpl @Inject constructor(
                     "text" to text,
                     "type" to "text",
                     "createdAt" to now,
-                    "status" to "sent"
+                    "status" to "sent",
+                    "blockedMessage" to blockedByOther
                 )
             )
 
@@ -142,13 +148,13 @@ class ChatRepositoryImpl @Inject constructor(
                 ), SetOptions.merge()
             )
 
-            batch.set(
-                otherIndex, mapOf(
+            if (!blockedByOther) {
+                batch.set(otherIndex, mapOf(
                     "lastMessageText" to text,
                     "lastMessageAt" to now,
                     "unreadCount" to FieldValue.increment(1)
-                ), SetOptions.merge()
-            )
+                ), SetOptions.merge())
+            }
 
             batch.commit().await()
             Unit
@@ -175,10 +181,12 @@ class ChatRepositoryImpl @Inject constructor(
             unread.documents.forEach { doc ->
                 val senderUid = doc.getString("senderUid")
                 if (senderUid != myUid) {
-                    batch.update(doc.reference, mapOf(
-                        "status" to "read",
-                        "readAt" to System.currentTimeMillis()
-                    ))
+                    batch.update(
+                        doc.reference, mapOf(
+                            "status" to "read",
+                            "readAt" to System.currentTimeMillis()
+                        )
+                    )
                 }
             }
             batch.commit().await()
@@ -315,13 +323,19 @@ class ChatRepositoryImpl @Inject constructor(
             throw RuntimeException(t.message ?: "Ошибка удаления сообщения", t)
         }
 
-    override suspend fun editMessage(chatId: String, messageId: String, newText: String): Result<Unit> =
+    override suspend fun editMessage(
+        chatId: String,
+        messageId: String,
+        newText: String
+    ): Result<Unit> =
         runCatching {
             db.collection("chats").document(chatId)
                 .collection("messages").document(messageId)
-                .update(mapOf(
-                    "text" to newText,
-                    "editedAt" to System.currentTimeMillis()
-                )).await()
+                .update(
+                    mapOf(
+                        "text" to newText,
+                        "editedAt" to System.currentTimeMillis()
+                    )
+                ).await()
         }
 }

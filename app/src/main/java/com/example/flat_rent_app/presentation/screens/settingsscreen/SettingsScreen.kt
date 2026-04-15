@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.example.flat_rent_app.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.flat_rent_app.presentation.screens.blacklistscreen.BlackListScreen
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import com.example.flat_rent_app.presentation.theme.LocalThemeController
 import com.example.flat_rent_app.presentation.viewmodel.settingsviewmodel.SettingsUiState
@@ -91,7 +92,9 @@ fun SettingsScreen(
                 }) { Text(stringResource(R.string.send)) }
             },
             dismissButton = {
-                TextButton(onClick = { showVerifyDialog = false }) { Text(stringResource(R.string.cancellation)) }
+                TextButton(onClick = {
+                    showVerifyDialog = false
+                }) { Text(stringResource(R.string.cancellation)) }
             }
         )
     }
@@ -147,8 +150,8 @@ fun SettingsScreen(
     if (showPasswordDialog) {
         AlertDialog(
             onDismissRequest = { showPasswordDialog = false },
-            title = { Text(text = stringResource(R.string.change_password_q))},
-            text = { Text(text = stringResource(R.string.blablabla))},
+            title = { Text(text = stringResource(R.string.change_password_q)) },
+            text = { Text(text = stringResource(R.string.blablabla)) },
             confirmButton = {
                 TextButton(onClick = {
                     showPasswordDialog = false
@@ -163,21 +166,28 @@ fun SettingsScreen(
         )
     }
 
-    SettingsScreenContent(
-        state = state,
-        onBack = onBack,
-        onNotifyMatchesChange = viewModel::setNotifyMatches,
-        onNotifyMessagesChange = viewModel::setNotifyMessages,
-        onRetry = viewModel::loadSettings,
-        onThemeChange = { value ->
-            viewModel.setNewTheme(value)
-            themeController.setDark(value)
-        },
-        onChangePassword = { showPasswordDialog = true },
-        onVerifyEmail = { showVerifyDialog = true },
-        onUpdateEmail = { showUpdateEmailDialog = true },
-        onDeleteAccount = onDeleteAccount
-    )
+    if (state.showBlackList) {
+        BlackListScreen(
+            onBack = onBack
+        )
+    } else {
+        SettingsScreenContent(
+            state = state,
+            onBack = onBack,
+            onNotifyMatchesChange = viewModel::setNotifyMatches,
+            onNotifyMessagesChange = viewModel::setNotifyMessages,
+            onRetry = viewModel::loadSettings,
+            onThemeChange = { value ->
+                viewModel.setNewTheme(value)
+                themeController.setDark(value)
+            },
+            onChangePassword = { showPasswordDialog = true },
+            onVerifyEmail = { showVerifyDialog = true },
+            onUpdateEmail = { showUpdateEmailDialog = true },
+            onDeleteAccount = onDeleteAccount,
+            onOpenBlackList = viewModel::openBlackList
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -193,6 +203,7 @@ fun SettingsScreenContent(
     onVerifyEmail: () -> Unit,
     onUpdateEmail: () -> Unit,
     onDeleteAccount: () -> Unit,
+    onOpenBlackList: () -> Unit
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -314,6 +325,30 @@ fun SettingsScreenContent(
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
+
+                        ListItem(
+                            headlineContent = { Text(text = stringResource(R.string.black_list)) },
+                            trailingContent = {
+                                Icon(
+                                    Icons.Default.ChevronRight,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            modifier = Modifier.clickable { onOpenBlackList() }
+                        )
+
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+
+                        Text(
+                            text = stringResource(R.string.actions),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+
                         ListItem(
                             headlineContent = { Text(text = stringResource(R.string.change_password)) },
                             supportingContent = { Text(text = stringResource(R.string.blabla)) },
@@ -326,6 +361,35 @@ fun SettingsScreenContent(
                             },
                             modifier = Modifier.clickable { onChangePassword() }
                         )
+
+                        HorizontalDivider()
+
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.confirm_email)) },
+                            supportingContent = { Text(stringResource(R.string.send_confirm_message)) },
+                            trailingContent = {
+                                Icon(
+                                    Icons.Default.ChevronRight, contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            modifier = Modifier.clickable { onVerifyEmail() }
+                        )
+
+                        HorizontalDivider()
+
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.change_email)) },
+                            supportingContent = { Text(stringResource(R.string.need_current_password)) },
+                            trailingContent = {
+                                Icon(
+                                    Icons.Default.ChevronRight, contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            modifier = Modifier.clickable { onUpdateEmail() }
+                        )
+
                         HorizontalDivider()
 
                         ListItem(
@@ -344,26 +408,6 @@ fun SettingsScreenContent(
                             },
                             modifier = Modifier.clickable { showDeleteDialog = true }
                         )
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.confirm_email)) },
-                            supportingContent = { Text(stringResource(R.string.send_confirm_message)) },
-                            trailingContent = {
-                                Icon(Icons.Default.ChevronRight, contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                            },
-                            modifier = Modifier.clickable { onVerifyEmail() }
-                        )
-                        HorizontalDivider()
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.change_email)) },
-                            supportingContent = { Text(stringResource(R.string.need_current_password)) },
-                            trailingContent = {
-                                Icon(Icons.Default.ChevronRight, contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                            },
-                            modifier = Modifier.clickable { onUpdateEmail() }
-                        )
-                        HorizontalDivider()
                     }
                 }
             }
@@ -384,15 +428,16 @@ fun SettingsScreenPreviewLight() {
                 notifyMessages = true,
                 isDarkTheme = false
             ),
-            onBack = {},
-            onNotifyMatchesChange = {},
-            onNotifyMessagesChange = {},
-            onThemeChange = {},
-            onRetry = {},
-            onChangePassword = {},
-            onDeleteAccount = {},
-            onUpdateEmail = {},
-            onVerifyEmail = {}
+            onBack = { },
+            onNotifyMatchesChange = { },
+            onNotifyMessagesChange = { },
+            onThemeChange = { },
+            onRetry = { },
+            onChangePassword = { },
+            onDeleteAccount = { },
+            onUpdateEmail = { },
+            onVerifyEmail = { },
+            onOpenBlackList = { }
         )
     }
 }
@@ -410,15 +455,16 @@ fun SettingsScreenPreviewDark() {
                 notifyMessages = true,
                 isDarkTheme = true
             ),
-            onBack = {},
-            onNotifyMatchesChange = {},
-            onNotifyMessagesChange = {},
-            onThemeChange = {},
-            onRetry = {},
-            onChangePassword = {},
-            onDeleteAccount = {},
-            onUpdateEmail = {},
-            onVerifyEmail = {}
+            onBack = { },
+            onNotifyMatchesChange = { },
+            onNotifyMessagesChange = { },
+            onThemeChange = { },
+            onRetry = { },
+            onChangePassword = { },
+            onDeleteAccount = { },
+            onUpdateEmail = { },
+            onVerifyEmail = { },
+            onOpenBlackList = { }
         )
     }
 }
@@ -429,15 +475,16 @@ fun SettingsScreenPreviewError() {
     FlatrentappTheme {
         SettingsScreenContent(
             state = SettingsUiState(error = "Ошибка загрузки настроек"),
-            onBack = {},
-            onNotifyMatchesChange = {},
-            onNotifyMessagesChange = {},
-            onThemeChange = {},
-            onRetry = {},
-            onChangePassword = {},
-            onDeleteAccount = {},
-            onUpdateEmail = {},
-            onVerifyEmail = {}
+            onBack = { },
+            onNotifyMatchesChange = { },
+            onNotifyMessagesChange = { },
+            onThemeChange = { },
+            onRetry = { },
+            onChangePassword = { },
+            onDeleteAccount = { },
+            onUpdateEmail = { },
+            onVerifyEmail = { },
+            onOpenBlackList = { }
         )
     }
 }

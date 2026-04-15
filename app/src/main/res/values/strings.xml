@@ -115,8 +115,10 @@
     <string name="blablabla">Письмо со ссылкой для смены пароля будет отправлено на вашу почту</string>
     <string name="cancel">Отмена</string>
     <string name="settings">Настройки</string>
+    <string name="actions">Действия</string>
     <string name="account">Аккаунт</string>
     <string name="change_password">Изменить пароль</string>
+    <string name="black_list">Чёрный список</string>
     <string name="blabla">Письмо будет отправлено на вашу почту</string>
     <string name="delete_acc">Удалить аккаунт</string>
     <string name="delete_acc_q">Удалить аккаунт?</string>
@@ -185,4 +187,5 @@
     <string name="clean_history">Очистить историю</string>
     <string name="sent_at">Отправлено: %s</string>
     <string name="read_at">Прочитано: %s</string>
+    <string name="no_blocked">Нет добавленых в чёрный список</string>
 </resources>

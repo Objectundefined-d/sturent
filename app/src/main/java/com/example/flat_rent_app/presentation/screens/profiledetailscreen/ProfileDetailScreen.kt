@@ -29,12 +29,14 @@ fun ProfileDetailScreen(
     profile: SwipeProfile,
     onBack: () -> Unit,
     onAddToSkipList: () -> Unit,
+    onAddToBlackList: () -> Unit,
     mode: ProfileScreenMode
 ) {
     ProfileDetailContent(
         profile = profile,
         onBack = onBack,
         onAddToSkipList = onAddToSkipList,
+        onAddToBlackList = onAddToBlackList,
         mode = mode
     )
 }
@@ -47,6 +49,7 @@ fun ProfileDetailContent(
     profile: SwipeProfile,
     onBack: () -> Unit,
     onAddToSkipList: () -> Unit,
+    onAddToBlackList: () -> Unit,
     mode: ProfileScreenMode
 ) {
     Scaffold(
@@ -190,7 +193,7 @@ fun ProfileDetailContent(
                     }
                     HorizontalDivider()
                     Button(onClick = when (mode) {
-                            ProfileScreenMode.FROMCHAT -> { { } }
+                            ProfileScreenMode.FROMCHAT -> { onAddToBlackList  }
                             ProfileScreenMode.FROMSWIPE -> { onAddToSkipList  }
                         },
                         colors = ButtonDefaults.buttonColors(
@@ -231,6 +234,7 @@ fun ProfileDetailScreenPreviewLight() {
             ),
             onBack = { },
             onAddToSkipList = { },
+            onAddToBlackList = { },
             mode = ProfileScreenMode.FROMCHAT
         )
     }
@@ -254,6 +258,7 @@ fun ProfileDetailScreenPreviewLightFromSwipe() {
             ),
             onBack = { },
             onAddToSkipList = { },
+            onAddToBlackList = { },
             mode = ProfileScreenMode.FROMSWIPE
         )
     }
@@ -277,6 +282,7 @@ fun ProfileDetailScreenPreviewDarkFromChat() {
             ),
             onBack = { },
             onAddToSkipList = { },
+            onAddToBlackList = { },
             mode = ProfileScreenMode.FROMCHAT
         )
     }
@@ -300,6 +306,7 @@ fun ProfileDetailScreenPreviewDarkFromSwipe() {
             ),
             onBack = { },
             onAddToSkipList = { },
+            onAddToBlackList = { },
             mode = ProfileScreenMode.FROMSWIPE
         )
     }

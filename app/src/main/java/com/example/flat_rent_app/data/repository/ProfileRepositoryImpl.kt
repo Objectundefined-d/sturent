@@ -94,12 +94,20 @@ class ProfileRepositoryImpl @Inject constructor(
                 .get()
                 .await()
 
+            val blockedPeople = db.collection("blackList")
+                .document(myUid)
+                .collection("items")
+                .get()
+                .await()
+
             Log.d("FIRESTORE", "Всего документов: ${snap.documents.size}")
             Log.d("FIRESTORE", "Всего скрытых: ${skipPeople.documents.size}")
+            Log.d("FIRESTORE", "Всего заблокированных: ${blockedPeople.documents.size}")
 
             snap.documents.mapNotNull { d ->
                 val skipIds = skipPeople.documents.map { it.id }
-                if (d.id == myUid || d.id in skipIds) return@mapNotNull null
+                val blockedIds = blockedPeople.documents.map { it.id }
+                if (d.id == myUid || d.id in skipIds || d.id in blockedIds) return@mapNotNull null
                 try {
                     d.toUserProfile()
                 } catch (e: Exception) {

@@ -501,6 +501,7 @@ fun MainScreen(
                 profile = profile,
                 onBack = viewModel::closeProfileDetails,
                 onAddToSkipList = { viewModel.addToSkipList(profile.uid) },
+                onAddToBlackList = { },
                 mode = ProfileScreenMode.FROMSWIPE
             )
             return

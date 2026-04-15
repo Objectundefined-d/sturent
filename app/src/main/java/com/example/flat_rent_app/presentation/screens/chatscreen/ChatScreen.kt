@@ -60,6 +60,7 @@ fun ChatScreen(
                 profile = profile,
                 onBack = viewmodel::closeProfileDetails,
                 onAddToSkipList = {  },
+                onAddToBlackList = viewmodel::blockUser,
                 mode = ProfileScreenMode.FROMCHAT
             )
             return

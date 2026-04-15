@@ -1,20 +1,45 @@
-package com.example.flat_rent_app.presentation.screens.favoritesscreen
+package com.example.flat_rent_app.presentation.screens.blacklistscreen
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,27 +54,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.example.flat_rent_app.domain.model.UserProfile
-import com.example.flat_rent_app.presentation.components.AppBottomBar
-import com.example.flat_rent_app.presentation.screens.mainscreen.MatchScreen
-import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileDetailScreen
-import com.example.flat_rent_app.presentation.viewmodel.favoritesviewmodel.FavoritesViewModel
-import com.example.flat_rent_app.util.BottomTabs
-import kotlinx.coroutines.launch
 import com.example.flat_rent_app.R
+import com.example.flat_rent_app.domain.model.UserProfile
+import com.example.flat_rent_app.presentation.screens.favoritesscreen.FavoriteCard
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileDetailScreen
 import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
-import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.viewmodel.blacklistviewmodel.BlackListViewModel
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(
-    onGoHome: () -> Unit,
-    onGoProfile: () -> Unit,
-    onGoChats: () -> Unit,
-    viewModel: FavoritesViewModel = hiltViewModel()
+fun BlackListScreen(
+    onBack: () -> Unit,
+    viewModel: BlackListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -57,74 +77,50 @@ fun FavoritesScreen(
         ProfileDetailScreen(
             profile = state.selectedProfile!!.toSwipeProfile(),
             onBack = viewModel::closeProfile,
-            onAddToSkipList = {  },
+            onAddToSkipList = { },
             onAddToBlackList = { },
             mode = ProfileScreenMode.FROMCHAT
         )
         return
     }
 
-    if (state.matchChatId != null) {
-        ModalBottomSheet(
-            onDismissRequest = { viewModel.dismissMatch() }
-        ) {
-            MatchScreen(
-                onSendMessage = { viewModel.dismissMatch() },
-                onContinue = { viewModel.dismissMatch() }
-            )
-        }
-    }
-
-    FavoriteScreenContent(
+    BlackListScreenContent(
         error = state.error,
         isLoading = state.isLoading,
         profiles = state.profiles,
-        onGoHome = onGoHome,
-        onGoProfile = onGoProfile,
-        onGoChats = onGoChats,
+        onBack = onBack,
         retry = viewModel::retry,
-        openProfile = viewModel::openProfile,
-        swipeLeft = viewModel::swipeLeft,
-        swipeRight = viewModel::swipeRight
+        onRemoveFromBlackList = viewModel::deleteFromBlockList,
+        openProfile = viewModel::openProfile
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteScreenContent(
+fun BlackListScreenContent(
     error: String?,
     isLoading: Boolean,
     profiles: List<UserProfile>,
-    onGoHome: () -> Unit,
-    onGoProfile: () -> Unit,
-    onGoChats: () -> Unit,
+    onBack: () -> Unit,
     retry: () -> Unit,
-    openProfile: (UserProfile) -> Unit = { },
-    swipeLeft: (String) -> Unit = { },
-    swipeRight: (String) -> Unit = { }
+    onRemoveFromBlackList: (String) -> Unit,
+    openProfile: (UserProfile) -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.favorites),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
+            CenterAlignedTopAppBar(
+                title = { Text(text = stringResource(R.string.black_list)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = stringResource(R.string.close),
+                        )
+                    }
                 },
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        bottomBar = {
-            AppBottomBar(
-                selected = BottomTabs.FAVORITES,
-                onHome = onGoHome,
-                onChats = onGoChats,
-                onProfile = onGoProfile,
-                onFavorites = { }
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
         }
     ) { pad ->
@@ -139,11 +135,10 @@ fun FavoriteScreenContent(
                 )
 
                 profiles.isEmpty() -> Text(
-                    text = stringResource(R.string.no_favorites),
+                    text = stringResource(R.string.no_blocked),
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.align(Alignment.Center)
                 )
-
                 error != null -> Column(
                     modifier = Modifier.align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -162,11 +157,10 @@ fun FavoriteScreenContent(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(profiles) { profile ->
-                        FavoriteCard(
+                        BlockedPersonCard(
                             profile = profile,
                             onClick = { openProfile(profile) },
-                            onSwipeLeft = { swipeLeft(profile.uid) },
-                            onSwipeRight = { swipeRight(profile.uid) }
+                            onSwipeLeft = { onRemoveFromBlackList(profile.uid) },
                         )
                     }
                 }
@@ -176,44 +170,21 @@ fun FavoriteScreenContent(
 }
 
 @Composable
-fun FavoriteCard(
+fun BlockedPersonCard(
     profile: UserProfile,
     onClick: () -> Unit,
     onSwipeLeft: () -> Unit,
-    onSwipeRight: () -> Unit
 ) {
     val offsetX = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val threshold = with(density) { 100.dp.toPx() }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
 
-        if (offsetX.value > 20f) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(
-                        Color(0xFF38D986).copy(
-                            alpha = (offsetX.value / threshold).coerceIn(
-                                0f,
-                                1f
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Icon(
-                    Icons.Default.Favorite,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier
-                        .padding(start = 24.dp)
-                        .size(32.dp)
-                )
-            }
-        } else if (offsetX.value < -20f) {
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        if (offsetX.value < -20f) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
@@ -238,7 +209,6 @@ fun FavoriteCard(
                 )
             }
         }
-
         Card(
             onClick = onClick,
             shape = RoundedCornerShape(16.dp),
@@ -257,12 +227,6 @@ fun FavoriteCard(
                         onDragEnd = {
                             scope.launch {
                                 when {
-                                    offsetX.value > threshold -> {
-                                        offsetX.animateTo(2000f, tween(300))
-                                        onSwipeRight()
-                                        offsetX.snapTo(0f)
-                                    }
-
                                     offsetX.value < -threshold -> {
                                         offsetX.animateTo(-2000f, tween(300))
                                         onSwipeLeft()
@@ -307,42 +271,165 @@ fun FavoriteCard(
     }
 }
 
-@Preview(
-    showBackground = true, showSystemUi = true, name = "Light",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+
+
+private val mockProfile1 = UserProfile(
+    uid = "1",
+    name = "Анна",
+    age = 25,
+    city = "Москва",
+    photoSlots = listOf(
+        null
+    ),
+    mainPhotoIndex = 0
 )
+
+private val mockProfile2 = UserProfile(
+    uid = "2",
+    name = "Дмитрий",
+    age = 30,
+    city = "Санкт-Петербург",
+    photoSlots = listOf(
+        null
+    ),
+    mainPhotoIndex = 0
+)
+
+private val mockProfile3 = UserProfile(
+    uid = "3",
+    name = "Елена",
+    age = 28,
+    city = "Казань",
+    photoSlots = listOf(
+        null
+    ),
+    mainPhotoIndex = 0
+)
+
+@Preview(name = "Light mode - list of blocked users", showBackground = true)
 @Composable
-fun PreviewFavoritesLight() {
-    FlatrentappTheme {
-        FavoriteScreenContent(
+fun PreviewBlackListContentList() {
+    MaterialTheme {
+        BlackListScreenContent(
             error = null,
             isLoading = false,
-            profiles = emptyList(),
-            onGoHome = {},
-            onGoProfile = {},
-            onGoChats = {},
-            retry = {}
+            profiles = listOf(mockProfile1, mockProfile2, mockProfile3),
+            onBack = {},
+            retry = {},
+            onRemoveFromBlackList = {},
+            openProfile = {}
         )
     }
 }
 
-@Preview(
-    showBackground = true, showSystemUi = true, name = "Dark",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
+@Preview(name = "Dark mode - list of blocked users", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewFavoritesDark() {
-    FlatrentappTheme {
-        FavoriteScreenContent(
+fun PreviewBlackListContentListDark() {
+    MaterialTheme {
+        BlackListScreenContent(
             error = null,
             isLoading = false,
-            profiles = emptyList(),
-            onGoHome = {},
-            onGoProfile = {},
-            onGoChats = {},
-            retry = {}
+            profiles = listOf(mockProfile1, mockProfile2, mockProfile3),
+            onBack = {},
+            retry = {},
+            onRemoveFromBlackList = {},
+            openProfile = {}
         )
     }
 }
 
+@Preview(name = "Light mode - empty state", showBackground = true)
+@Composable
+fun PreviewBlackListContentEmpty() {
+    MaterialTheme {
+        BlackListScreenContent(
+            error = null,
+            isLoading = false,
+            profiles = emptyList(),
+            onBack = {},
+            retry = {},
+            onRemoveFromBlackList = {},
+            openProfile = {}
+        )
+    }
+}
 
+@Preview(name = "Dark mode - empty state", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewBlackListContentEmptyDark() {
+    MaterialTheme {
+        BlackListScreenContent(
+            error = null,
+            isLoading = false,
+            profiles = emptyList(),
+            onBack = {},
+            retry = {},
+            onRemoveFromBlackList = {},
+            openProfile = {}
+        )
+    }
+}
+
+@Preview(name = "Light mode - loading", showBackground = true)
+@Composable
+fun PreviewBlackListContentLoading() {
+    MaterialTheme {
+        BlackListScreenContent(
+            error = null,
+            isLoading = true,
+            profiles = emptyList(),
+            onBack = {},
+            retry = {},
+            onRemoveFromBlackList = {},
+            openProfile = {}
+        )
+    }
+}
+
+@Preview(name = "Dark mode - loading", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewBlackListContentLoadingDark() {
+    MaterialTheme {
+        BlackListScreenContent(
+            error = null,
+            isLoading = true,
+            profiles = emptyList(),
+            onBack = {},
+            retry = {},
+            onRemoveFromBlackList = {},
+            openProfile = {}
+        )
+    }
+}
+
+@Preview(name = "Light mode - error", showBackground = true)
+@Composable
+fun PreviewBlackListContentError() {
+    MaterialTheme {
+        BlackListScreenContent(
+            error = "Network error occurred",
+            isLoading = false,
+            profiles = emptyList(),
+            onBack = {},
+            retry = {},
+            onRemoveFromBlackList = {},
+            openProfile = {}
+        )
+    }
+}
+
+@Preview(name = "Dark mode - error", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewBlackListContentErrorDark() {
+    MaterialTheme {
+        BlackListScreenContent(
+            error = "Network error occurred",
+            isLoading = false,
+            profiles = emptyList(),
+            onBack = {},
+            retry = {},
+            onRemoveFromBlackList = {},
+            openProfile = {}
+        )
+    }
+}
