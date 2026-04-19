@@ -51,7 +51,9 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.graphics.luminance
 import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
+import com.example.flat_rent_app.presentation.theme.CardShadow
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import com.example.flat_rent_app.presentation.theme.LikeGreen
 import com.example.flat_rent_app.presentation.theme.NopeRed
