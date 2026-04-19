@@ -70,4 +70,25 @@ class BlackListViewModel @Inject constructor(
             blackListRepo.unblockUser(userId)
         }
     }
+
+    fun blockUser(userId: String) {
+        viewModelScope.launch {
+            blackListRepo.blockUser(userId)
+            _state.update { it.copy(profileBlocked = true) }
+        }
+    }
+
+    fun unblockUser(userId: String) {
+        viewModelScope.launch {
+            blackListRepo.unblockUser(userId)
+            _state.update { it.copy(profileBlocked = false) }
+        }
+    }
+
+    fun checkIsBlocked(userId: String) {
+        viewModelScope.launch {
+            val blocked = blackListRepo.isUserBlocked(userId)
+            _state.update { it.copy(profileBlocked = blocked) }
+        }
+    }
 }

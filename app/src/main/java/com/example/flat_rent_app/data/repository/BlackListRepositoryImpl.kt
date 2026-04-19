@@ -68,12 +68,7 @@ class BlackListRepositoryImpl @Inject constructor(
     override suspend fun isUserBlocked(userId: String): Boolean {
         val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
 
-        val meBlockUser = db.collection("blackList").document(myUid)
+        return db.collection("blackList").document(myUid)
             .collection("items").document(userId).get().await().exists()
-
-        val userBlockMe = db.collection("blackList").document(userId)
-            .collection("items").document(myUid).get().await().exists()
-
-        return meBlockUser || userBlockMe
     }
 }

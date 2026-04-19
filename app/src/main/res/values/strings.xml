@@ -188,4 +188,5 @@
     <string name="sent_at">Отправлено: %s</string>
     <string name="read_at">Прочитано: %s</string>
     <string name="no_blocked">Нет добавленых в чёрный список</string>
+    <string name="unblock">Разблокировать</string>
 </resources>

@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import com.example.flat_rent_app.R
 import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.viewmodel.blacklistviewmodel.BlackListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,16 +50,29 @@ fun FavoritesScreen(
     onGoHome: () -> Unit,
     onGoProfile: () -> Unit,
     onGoChats: () -> Unit,
-    viewModel: FavoritesViewModel = hiltViewModel()
+    viewModel: FavoritesViewModel = hiltViewModel(),
+    blackListViewModel: BlackListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val blackListState by blackListViewModel.state.collectAsStateWithLifecycle()
 
     if (state.selectedProfile != null) {
+
+        LaunchedEffect(state.selectedProfile) {
+            state.selectedProfile?.uid?.let { blackListViewModel.checkIsBlocked(it) }
+        }
+
         ProfileDetailScreen(
             profile = state.selectedProfile!!.toSwipeProfile(),
             onBack = viewModel::closeProfile,
-            onAddToSkipList = {  },
-            onAddToBlackList = { },
+            onAddToSkipList = { },
+            onAddToBlackList = {
+                state.selectedProfile?.uid?.let { blackListViewModel.blockUser(it) }
+            },
+            onUnblock = {
+                state.selectedProfile?.uid?.let { blackListViewModel.unblockUser(it) }
+            },
+            isBlocked = blackListState.profileBlocked,
             mode = ProfileScreenMode.FROMCHAT
         )
         return

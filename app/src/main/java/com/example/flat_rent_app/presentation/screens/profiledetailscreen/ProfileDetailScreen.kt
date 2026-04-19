@@ -30,6 +30,8 @@ fun ProfileDetailScreen(
     onBack: () -> Unit,
     onAddToSkipList: () -> Unit,
     onAddToBlackList: () -> Unit,
+    onUnblock: () -> Unit,
+    isBlocked: Boolean = false,
     mode: ProfileScreenMode
 ) {
     ProfileDetailContent(
@@ -37,6 +39,8 @@ fun ProfileDetailScreen(
         onBack = onBack,
         onAddToSkipList = onAddToSkipList,
         onAddToBlackList = onAddToBlackList,
+        onUnblock = onUnblock,
+        isBlocked = isBlocked,
         mode = mode
     )
 }
@@ -50,6 +54,8 @@ fun ProfileDetailContent(
     onBack: () -> Unit,
     onAddToSkipList: () -> Unit,
     onAddToBlackList: () -> Unit,
+    onUnblock: () -> Unit,
+    isBlocked: Boolean = false,
     mode: ProfileScreenMode
 ) {
     Scaffold(
@@ -192,20 +198,25 @@ fun ProfileDetailContent(
                         )
                     }
                     HorizontalDivider()
-                    Button(onClick = when (mode) {
-                            ProfileScreenMode.FROMCHAT -> { onAddToBlackList  }
-                            ProfileScreenMode.FROMSWIPE -> { onAddToSkipList  }
+                    Button(
+                        onClick = when (mode) {
+                            ProfileScreenMode.FROMCHAT if isBlocked -> onUnblock
+                            ProfileScreenMode.FROMCHAT -> onAddToBlackList
+                            else -> onAddToSkipList
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = when (mode) {
+                                ProfileScreenMode.FROMCHAT if isBlocked -> MaterialTheme.colorScheme.secondary
                                 ProfileScreenMode.FROMCHAT -> MaterialTheme.colorScheme.error
-                                ProfileScreenMode.FROMSWIPE -> MaterialTheme.colorScheme.primary
-                            })
+                                else -> MaterialTheme.colorScheme.primary
+                            }
+                        )
                     ) {
                         Text(
                             when (mode) {
+                                ProfileScreenMode.FROMCHAT if isBlocked -> stringResource(R.string.unblock)
                                 ProfileScreenMode.FROMCHAT -> stringResource(R.string.ban)
-                                ProfileScreenMode.FROMSWIPE -> stringResource(R.string.dont_recommend)
+                                else -> stringResource(R.string.dont_recommend)
                             }
                         )
                     }
@@ -235,6 +246,8 @@ fun ProfileDetailScreenPreviewLight() {
             onBack = { },
             onAddToSkipList = { },
             onAddToBlackList = { },
+            onUnblock = { },
+            isBlocked = false,
             mode = ProfileScreenMode.FROMCHAT
         )
     }
@@ -259,7 +272,35 @@ fun ProfileDetailScreenPreviewLightFromSwipe() {
             onBack = { },
             onAddToSkipList = { },
             onAddToBlackList = { },
+            onUnblock = { },
+            isBlocked = false,
             mode = ProfileScreenMode.FROMSWIPE
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Light",
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun ProfileDetailScreenPreviewLightFromSwipeUnblock() {
+    FlatrentappTheme {
+        ProfileDetailContent(
+            profile = SwipeProfile(
+                uid = "preview_uid",
+                name = "Иван Иванов",
+                age = 22,
+                city = "Москва",
+                university = "МГТУ им. Баумана",
+                description = "Люблю спорт и путешествия",
+                lookingFor = "Тихого соседа",
+                photoUrl = null
+            ),
+            onBack = { },
+            onAddToSkipList = { },
+            onAddToBlackList = { },
+            onUnblock = { },
+            isBlocked = true,
+            mode = ProfileScreenMode.FROMCHAT
         )
     }
 }
@@ -283,6 +324,8 @@ fun ProfileDetailScreenPreviewDarkFromChat() {
             onBack = { },
             onAddToSkipList = { },
             onAddToBlackList = { },
+            onUnblock = {},
+            isBlocked = false,
             mode = ProfileScreenMode.FROMCHAT
         )
     }
@@ -307,6 +350,8 @@ fun ProfileDetailScreenPreviewDarkFromSwipe() {
             onBack = { },
             onAddToSkipList = { },
             onAddToBlackList = { },
+            onUnblock = { },
+            isBlocked =  false,
             mode = ProfileScreenMode.FROMSWIPE
         )
     }

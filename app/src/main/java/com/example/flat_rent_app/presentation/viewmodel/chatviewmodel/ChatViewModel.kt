@@ -18,7 +18,6 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val chatRepo: ChatRepository,
-    private val blackListRepo: BlackListRepository,
     authRepo: AuthRepository,
     profileRepo: ProfileRepository
 ) : ViewModel() {
@@ -81,10 +80,6 @@ class ChatViewModel @Inject constructor(
 
     fun openProfile() {
         _state.update { it.copy(showProfileDetails = true) }
-    }
-
-    fun blockUser() = viewModelScope.launch {
-        blackListRepo.blockUser(_state.value.otherUid)
     }
 
     fun closeProfileDetails() {

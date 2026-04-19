@@ -108,9 +108,15 @@ class ChatRepositoryImpl @Inject constructor(
             val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
             if (text.isBlank()) throw IllegalArgumentException("Пустое сообщение")
 
-            val blockedByOther = db.collection("blacklist").document(otherId)
-                .collection("blocked").document(myUid)
+            val blockedByOther = db.collection("blackList").document(otherId)
+                .collection("items").document(myUid)
                 .get().await().exists()
+
+            val iBlockedOther = db.collection("blackList").document(myUid)
+                .collection("items").document(otherId)
+                .get().await().exists()
+
+            val isBlocked = blockedByOther || iBlockedOther
 
             val now = System.currentTimeMillis()
             val chatRef = db.collection("chats").document(chatId)
@@ -129,7 +135,7 @@ class ChatRepositoryImpl @Inject constructor(
                     "type" to "text",
                     "createdAt" to now,
                     "status" to "sent",
-                    "blockedMessage" to blockedByOther
+                    "blockedMessage" to isBlocked
                 )
             )
 
@@ -148,7 +154,7 @@ class ChatRepositoryImpl @Inject constructor(
                 ), SetOptions.merge()
             )
 
-            if (!blockedByOther) {
+            if (!isBlocked) {
                 batch.set(otherIndex, mapOf(
                     "lastMessageText" to text,
                     "lastMessageAt" to now,

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.flat_rent_app.R
 import com.example.flat_rent_app.domain.model.Message
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.Bubble
@@ -33,6 +34,7 @@ import com.example.flat_rent_app.presentation.screens.chatscreen.components.Inpu
 import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileDetailScreen
 import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.viewmodel.blacklistviewmodel.BlackListViewModel
 import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatUiState
 import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatViewModel
 import kotlinx.coroutines.delay
@@ -45,13 +47,22 @@ import java.util.Locale
 @Composable
 fun ChatScreen(
     onBack: () -> Unit,
-    viewmodel: ChatViewModel = hiltViewModel()
+    viewmodel: ChatViewModel = hiltViewModel(),
+    blacklistviewmodel: BlackListViewModel = hiltViewModel()
 ) {
     val state by viewmodel.state.collectAsState()
     val messages by viewmodel.messages.collectAsState()
     val otherProfile by viewmodel.otherProfile.collectAsState()
 
+    val blackListState = blacklistviewmodel.state.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) { viewmodel.markRead() }
+
+    LaunchedEffect(state.showProfileDetails) {
+        if (state.showProfileDetails) {
+            otherProfile?.uid?.let { blacklistviewmodel.checkIsBlocked(it) }
+        }
+    }
 
     if (state.showProfileDetails) {
         val profile = otherProfile?.toSwipeProfile()
@@ -60,7 +71,13 @@ fun ChatScreen(
                 profile = profile,
                 onBack = viewmodel::closeProfileDetails,
                 onAddToSkipList = {  },
-                onAddToBlackList = viewmodel::blockUser,
+                onAddToBlackList = {
+                    otherProfile?.uid?.let { blacklistviewmodel.blockUser(it) }
+                },
+                onUnblock = {
+                    otherProfile?.uid?.let { blacklistviewmodel.unblockUser(it) }
+                },
+                isBlocked =  blackListState.value.profileBlocked,
                 mode = ProfileScreenMode.FROMCHAT
             )
             return

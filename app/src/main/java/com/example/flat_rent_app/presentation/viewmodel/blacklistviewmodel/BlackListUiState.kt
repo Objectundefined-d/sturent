@@ -7,4 +7,5 @@ data class BlackListUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val selectedProfile: UserProfile? = null,
+    val profileBlocked: Boolean = false
 )
