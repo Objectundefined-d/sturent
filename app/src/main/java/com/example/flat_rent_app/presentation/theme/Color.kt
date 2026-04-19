@@ -2,9 +2,15 @@ package com.example.flat_rent_app.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
-val BrandPrimary = Color(0xFFB497FF)
-val BrandSecondary = Color(0xFFCCC2DC)
-val BrandTertiary = Color(0xFFEFB8C8)
+val BrandPrimary = Color(0xFF8B5CF6)
+val BrandSecondary = Color(0xFF7C3AED)
+val BrandTertiary = Color(0xFFEC4899)
+
+val BackgroundLight = Color(0xFFF7F7FB)
+val SurfaceLight = Color(0xFFFFFFFF)
+val SurfaceVariantLight = Color(0xFFEAE7F5)
+val OutlineLight = Color(0xFFCAC4D6)
+val OnSurfaceMutedLight = Color(0xFF625B71)
 
 val BackgroundDark = Color(0xFF0F1115)
 val SurfaceDark = Color(0xFF171A21)
