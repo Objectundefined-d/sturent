@@ -53,11 +53,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.theme.LikeGreen
+import com.example.flat_rent_app.presentation.theme.NopeRed
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainScreenState
 
-val LikeGreen = Color(0xFF38D986)
-private val NopeRed = Color(0xFFFF4458)
-private val CardShadow = Color(0x22000000)
+private val CardBackgroundLight = Color(0xFFFFFFFF)
+private val CardBackgroundDark = Color(0xFF1C1C1E)
+private val CardPlaceholderTopDark = Color(0xFF2C2C2E)
+private val CardPlaceholderTopLight = Color(0xFFEAE7F5)
 
 @Composable
 fun SwipeableProfileCard(
@@ -130,13 +133,15 @@ fun ProfileCard(
     description: String,
     photoUrl: String? = null,
 ) {
+    val isDarkPalette = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .shadow(16.dp, RoundedCornerShape(24.dp), ambientColor = CardShadow)
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF1C1C1E))
+            .background(if (isDarkPalette) CardBackgroundDark else CardBackgroundLight)
     ) {
         if (photoUrl != null) {
             AsyncImage(
@@ -151,7 +156,10 @@ fun ProfileCard(
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color(0xFF2C2C2E), Color(0xFF1C1C1E))
+                            listOf(
+                                if (isDarkPalette) CardPlaceholderTopDark else CardPlaceholderTopLight,
+                                if (isDarkPalette) CardBackgroundDark else CardBackgroundLight
+                            )
                         )
                     )
             ) {
@@ -254,7 +262,7 @@ private fun ActionButtons(
     ) {
         FloatingActionButton(
             onClick = onSwipeLeft,
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
             contentColor = NopeRed,
             shape = CircleShape,
             modifier = Modifier.size(64.dp),
@@ -269,8 +277,8 @@ private fun ActionButtons(
 
         FloatingActionButton(
             onClick = onAddToFavorites,
-            containerColor = Color.White,
-            contentColor = Color(0xFF636366),
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             shape = CircleShape,
             modifier = Modifier.size(48.dp),
             elevation = FloatingActionButtonDefaults.elevation(4.dp)
@@ -280,8 +288,8 @@ private fun ActionButtons(
 
         FloatingActionButton(
             onClick = onInfo,
-            containerColor = Color.White,
-            contentColor = Color(0xFF636366),
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             shape = CircleShape,
             modifier = Modifier.size(48.dp),
             elevation = FloatingActionButtonDefaults.elevation(4.dp)
@@ -314,7 +322,7 @@ fun LoadingView() {
         modifier = Modifier.fillMaxWidth()
     ) {
         CircularProgressIndicator(color = LikeGreen)
-        Text(stringResource(R.string.loading), color = Color.Gray, fontSize = 15.sp)
+        Text(stringResource(R.string.loading), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 15.sp)
     }
 }
 
@@ -326,7 +334,7 @@ fun ErrorView(error: String, onRetry: () -> Unit) {
         modifier = Modifier.padding(24.dp)
     ) {
         Text(stringResource(R.string.smth_wrong), style = MaterialTheme.typography.headlineSmall)
-        Text(error, color = Color.Gray, fontSize = 14.sp)
+        Text(error, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
         Button(onClick = onRetry) { Text(stringResource(R.string.repeat)) }
     }
 }
@@ -337,7 +345,7 @@ fun EmptyView() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(stringResource(R.string.all_viewed), color = Color.Gray, fontSize = 16.sp)
+        Text(stringResource(R.string.all_viewed), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp)
     }
 }
 
@@ -349,7 +357,7 @@ fun AllViewedView(onRetry: () -> Unit) {
         modifier = Modifier.padding(24.dp)
     ) {
         Text(stringResource(R.string.all_viewed), style = MaterialTheme.typography.headlineSmall)
-        Text(stringResource(R.string.message), color = Color.Gray, fontSize = 14.sp)
+        Text(stringResource(R.string.message), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
         Spacer(Modifier.height(8.dp))
         Button(onClick = onRetry) { Text(stringResource(R.string.repeat)) }
     }
