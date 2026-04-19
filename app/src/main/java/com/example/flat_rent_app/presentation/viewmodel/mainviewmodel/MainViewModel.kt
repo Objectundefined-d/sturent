@@ -7,6 +7,7 @@ import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.SwipeProfile
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import com.example.flat_rent_app.domain.repository.SwipeRepository
+import com.example.flat_rent_app.presentation.viewmodel.blacklistviewmodel.BlackListEvent
 import com.example.flat_rent_app.util.LikeOutCome
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val profileRepository: ProfileRepository,
-    private val swipeRepository: SwipeRepository
+    private val swipeRepository: SwipeRepository,
+    private val event: BlackListEvent
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MainScreenState())
@@ -27,6 +29,7 @@ class MainViewModel @Inject constructor(
     init {
         loadProfiles()
         checkUnseenMatches()
+        observeBlackListChanges()
     }
 
     private fun checkUnseenMatches() {
@@ -171,6 +174,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun addToSkipList(userId: String) {
+        viewModelScope.launch {
+            swipeRepository.addToSkipList(userId)
+            closeProfileDetails()
+            moveToNext()
+        }
+    }
+
     fun dismissMatch() {
         val matchId = _state.value.matchChatId
         if (matchId != null) {
@@ -241,6 +252,14 @@ class MainViewModel @Inject constructor(
     }
     fun closeFilters() {
         _state.update { it.copy(showFilters = false) }
+    }
+
+    private fun observeBlackListChanges() {
+        viewModelScope.launch {
+            event.events.collect {
+                loadProfiles()
+            }
+        }
     }
 }
 

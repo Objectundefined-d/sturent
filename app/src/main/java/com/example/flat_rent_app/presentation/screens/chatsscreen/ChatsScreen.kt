@@ -9,8 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.domain.model.Chat
 import com.example.flat_rent_app.domain.model.ChatUiItem
 import com.example.flat_rent_app.presentation.components.AppBottomBar
@@ -73,12 +75,12 @@ fun ChatsScreenContent(
     chatToDelete?.let { item ->
         AlertDialog(
             onDismissRequest = onDismissDelete,
-            title = { Text("Удалить чат?") },
-            text = { Text("Выберите способ удаления") },
+            title = { Text(stringResource(R.string.delete_chat_q)) },
+            text = { Text(stringResource(R.string.select_deletion_method)) },
             confirmButton = {
                 TextButton(onClick = { onDeleteChat(item, true) }) {
                     Text(
-                        "У всех",
+                        stringResource(R.string.both),
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -86,10 +88,10 @@ fun ChatsScreenContent(
             dismissButton = {
                 Row {
                     TextButton(onClick = onDismissDelete) {
-                        Text("Отмена")
+                        Text(text = stringResource(R.string.cancel))
                     }
                     TextButton(onClick = { onDeleteChat(item, false) }) {
-                        Text("Только у меня")
+                        Text(stringResource(R.string.only_for_me))
                     }
                 }
             }
@@ -107,7 +109,7 @@ fun ChatsScreenContent(
                             onValueChange = onSearchQuery,
                             placeholder = {
                                 Text(
-                                    "Поиск по имени",
+                                    stringResource(R.string.name_search),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             },
@@ -141,7 +143,7 @@ fun ChatsScreenContent(
                 TopAppBar(
                     title = {
                         Text(
-                            "Чаты",
+                            stringResource(R.string.chats),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     },
@@ -169,16 +171,22 @@ fun ChatsScreenContent(
     ) { pad ->
         if (items.isEmpty()) {
             Box(
-                modifier = Modifier.padding(pad).fillMaxSize(),
+                modifier = Modifier
+                    .padding(pad)
+                    .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = if (searchQuery.isBlank()) "Пока нет чатов" else "Ничего не найдено",
+                    text = if (searchQuery.isBlank()) stringResource(R.string.there_are_no_chats_yet) else stringResource(
+                        R.string.nothing_found
+                    ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         } else {
-            Column(modifier = Modifier.padding(pad).fillMaxSize()) {
+            Column(modifier = Modifier
+                .padding(pad)
+                .fillMaxSize()) {
                 items.forEach { item ->
                     val title = item.profile?.name?.takeIf { it.isNotBlank() } ?: item.chat.otherUid
                     val photoUrl = item.profile?.photoSlots

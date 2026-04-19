@@ -274,7 +274,7 @@ fun EditQuestionnaireScreenContent(
                 )
 
                 Text(
-                    text = "Пол",
+                    text = stringResource(R.string.sex),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -292,7 +292,7 @@ fun EditQuestionnaireScreenContent(
                             )
                         )
                         Text(
-                            "Мужской",
+                            stringResource(R.string.male),
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -306,7 +306,7 @@ fun EditQuestionnaireScreenContent(
                             )
                         )
                         Text(
-                            "Женский",
+                            stringResource(R.string.female),
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }
