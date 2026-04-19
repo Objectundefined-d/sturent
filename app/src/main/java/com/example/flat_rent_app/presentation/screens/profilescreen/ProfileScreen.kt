@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,10 +25,7 @@ import coil.compose.AsyncImage
 import com.example.flat_rent_app.presentation.components.AppBottomBar
 import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 import com.example.flat_rent_app.util.BottomTabs
-import android.content.res.Configuration
-import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreenContent(
     displayName: String,
@@ -39,28 +35,15 @@ fun ProfileScreenContent(
     onEditQuestionnaire: () -> Unit,
     onSignOut: () -> Unit,
     onGoHome: () -> Unit,
-    onGoChats: () -> Unit,
-    onGoFavorites: () -> Unit,
-    onGoSettings: () -> Unit,
+    onGoChats: () -> Unit
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Профиль") },
-                actions = {
-                    IconButton(onClick = onGoSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Настройки")
-                    }
-                }
-            )
-        },
         bottomBar = {
             AppBottomBar(
                 selected = BottomTabs.PROFILE,
                 onHome = onGoHome,
                 onChats = onGoChats,
-                onProfile = { },
-                onFavorites = onGoFavorites
+                onProfile = { }
             )
         }
     ) { pad ->
@@ -127,9 +110,9 @@ fun ProfileScreenContent(
                                         .clip(CircleShape)
                                         .background(
                                             if (pagerState.currentPage == index)
-                                                MaterialTheme.colorScheme.onPrimary
+                                                MaterialTheme.colorScheme.onSurface
                                             else
-                                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
                                         )
                                 )
                             }
@@ -151,7 +134,7 @@ fun ProfileScreenContent(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
+                    modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
                 )
             }
 
@@ -159,12 +142,12 @@ fun ProfileScreenContent(
                 onClick = onEditQuestionnaire,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp)
+                    .padding(bottom = 12.dp)
             ) {
                 Text("Редактировать анкету")
             }
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = onSignOut,
@@ -183,9 +166,7 @@ fun ProfileScreenContent(
 fun ProfileScreen(
     onGoHome: () -> Unit,
     onGoChats: () -> Unit,
-    onGoFavorites: () -> Unit,
     onEditQuestionnaire: () -> Unit,
-    onGoSettings: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val user by viewModel.user.collectAsState(initial = null)
@@ -205,51 +186,27 @@ fun ProfileScreen(
         onEditQuestionnaire = onEditQuestionnaire,
         onSignOut = viewModel::signOut,
         onGoHome = onGoHome,
-        onGoChats = onGoChats,
-        onGoFavorites = onGoFavorites,
-        onGoSettings = onGoSettings
+        onGoChats = onGoChats
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Light",
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun ProfileScreenPreviewLight() {
-    FlatrentappTheme {
+fun ProfileScreenPreview() {
+    MaterialTheme {
         ProfileScreenContent(
-            displayName = "Имя Фамилия",
-            age = 22,
-            email = "user@mail.com",
+            displayName = "Иван Иванов",
+            age = 232,
+            email = "ivan@mail.com",
             photoUrls = listOf(
                 "https://picsum.photos/seed/1/400/600",
                 "https://picsum.photos/seed/2/400/600",
+                "https://picsum.photos/seed/3/400/600"
             ),
             onEditQuestionnaire = {},
             onSignOut = {},
             onGoHome = {},
-            onGoChats = {},
-            onGoFavorites = {},
-            onGoSettings = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "Dark",
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ProfileScreenPreviewDark() {
-    FlatrentappTheme {
-        ProfileScreenContent(
-            displayName = "Имя Фамилия",
-            age = 22,
-            email = "user@mail.com",
-            photoUrls = emptyList(),
-            onEditQuestionnaire = {},
-            onSignOut = {},
-            onGoHome = {},
-            onGoChats = {},
-            onGoFavorites = {},
-            onGoSettings = {}
+            onGoChats = {}
         )
     }
 }

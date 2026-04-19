@@ -1,6 +1,5 @@
 package com.example.flat_rent_app.presentation.screens.profiledetailscreen
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,45 +13,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.flat_rent_app.domain.model.SwipeProfile
-import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileDetailScreen(
-    profile: SwipeProfile,
-    onBack: () -> Unit,
-) {
-    ProfileDetailContent(
-        profile = profile,
-        onBack = onBack
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProfileDetailContent(
     profile: SwipeProfile,
     onBack: () -> Unit
 ) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Профиль") },
+                title = {
+                    Text(
+                        "Профиль",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.Default.Close,
                             contentDescription = "Закрыть",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         }
@@ -80,9 +71,17 @@ fun ProfileDetailContent(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .background(
+                                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.primary,
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    )
+                                )
+                            )
                     )
                 }
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -93,10 +92,7 @@ fun ProfileDetailContent(
                         text = "${profile.name}, ${profile.age}",
                         fontSize = 36.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (profile.photoUrl != null)
-                            Color.White
-                        else
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.White
                     )
                 }
             }
@@ -111,118 +107,90 @@ fun ProfileDetailContent(
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Icon(
                             Icons.Default.LocationOn,
-                            contentDescription = null,
+                            contentDescription = "Город",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(24.dp)
                         )
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                "Местоположение",
+                                text = "Местоположение",
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                profile.city,
+                                text = profile.city,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Medium
                             )
                         }
                     }
+
                     HorizontalDivider()
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Icon(
                             Icons.Default.School,
-                            contentDescription = null,
+                            contentDescription = "Образование",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(24.dp)
                         )
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                "Образование",
+                                text = "Образование",
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                profile.university,
+                                text = profile.university,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Medium
                             )
                         }
                     }
+
                     HorizontalDivider()
+
                     Column {
                         Text(
-                            "О себе",
+                            text = "О себе",
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(Modifier.height(8.dp))
-                        Text(profile.description, fontSize = 16.sp, lineHeight = 24.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = profile.description,
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp
+                        )
                     }
+
                     HorizontalDivider()
                     Column {
                         Text(
-                            "Ищет",
+                            text = "Ищет",
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            profile.lookingFor,
+                            text = profile.lookingFor,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
                 }
             }
-            Spacer(Modifier.height(32.dp))
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "Light",
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Composable
-fun ProfileDetailScreenPreviewLight() {
-    FlatrentappTheme {
-        ProfileDetailContent(
-            profile = SwipeProfile(
-                uid = "preview_uid",
-                name = "Иван Иванов",
-                age = 22,
-                city = "Москва",
-                university = "МГТУ им. Баумана",
-                description = "Люблю спорт и путешествия",
-                lookingFor = "Тихого соседа",
-                photoUrl = null
-            ),
-            onBack = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "Dark",
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ProfileDetailScreenPreviewDark() {
-    FlatrentappTheme {
-        ProfileDetailContent(
-            profile = SwipeProfile(
-                uid = "preview_uid",
-                name = "Иван Иванов",
-                age = 22,
-                city = "Москва",
-                university = "МГТУ им. Баумана",
-                description = "Люблю спорт и путешествия",
-                lookingFor = "Тихого соседа",
-                photoUrl = null
-            ),
-            onBack = {}
-        )
     }
 }

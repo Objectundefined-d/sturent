@@ -2,20 +2,17 @@ package com.example.flat_rent_app.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
-val LightPrimary = Color(0xFF1A73E8)
-val LightOnPrimary = Color.White
-val LightBackground = Color(0xFFF2F2F7)
-val LightSurface = Color.White
-val LightOnBackground = Color(0xFF1C1C1E)
-val LightOnSurface = Color(0xFF1C1C1E)
-val LightSecondary = Color(0xFF5F6368)
-val LightError = Color(0xFFB00020)
+val BrandPrimary = Color(0xFFB497FF)
+val BrandSecondary = Color(0xFFCCC2DC)
+val BrandTertiary = Color(0xFFEFB8C8)
 
-val DarkPrimary = Color(0xFF4DA3FF)
-val DarkOnPrimary = Color(0xFF1C1C1E)
-val DarkBackground = Color(0xFF1C1C1E)
-val DarkSurface = Color(0xFF2C2C2E)
-val DarkOnBackground = Color.White
-val DarkOnSurface = Color.White
-val DarkSecondary = Color(0xFFAAAAAA)
-val DarkError = Color(0xFFCF6679)
+val BackgroundDark = Color(0xFF0F1115)
+val SurfaceDark = Color(0xFF171A21)
+val SurfaceVariantDark = Color(0xFF232834)
+val OutlineDark = Color(0xFF3A4150)
+val OnSurfaceMutedDark = Color(0xFFA8B0C0)
+
+val LikeGreen = Color(0xFF38D986)
+val NopeRed = Color(0xFFFF4458)
+val GoldAccent = Color(0xFFFFD700)
+val CardShadow = Color(0x33000000)
