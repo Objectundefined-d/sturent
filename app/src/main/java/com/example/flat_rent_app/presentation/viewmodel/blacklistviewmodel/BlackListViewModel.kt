@@ -16,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BlackListViewModel @Inject constructor(
     private val blackListRepo: BlackListRepository,
-    private val profileRepo: ProfileRepository
+    private val profileRepo: ProfileRepository,
+    private val event: BlackListEvent
 ) : ViewModel() {
     private val _state = MutableStateFlow(BlackListUiState())
     val state: StateFlow<BlackListUiState> = _state
@@ -65,16 +66,11 @@ class BlackListViewModel @Inject constructor(
         _state.update { it.copy(selectedProfile = null) }
     }
 
-    fun deleteFromBlockList(userId: String) {
-        viewModelScope.launch {
-            blackListRepo.unblockUser(userId)
-        }
-    }
-
     fun blockUser(userId: String) {
         viewModelScope.launch {
             blackListRepo.blockUser(userId)
             _state.update { it.copy(profileBlocked = true) }
+            event.notifyChanged()
         }
     }
 
@@ -82,6 +78,7 @@ class BlackListViewModel @Inject constructor(
         viewModelScope.launch {
             blackListRepo.unblockUser(userId)
             _state.update { it.copy(profileBlocked = false) }
+            event.notifyChanged()
         }
     }
 

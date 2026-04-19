@@ -95,7 +95,7 @@ fun BlackListScreen(
         profiles = state.profiles,
         onBack = onBack,
         retry = viewModel::retry,
-        onRemoveFromBlackList = viewModel::deleteFromBlockList,
+        unblockUser = viewModel::unblockUser,
         openProfile = viewModel::openProfile
     )
 }
@@ -108,7 +108,7 @@ fun BlackListScreenContent(
     profiles: List<UserProfile>,
     onBack: () -> Unit,
     retry: () -> Unit,
-    onRemoveFromBlackList: (String) -> Unit,
+    unblockUser: (String) -> Unit,
     openProfile: (UserProfile) -> Unit
 ) {
     Scaffold(
@@ -165,7 +165,7 @@ fun BlackListScreenContent(
                         BlockedPersonCard(
                             profile = profile,
                             onClick = { openProfile(profile) },
-                            onSwipeLeft = { onRemoveFromBlackList(profile.uid) },
+                            onSwipeLeft = { unblockUser(profile.uid) },
                         )
                     }
                 }
@@ -278,38 +278,8 @@ fun BlockedPersonCard(
 
 
 
-private val mockProfile1 = UserProfile(
-    uid = "1",
-    name = "Анна",
-    age = 25,
-    city = "Москва",
-    photoSlots = listOf(
-        null
-    ),
-    mainPhotoIndex = 0
-)
 
-private val mockProfile2 = UserProfile(
-    uid = "2",
-    name = "Дмитрий",
-    age = 30,
-    city = "Санкт-Петербург",
-    photoSlots = listOf(
-        null
-    ),
-    mainPhotoIndex = 0
-)
 
-private val mockProfile3 = UserProfile(
-    uid = "3",
-    name = "Елена",
-    age = 28,
-    city = "Казань",
-    photoSlots = listOf(
-        null
-    ),
-    mainPhotoIndex = 0
-)
 
 @Preview(name = "Light mode - list of blocked users", showBackground = true)
 @Composable
@@ -318,10 +288,37 @@ fun PreviewBlackListContentList() {
         BlackListScreenContent(
             error = null,
             isLoading = false,
-            profiles = listOf(mockProfile1, mockProfile2, mockProfile3),
+            profiles = listOf(UserProfile(
+                uid = "1",
+                name = "Анна",
+                age = 25,
+                city = "Москва",
+                photoSlots = listOf(
+                    null
+                ),
+                mainPhotoIndex = 0
+            ), UserProfile(
+                uid = "2",
+                name = "Дмитрий",
+                age = 30,
+                city = "Санкт-Петербург",
+                photoSlots = listOf(
+                    null
+                ),
+                mainPhotoIndex = 0
+            ), UserProfile(
+                uid = "3",
+                name = "Елена",
+                age = 28,
+                city = "Казань",
+                photoSlots = listOf(
+                    null
+                ),
+                mainPhotoIndex = 0
+            )),
             onBack = {},
             retry = {},
-            onRemoveFromBlackList = {},
+            unblockUser = {},
             openProfile = {}
         )
     }
@@ -334,10 +331,37 @@ fun PreviewBlackListContentListDark() {
         BlackListScreenContent(
             error = null,
             isLoading = false,
-            profiles = listOf(mockProfile1, mockProfile2, mockProfile3),
+            profiles = listOf(UserProfile(
+                uid = "1",
+                name = "Анна",
+                age = 25,
+                city = "Москва",
+                photoSlots = listOf(
+                    null
+                ),
+                mainPhotoIndex = 0
+            ), UserProfile(
+                uid = "2",
+                name = "Дмитрий",
+                age = 30,
+                city = "Санкт-Петербург",
+                photoSlots = listOf(
+                    null
+                ),
+                mainPhotoIndex = 0
+            ), UserProfile(
+                uid = "3",
+                name = "Елена",
+                age = 28,
+                city = "Казань",
+                photoSlots = listOf(
+                    null
+                ),
+                mainPhotoIndex = 0
+            )),
             onBack = {},
             retry = {},
-            onRemoveFromBlackList = {},
+            unblockUser = {},
             openProfile = {}
         )
     }
@@ -353,7 +377,7 @@ fun PreviewBlackListContentEmpty() {
             profiles = emptyList(),
             onBack = {},
             retry = {},
-            onRemoveFromBlackList = {},
+            unblockUser = {},
             openProfile = {}
         )
     }
@@ -369,7 +393,7 @@ fun PreviewBlackListContentEmptyDark() {
             profiles = emptyList(),
             onBack = {},
             retry = {},
-            onRemoveFromBlackList = {},
+            unblockUser = {},
             openProfile = {}
         )
     }
@@ -385,7 +409,7 @@ fun PreviewBlackListContentLoading() {
             profiles = emptyList(),
             onBack = {},
             retry = {},
-            onRemoveFromBlackList = {},
+            unblockUser = {},
             openProfile = {}
         )
     }
@@ -401,7 +425,7 @@ fun PreviewBlackListContentLoadingDark() {
             profiles = emptyList(),
             onBack = {},
             retry = {},
-            onRemoveFromBlackList = {},
+            unblockUser = {},
             openProfile = {}
         )
     }
@@ -417,7 +441,7 @@ fun PreviewBlackListContentError() {
             profiles = emptyList(),
             onBack = {},
             retry = {},
-            onRemoveFromBlackList = {},
+            unblockUser = {},
             openProfile = {}
         )
     }
@@ -433,7 +457,7 @@ fun PreviewBlackListContentErrorDark() {
             profiles = emptyList(),
             onBack = {},
             retry = {},
-            onRemoveFromBlackList = {},
+            unblockUser = {},
             openProfile = {}
         )
     }
