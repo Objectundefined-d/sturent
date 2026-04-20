@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.chatscreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -42,6 +44,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+
+private const val DATE_OVERLAY_HIDE_DELAY_MS = 1000L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,7 +128,7 @@ fun ChatScreenContent(
 
     LaunchedEffect(isScrolling) {
         if (isScrolling) showDateOverlay = true
-        else { delay(1000); showDateOverlay = false }
+        else { delay(DATE_OVERLAY_HIDE_DELAY_MS); showDateOverlay = false }
     }
 
     val firstVisibleIndex by remember { derivedStateOf { listState.firstVisibleItemIndex } }
@@ -168,7 +172,7 @@ fun ChatScreenContent(
             onDismissRequest = { showReadTimeDialog = false },
             title = { Text(stringResource(R.string.information_about_message)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(Dimens.dp4)) {
                     Text(stringResource(R.string.sent_at, sentDateString))
                     if (readDateString != null) {
                         Text(stringResource(R.string.read_at, readDateString))
@@ -194,7 +198,7 @@ fun ChatScreenContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 32.dp)
+                    .padding(bottom = Dimens.dp32)
             ) {
                 ListItem(
                     headlineContent = { Text(text = stringResource(R.string.copy)) },
@@ -326,9 +330,9 @@ fun ChatScreenContent(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                    .padding(horizontal = Dimens.dp12),
+                verticalArrangement = Arrangement.spacedBy(Dimens.dp8),
+                contentPadding = PaddingValues(vertical = Dimens.dp12)
             ) {
                 items(messages, key = { it.messageId }) { msg ->
                     val index = messages.indexOf(msg)
@@ -343,17 +347,17 @@ fun ChatScreenContent(
                             contentAlignment = Alignment.Center
                         ) {
                             Surface(
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(Dimens.dp12),
                                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                             ) {
                                 Text(
                                     text = formatDateHeader(msg.createdAt),
                                     style = MaterialTheme.typography.labelSmall,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                                    modifier = Modifier.padding(horizontal = Dimens.dp12, vertical = Dimens.dp4)
                                 )
                             }
                         }
-                        Spacer(Modifier.height(4.dp))
+                        Spacer(Modifier.height(Dimens.dp4))
                     }
 
                     Bubble(
@@ -368,18 +372,18 @@ fun ChatScreenContent(
                 visible = showDateOverlay && currentDateHeader.isNotBlank(),
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 8.dp),
+                    .padding(top = Dimens.dp8),
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(Dimens.dp12),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                 ) {
                     Text(
                         text = currentDateHeader,
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = Dimens.dp12, vertical = Dimens.dp4)
                     )
                 }
             }

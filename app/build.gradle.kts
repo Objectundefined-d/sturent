@@ -5,6 +5,7 @@ plugins {
     id("com.google.gms.google-services")
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.detekt)
 }
 
 val ciVersionCode = providers.gradleProperty("ciVersionCode").orNull?.toIntOrNull()
@@ -68,6 +69,17 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    buildUponDefaultConfig = true
+    parallel = true
+    config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+}
+
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
+    jvmTarget.set("20")
 }
 
 dependencies {

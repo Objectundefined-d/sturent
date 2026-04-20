@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.onboarding
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -57,10 +59,10 @@ fun OnbPhotoScreenContent(
         }
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            modifier = Modifier.padding(horizontal = Dimens.dp16),
+            verticalArrangement = Arrangement.spacedBy(Dimens.dp14)
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Dimens.dp10)) {
                 (0..2).forEach { index ->
                     val model = uploadedPhotos[index]?.fullUrl ?: pickedUris[index]
                     val isMain = mainPhotoIndex == index
@@ -72,7 +74,7 @@ fun OnbPhotoScreenContent(
                     ) {
                         PhotoSlotCard(
                             modifier = Modifier
-                                .height(160.dp)
+                                .height(Dimens.dp160)
                                 .clickable { onPickPhoto(index) },
                             imageModel = model,
                             title = if (index == 0) "Главное" else "Фото ${index + 1}",

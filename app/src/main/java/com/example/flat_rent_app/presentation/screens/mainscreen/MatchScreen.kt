@@ -1,5 +1,9 @@
 package com.example.flat_rent_app.presentation.screens.mainscreen
 
+import com.example.flat_rent_app.presentation.theme.TextSizes
+
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,15 +42,15 @@ fun MatchScreen(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(Dimens.dp16),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp)
-            .padding(bottom = 48.dp, top = 16.dp)
+            .padding(horizontal = Dimens.dp32)
+            .padding(bottom = Dimens.dp48, top = Dimens.dp16)
     ) {
         Text(
             text = stringResource(R.string.match_title),
-            fontSize = 36.sp,
+            fontSize = TextSizes.sp36,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.scale(scale.value)
@@ -54,38 +58,38 @@ fun MatchScreen(
 
         Text(
             text = stringResource(R.string.match_subtitle),
-            fontSize = 15.sp,
+            fontSize = TextSizes.sp15,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(Dimens.dp8))
 
         Button(
             onClick = onSendMessage,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth().height(Dimens.dp52),
+            shape = RoundedCornerShape(Dimens.dp16),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
             )
         ) {
             Text(
                 text = stringResource(R.string.match_write),
-                fontSize = 16.sp,
+                fontSize = TextSizes.sp16,
                 fontWeight = FontWeight.SemiBold
             )
         }
 
         OutlinedButton(
             onClick = onContinue,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth().height(Dimens.dp52),
+            shape = RoundedCornerShape(Dimens.dp16),
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = MaterialTheme.colorScheme.onSurface
             )
         ) {
             Text(
                 text = stringResource(R.string.match_continue),
-                fontSize = 16.sp
+                fontSize = TextSizes.sp16
             )
         }
     }

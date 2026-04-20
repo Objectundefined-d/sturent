@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.chatscreen.components
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,13 +37,13 @@ fun InputBar(
     onSend: () -> Unit
 ) {
     Surface(
-        tonalElevation = 2.dp,
+        tonalElevation = Dimens.dp2,
         color = MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(Dimens.dp10),
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
@@ -55,7 +57,7 @@ fun InputBar(
                     )
                 },
                 singleLine = true,
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(Dimens.dp24),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
@@ -65,7 +67,7 @@ fun InputBar(
                 )
             )
 
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(Dimens.dp10))
 
             IconButton(
                 onClick = onSend,
@@ -73,8 +75,8 @@ fun InputBar(
             ) {
                 if (sending) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(Dimens.dp18),
+                        strokeWidth = Dimens.dp2,
                         color = MaterialTheme.colorScheme.primary
                     )
                 } else {

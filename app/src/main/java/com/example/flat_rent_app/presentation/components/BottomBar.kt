@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.components
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -28,7 +30,7 @@ fun AppBottomBar(
     onFavorites: () -> Unit
 ) {
     NavigationBar(
-        tonalElevation = 0.dp
+        tonalElevation = Dimens.dp0
     ) {
         NavigationBarItem(
             selected = selected == BottomTabs.HOME,

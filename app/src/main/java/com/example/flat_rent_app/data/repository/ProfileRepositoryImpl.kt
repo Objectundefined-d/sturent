@@ -22,6 +22,10 @@ class ProfileRepositoryImpl @Inject constructor(
     private val db: FirebaseFirestore,
     private val authRepo: AuthRepository
 ) : ProfileRepository {
+    private companion object {
+        const val MAIN_PHOTO_INDEX_MAX = 2
+        const val PROFILE_PHOTO_SLOTS = 3
+    }
 
     override fun observerProfile(uid: String): Flow<UserProfile?> = callbackFlow {
         val reg = db.collection("users").document(uid)
@@ -144,8 +148,10 @@ class ProfileRepositoryImpl @Inject constructor(
             eduPlace = getString("eduPlace").orEmpty(),
             description = getString("description").orEmpty(),
             preferences = (get("preferences") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-            mainPhotoIndex = ((getLong("mainPhotoIndex") ?: 0L).toInt()).coerceIn(0, 2),
-            photoSlots = slots.take(3).let { it + List(maxOf(0, 3 - it.size)) { null } },
+            mainPhotoIndex = ((getLong("mainPhotoIndex") ?: 0L).toInt()).coerceIn(0, MAIN_PHOTO_INDEX_MAX),
+            photoSlots = slots
+                .take(PROFILE_PHOTO_SLOTS)
+                .let { it + List(maxOf(0, PROFILE_PHOTO_SLOTS - it.size)) { null } },
             createdAtMillis = getLong("createdAtMillis"),
             updatedAtMillis = getLong("updatedAtMillis")
         )

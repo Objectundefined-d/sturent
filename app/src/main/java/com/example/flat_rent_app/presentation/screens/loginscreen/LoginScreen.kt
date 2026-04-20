@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.loginscreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -58,19 +60,19 @@ fun LoginScreenContent(
         Column(
             modifier = Modifier
                 .padding(pad)
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = Dimens.dp24)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(Dimens.dp28))
 
             Image(
                 painter = painterResource(id = R.drawable.ic_login_home),
                 contentDescription = null,
-                modifier = Modifier.size(84.dp)
+                modifier = Modifier.size(Dimens.dp84)
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(Dimens.dp10))
 
             Text(
                 text = stringResource(R.string.login_title),
@@ -78,7 +80,7 @@ fun LoginScreenContent(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(Modifier.height(26.dp))
+            Spacer(Modifier.height(Dimens.dp26))
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -87,10 +89,10 @@ fun LoginScreenContent(
                 placeholder = { Text(stringResource(R.string.login_email_hint)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(Dimens.dp28)
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Dimens.dp12))
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -108,7 +110,7 @@ fun LoginScreenContent(
                         )
                     }
                 },
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(Dimens.dp28)
             )
 
             TextButton(
@@ -119,26 +121,26 @@ fun LoginScreenContent(
             }
 
             error?.let {
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(Dimens.dp10))
                 Text(it, color = MaterialTheme.colorScheme.error)
             }
 
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(Dimens.dp28))
 
             Button(
                 onClick = onLoginClick,
                 enabled = !loading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(28.dp)
+                    .height(Dimens.dp52),
+                shape = RoundedCornerShape(Dimens.dp28)
             ) {
                 if (loading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp
+                        modifier = Modifier.size(Dimens.dp18),
+                        strokeWidth = Dimens.dp2
                     )
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.width(Dimens.dp10))
                 }
                 Text(stringResource(R.string.login_submit))
             }

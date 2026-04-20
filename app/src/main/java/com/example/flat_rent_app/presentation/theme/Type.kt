@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.theme
 
+import com.example.flat_rent_app.presentation.theme.TextSizes
+
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -11,24 +13,24 @@ val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        fontSize = TextSizes.sp16,
+        lineHeight = TextSizes.sp24,
+        letterSpacing = TextSizes.sp0_5
     )
     /* Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+        fontSize = TextSizes.sp22,
+        lineHeight = TextSizes.sp28,
+        letterSpacing = TextSizes.sp0
     ),
     labelSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        fontSize = TextSizes.sp11,
+        lineHeight = TextSizes.sp16,
+        letterSpacing = TextSizes.sp0_5
     )
     */
 )
