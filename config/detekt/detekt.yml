@@ -49,7 +49,6 @@ style:
       - '**/jsTest/**'
       - '**/iosTest/**'
       - '**/*.kts'
-      - '**/presentation/**'
     ignorePropertyDeclaration: true
     ignoreLocalVariableDeclaration: true
     ignoreAnnotation: true

@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.settingsscreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -108,7 +110,7 @@ fun SettingsScreen(
             },
             title = { Text(stringResource(R.string.change_email)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(Dimens.dp8)) {
                     Text(stringResource(R.string.enter_new_email_and_current_password_confirm))
                     OutlinedTextField(
                         value = newEmail,
@@ -257,7 +259,7 @@ fun SettingsScreenContent(
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(Dimens.dp12)
                     ) {
                         Text(
                             text = state.error,
@@ -276,7 +278,7 @@ fun SettingsScreenContent(
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = Dimens.dp16, vertical = Dimens.dp8)
                         )
                         ListItem(
                             headlineContent = { Text(text = stringResource(R.string.matches_notifications)) },
@@ -298,14 +300,14 @@ fun SettingsScreenContent(
                             }
                         )
 
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = Dimens.dp8))
 
                         Text(
                             text = stringResource(R.string.external_view),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = Dimens.dp16, vertical = Dimens.dp8)
                         )
                         ListItem(
                             headlineContent = { Text(text = stringResource(R.string.dark_theme)) },
@@ -316,14 +318,14 @@ fun SettingsScreenContent(
                                 )
                             }
                         )
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = Dimens.dp8))
 
                         Text(
                             text = stringResource(R.string.account),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = Dimens.dp16, vertical = Dimens.dp8)
                         )
 
                         ListItem(
@@ -338,7 +340,7 @@ fun SettingsScreenContent(
                             modifier = Modifier.clickable { onOpenBlackList() }
                         )
 
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = Dimens.dp8))
 
 
                         Text(
@@ -346,7 +348,7 @@ fun SettingsScreenContent(
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = Dimens.dp16, vertical = Dimens.dp8)
                         )
 
                         ListItem(

@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.onboarding
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -65,6 +67,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.flat_rent_app.R
+
+private const val CHIP_FILL_FRACTION = 0.48f
 
 @Immutable
 data class OnboardingPalette(
@@ -178,13 +182,13 @@ fun OnboardingScreen(
         bottomBar = {
             Surface(
                 color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 10.dp
+                shadowElevation = Dimens.dp10
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .navigationBarsPadding()
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                        .padding(horizontal = Dimens.dp24, vertical = Dimens.dp16)
                 ) {
                     bottomBar()
                 }
@@ -196,18 +200,18 @@ fun OnboardingScreen(
                 .padding(padding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = Dimens.dp24),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(Dimens.dp8))
 
             androidx.compose.foundation.Image(
                 painter = painterResource(id = R.drawable.ic_login_home),
                 contentDescription = null,
-                modifier = Modifier.size(84.dp)
+                modifier = Modifier.size(Dimens.dp84)
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(Dimens.dp10))
 
             Text(
                 text = title,
@@ -215,7 +219,7 @@ fun OnboardingScreen(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(Dimens.dp18))
 
             Stepper(
                 step = step,
@@ -223,13 +227,13 @@ fun OnboardingScreen(
                 palette = palette
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(Dimens.dp24))
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                    .padding(bottom = Dimens.dp24),
+                verticalArrangement = Arrangement.spacedBy(Dimens.dp14),
                 content = content
             )
         }
@@ -253,7 +257,7 @@ private fun Stepper(
     step: Int,
     palette: OnboardingPalette,
     total: Int = 4,
-    circleSize: Dp = 28.dp,
+    circleSize: Dp = Dimens.dp28,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -274,8 +278,8 @@ private fun Stepper(
                 Box(
                     Modifier
                         .weight(1f)
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(999.dp))
+                        .height(Dimens.dp4)
+                        .clip(RoundedCornerShape(Dimens.dp999))
                         .background(if (i < step) palette.accent else palette.border)
                 )
             }
@@ -302,7 +306,7 @@ private fun StepCircle(
             .size(size)
             .clip(CircleShape)
             .background(background)
-            .border(1.dp, palette.border, CircleShape),
+            .border(Dimens.dp1, palette.border, CircleShape),
         contentAlignment = Alignment.Center
     ) {
         if (done) {
@@ -310,7 +314,7 @@ private fun StepCircle(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
                 tint = contentColor,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(Dimens.dp16)
             )
         } else {
             Text(
@@ -334,20 +338,20 @@ fun OnbBottomButtons(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(Dimens.dp12)
     ) {
         if (onBack != null) {
             OutlinedButton(
                 onClick = onBack,
                 modifier = Modifier
                     .weight(1f)
-                    .height(52.dp),
-                shape = RoundedCornerShape(28.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, palette.border),
-                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
+                    .height(Dimens.dp52),
+                shape = RoundedCornerShape(Dimens.dp28),
+                border = androidx.compose.foundation.BorderStroke(Dimens.dp1, palette.border),
+                contentPadding = PaddingValues(horizontal = Dimens.dp18, vertical = Dimens.dp12)
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(Dimens.dp18))
+                Spacer(Modifier.width(Dimens.dp8))
                 Text(backText, fontWeight = FontWeight.SemiBold)
             }
         }
@@ -357,17 +361,17 @@ fun OnbBottomButtons(
             enabled = nextEnabled,
             modifier = Modifier
                 .weight(if (onBack != null) 1f else 1f)
-                .height(52.dp),
-            shape = RoundedCornerShape(28.dp),
+                .height(Dimens.dp52),
+            shape = RoundedCornerShape(Dimens.dp28),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
             ),
-            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
+            contentPadding = PaddingValues(horizontal = Dimens.dp18, vertical = Dimens.dp12)
         ) {
             Text(nextText, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.width(8.dp))
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(Dimens.dp8))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(Dimens.dp18))
         }
     }
 }
@@ -382,28 +386,28 @@ fun ChipFlowRow(
 ) {
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.dp10),
+        verticalArrangement = Arrangement.spacedBy(Dimens.dp10),
         maxItemsInEachRow = 2
     ) {
         items.forEach { item ->
             val isSelected = item in selected
             Surface(
                 modifier = Modifier
-                    .fillMaxWidth(0.48f)
-                    .clip(RoundedCornerShape(24.dp)),
+                    .fillMaxWidth(CHIP_FILL_FRACTION)
+                    .clip(RoundedCornerShape(Dimens.dp24)),
                 color = if (isSelected) palette.accentContainer else MaterialTheme.colorScheme.surface,
                 contentColor = if (isSelected) palette.accent else MaterialTheme.colorScheme.onSurface,
                 onClick = { onToggle(item) },
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(Dimens.dp24),
                 border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
+                    Dimens.dp1,
                     if (isSelected) palette.accent else palette.border
                 )
             ) {
                 Text(
                     text = item,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    modifier = Modifier.padding(horizontal = Dimens.dp14, vertical = Dimens.dp12),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
@@ -424,15 +428,15 @@ fun AboutCardTextField(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(210.dp),
-        shape = RoundedCornerShape(28.dp),
+            .height(Dimens.dp210),
+        shape = RoundedCornerShape(Dimens.dp28),
         colors = CardDefaults.cardColors(containerColor = palette.cardGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = Dimens.dp0)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(Dimens.dp16)
         ) {
             if (value.isBlank()) {
                 Text(
@@ -466,9 +470,9 @@ fun PhotoSlotCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(Dimens.dp28),
         colors = CardDefaults.cardColors(containerColor = palette.cardGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = Dimens.dp0)
     ) {
         Box(Modifier.fillMaxSize()) {
             if (imageModel != null) {
@@ -477,14 +481,14 @@ fun PhotoSlotCard(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(28.dp)),
+                        .clip(RoundedCornerShape(Dimens.dp28)),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(14.dp),
+                        .padding(Dimens.dp14),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -492,9 +496,9 @@ fun PhotoSlotCard(
                         imageVector = Icons.Filled.CameraAlt,
                         contentDescription = null,
                         tint = palette.textSecondary,
-                        modifier = Modifier.size(26.dp)
+                        modifier = Modifier.size(Dimens.dp26)
                     )
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(Dimens.dp10))
                     Text(title, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
                     if (countText.isNotBlank()) {
                         Text(
@@ -516,11 +520,11 @@ fun OnbLabeledField(
     leadingIcon: @Composable (() -> Unit)? = null,
     field: @Composable () -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(Dimens.dp6)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (leadingIcon != null) {
                 leadingIcon()
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(Dimens.dp8))
             }
             Text(
                 text = label,
@@ -546,7 +550,7 @@ fun OnbOutlinedTextField(
     onClick: (() -> Unit)? = null,
     minLines: Int = 1,
 ) {
-    val shape = RoundedCornerShape(28.dp)
+    val shape = RoundedCornerShape(Dimens.dp28)
     OutlinedTextField(
         modifier = modifier
             .fillMaxWidth()

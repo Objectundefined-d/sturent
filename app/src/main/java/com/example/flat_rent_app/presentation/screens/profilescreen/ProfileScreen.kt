@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.profilescreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -71,7 +73,7 @@ fun ProfileScreenContent(
                 .fillMaxSize()
                 .padding(pad)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 24.dp),
+                .padding(horizontal = Dimens.dp24, vertical = Dimens.dp24),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -80,8 +82,8 @@ fun ProfileScreenContent(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(320.dp)
-                    .clip(RoundedCornerShape(20.dp))
+                    .height(Dimens.dp320)
+                    .clip(RoundedCornerShape(Dimens.dp20))
             ) {
                 if (photoUrls.isEmpty()) {
                     Box(
@@ -92,12 +94,12 @@ fun ProfileScreenContent(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(Dimens.dp8)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = null,
-                                modifier = Modifier.size(80.dp),
+                                modifier = Modifier.size(Dimens.dp80),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -119,13 +121,13 @@ fun ProfileScreenContent(
                         Row(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
-                                .padding(bottom = 12.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                .padding(bottom = Dimens.dp12),
+                            horizontalArrangement = Arrangement.spacedBy(Dimens.dp6)
                         ) {
                             photoUrls.indices.forEach { index ->
                                 Box(
                                     modifier = Modifier
-                                        .size(if (pagerState.currentPage == index) 8.dp else 6.dp)
+                                        .size(if (pagerState.currentPage == index) Dimens.dp8 else Dimens.dp6)
                                         .clip(CircleShape)
                                         .background(
                                             if (pagerState.currentPage == index)
@@ -140,7 +142,7 @@ fun ProfileScreenContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(Dimens.dp28))
 
             val ageText = age?.toString() ?: stringResource(R.string.not_specified)
             Text(
@@ -154,7 +156,7 @@ fun ProfileScreenContent(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
+                    modifier = Modifier.padding(top = Dimens.dp4, bottom = Dimens.dp24)
                 )
             }
 
@@ -162,12 +164,12 @@ fun ProfileScreenContent(
                 onClick = onEditQuestionnaire,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp)
+                    .padding(bottom = Dimens.dp24)
             ) {
                 Text(stringResource(R.string.edit_questionnaire))
             }
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(Dimens.dp64))
 
             Button(
                 onClick = onSignOut,

@@ -1,5 +1,9 @@
 package com.example.flat_rent_app.presentation.screens.profiledetailscreen
 
+import com.example.flat_rent_app.presentation.theme.TextSizes
+
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -81,12 +85,12 @@ fun ProfileDetailContent(
                 .padding(paddingValues)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(Dimens.dp16)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .height(Dimens.dp300)
             ) {
                 if (profile.photoUrl != null) {
                     AsyncImage(
@@ -113,12 +117,12 @@ fun ProfileDetailContent(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(24.dp),
+                        .padding(Dimens.dp24),
                     contentAlignment = Alignment.BottomStart
                 ) {
                     Text(
                         text = "${profile.name}, ${profile.age}",
-                        fontSize = 36.sp,
+                        fontSize = TextSizes.sp36,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
@@ -128,12 +132,12 @@ fun ProfileDetailContent(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = Dimens.dp16),
                 shape = MaterialTheme.shapes.medium
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.padding(Dimens.dp20),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.dp16)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -142,18 +146,18 @@ fun ProfileDetailContent(
                             Icons.Default.LocationOn,
                             contentDescription = "Город",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(Dimens.dp24)
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(Dimens.dp12))
                         Column {
                             Text(
                                 stringResource(R.string.location),
-                                fontSize = 14.sp,
+                                fontSize = TextSizes.sp14,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 text = profile.city,
-                                fontSize = 18.sp,
+                                fontSize = TextSizes.sp18,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -168,18 +172,18 @@ fun ProfileDetailContent(
                             Icons.Default.School,
                             contentDescription = "Образование",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(Dimens.dp24)
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(Dimens.dp12))
                         Column {
                             Text(
                                 stringResource(R.string.education),
-                                fontSize = 14.sp,
+                                fontSize = TextSizes.sp14,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 text = profile.university,
-                                fontSize = 18.sp,
+                                fontSize = TextSizes.sp18,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -190,14 +194,14 @@ fun ProfileDetailContent(
                     Column {
                         Text(
                             stringResource(R.string.about_yourself),
-                            fontSize = 14.sp,
+                            fontSize = TextSizes.sp14,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Dimens.dp8))
                         Text(
                             text = profile.description,
-                            fontSize = 16.sp,
-                            lineHeight = 24.sp
+                            fontSize = TextSizes.sp16,
+                            lineHeight = TextSizes.sp24
                         )
                     }
 
@@ -205,13 +209,13 @@ fun ProfileDetailContent(
                     Column {
                         Text(
                             stringResource(R.string.looking_for),
-                            fontSize = 14.sp,
+                            fontSize = TextSizes.sp14,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Dimens.dp8))
                         Text(
                             text = profile.lookingFor,
-                            fontSize = 16.sp,
+                            fontSize = TextSizes.sp16,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -240,7 +244,7 @@ fun ProfileDetailContent(
                     }
                 }
             }
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(Dimens.dp32))
         }
     }
 }
