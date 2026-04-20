@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.onboarding
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -45,8 +47,8 @@ fun OnbAboutScreen(
         }
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(horizontal = Dimens.dp16),
+            verticalArrangement = Arrangement.spacedBy(Dimens.dp12)
         ) {
             AboutCardTextField(
                 value = state.description,
@@ -63,8 +65,8 @@ fun OnbAboutScreen(
                 )
             }
             if (state.loading) {
-                Spacer(Modifier.size(4.dp))
-                CircularProgressIndicator(modifier = Modifier.size(22.dp))
+                Spacer(Modifier.size(Dimens.dp4))
+                CircularProgressIndicator(modifier = Modifier.size(Dimens.dp22))
             }
         }
     }

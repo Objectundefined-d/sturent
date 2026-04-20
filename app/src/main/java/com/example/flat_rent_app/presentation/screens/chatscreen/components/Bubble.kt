@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.chatscreen.components
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -42,7 +44,7 @@ fun Bubble(
         horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
     ) {
         Surface(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(Dimens.dp16),
             color = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier.combinedClickable(
                 onClick = {},
@@ -50,9 +52,9 @@ fun Bubble(
             )
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = Dimens.dp12, vertical = Dimens.dp8),
                 verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.dp4)
             ) {
                 Text(
                     text = msg.text,
@@ -77,25 +79,25 @@ fun Bubble(
                             Icons.Default.Schedule,
                             contentDescription = null,
                             tint = iconColor,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(Dimens.dp14)
                         )
                         MessageStatus.SENT -> Icon(
                             Icons.Default.Check,
                             contentDescription = null,
                             tint = iconColor,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(Dimens.dp14)
                         )
                         MessageStatus.READ -> Icon(
                             Icons.Default.DoneAll,
                             contentDescription = null,
                             tint = iconColor,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(Dimens.dp14)
                         )
                         MessageStatus.FAILED -> Icon(
                             Icons.Default.ErrorOutline,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(Dimens.dp14)
                         )
                     }
                 }

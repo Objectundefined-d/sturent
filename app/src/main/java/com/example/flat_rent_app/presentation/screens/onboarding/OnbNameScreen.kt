@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.onboarding
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,8 +66,8 @@ fun OnbNameScreenContent(
         }
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            modifier = Modifier.padding(horizontal = Dimens.dp16),
+            verticalArrangement = Arrangement.spacedBy(Dimens.dp14)
         ) {
             OnbFieldLabel(label = stringResource(R.string.onb_name_question), icon = OnbIcon.Person)
             OnbTextField(
@@ -112,11 +114,11 @@ fun OnbNameScreenContent(
             Text(
                 text = stringResource(R.string.onb_gender_label),
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 4.dp)
+                modifier = Modifier.padding(bottom = Dimens.dp4)
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.dp16)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
@@ -210,7 +212,7 @@ fun OnbNameScreenContent(
                     fontWeight = FontWeight.Medium
                 )
             }
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(Dimens.dp2))
         }
     }
 }

@@ -1,7 +1,10 @@
 package com.example.flat_rent_app.presentation.screens.mainscreen
 
+import com.example.flat_rent_app.presentation.theme.TextSizes
+
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -30,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -53,12 +55,26 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.graphics.luminance
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
+import com.example.flat_rent_app.presentation.theme.CardShadow
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.theme.LikeGreen
+import com.example.flat_rent_app.presentation.theme.NopeRed
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainScreenState
 
-val LikeGreen = Color(0xFF38D986)
-private val NopeRed = Color(0xFFFF4458)
-private val CardShadow = Color(0x22000000)
+private val CardBackgroundLight = Color(0xFFFFFFFF)
+private val CardBackgroundDark = Color(0xFF1C1C1E)
+private val CardPlaceholderTopDark = Color(0xFF2C2C2E)
+private val CardPlaceholderTopLight = Color(0xFFEAE7F5)
+private const val SWIPE_ROTATION_DIVISOR = 25f
+private const val SWIPE_ROTATION_LIMIT = 22f
+private const val SWIPE_OFFSCREEN_OFFSET = 2400f
+private const val SWIPE_OFFSCREEN_ANIMATION_MS = 320
+private const val SWIPE_RESET_ANIMATION_MS = 380
+private const val NEXT_CARD_SCALE = 0.93f
+private const val NEXT_CARD_TRANSLATION_Y = 20f
+private val CardBottomGradient = Color.Black.copy(alpha = 0.8f)
 
 @Composable
 fun SwipeableProfileCard(
@@ -70,13 +86,14 @@ fun SwipeableProfileCard(
     val offsetX = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
-    val threshold = with(density) { 110.dp.toPx() }
+    val threshold = with(density) { Dimens.dp110.toPx() }
 
     Box(
         modifier = modifier
             .graphicsLayer {
                 translationX = offsetX.value
-                rotationZ = (offsetX.value / 25f).coerceIn(-22f, 22f)
+                rotationZ = (offsetX.value / SWIPE_ROTATION_DIVISOR)
+                    .coerceIn(-SWIPE_ROTATION_LIMIT, SWIPE_ROTATION_LIMIT)
             }
             .pointerInput(Unit) {
                 detectDragGestures(
@@ -90,19 +107,19 @@ fun SwipeableProfileCard(
                         scope.launch {
                             when {
                                 offsetX.value > threshold -> {
-                                    offsetX.animateTo(2400f, tween(320))
+                                    offsetX.animateTo(SWIPE_OFFSCREEN_OFFSET, tween(SWIPE_OFFSCREEN_ANIMATION_MS))
                                     onSwipeRight()
                                     offsetX.snapTo(0f)
                                 }
 
                                 offsetX.value < -threshold -> {
-                                    offsetX.animateTo(-2400f, tween(320))
+                                    offsetX.animateTo(-SWIPE_OFFSCREEN_OFFSET, tween(SWIPE_OFFSCREEN_ANIMATION_MS))
                                     onSwipeLeft()
                                     offsetX.snapTo(0f)
                                 }
 
                                 else -> {
-                                    offsetX.animateTo(0f, tween(380))
+                                    offsetX.animateTo(0f, tween(SWIPE_RESET_ANIMATION_MS))
                                 }
                             }
                         }
@@ -131,13 +148,15 @@ fun ProfileCard(
     description: String,
     photoUrl: String? = null,
 ) {
+    val isDarkPalette = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .shadow(16.dp, RoundedCornerShape(24.dp), ambientColor = CardShadow)
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF1C1C1E))
+            .padding(horizontal = Dimens.dp16, vertical = Dimens.dp8)
+            .shadow(Dimens.dp16, RoundedCornerShape(Dimens.dp24), ambientColor = CardShadow)
+            .clip(RoundedCornerShape(Dimens.dp24))
+            .background(if (isDarkPalette) CardBackgroundDark else CardBackgroundLight)
     ) {
         if (photoUrl != null) {
             AsyncImage(
@@ -152,13 +171,16 @@ fun ProfileCard(
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color(0xFF2C2C2E), Color(0xFF1C1C1E))
+                            listOf(
+                                if (isDarkPalette) CardPlaceholderTopDark else CardPlaceholderTopLight,
+                                if (isDarkPalette) CardBackgroundDark else CardBackgroundLight
+                            )
                         )
                     )
             ) {
                 Text(
-                    text = "👤",
-                    fontSize = 96.sp,
+                    text = stringResource(R.string.default_photo),
+                    fontSize = TextSizes.sp96,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
@@ -172,7 +194,7 @@ fun ProfileCard(
                         colors = listOf(
                             Color.Transparent,
                             Color.Transparent,
-                            Color(0xCC000000)
+                            CardBottomGradient
                         )
                     )
                 )
@@ -182,17 +204,18 @@ fun ProfileCard(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+                .padding(horizontal = Dimens.dp20, vertical = Dimens.dp20),
+            verticalArrangement = Arrangement.spacedBy(Dimens.dp6)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                val ageText = age?.toString() ?: stringResource(R.string.not_specified)
                 Text(
-                    text = "$name, $age",
-                    fontSize = 28.sp,
+                    text = stringResource(R.string.user_name_age_format, name, ageText),
+                    fontSize = TextSizes.sp28,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
@@ -203,10 +226,10 @@ fun ProfileCard(
                     Icons.Default.LocationOn,
                     contentDescription = null,
                     tint = Color.White.copy(alpha = 0.8f),
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(Dimens.dp16)
                 )
-                Spacer(Modifier.width(4.dp))
-                Text(city, color = Color.White.copy(alpha = 0.9f), fontSize = 15.sp)
+                Spacer(Modifier.width(Dimens.dp4))
+                Text(city, color = Color.White.copy(alpha = 0.9f), fontSize = TextSizes.sp15)
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -214,23 +237,23 @@ fun ProfileCard(
                     Icons.Default.School,
                     contentDescription = null,
                     tint = Color.White.copy(alpha = 0.8f),
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(Dimens.dp16)
                 )
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(Dimens.dp4))
                 Text(
                     text = university,
                     color = Color.White.copy(alpha = 0.9f),
-                    fontSize = 15.sp,
+                    fontSize = TextSizes.sp15,
                     maxLines = 1
                 )
             }
 
             if (description.isNotBlank()) {
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(Dimens.dp4))
                 Text(
                     text = description,
                     color = Color.White.copy(alpha = 0.75f),
-                    fontSize = 14.sp,
+                    fontSize = TextSizes.sp14,
                     maxLines = 2
                 )
             }
@@ -248,45 +271,45 @@ private fun ActionButtons(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp, vertical = 16.dp),
+            .padding(horizontal = Dimens.dp32, vertical = Dimens.dp16),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
         FloatingActionButton(
             onClick = onSwipeLeft,
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
             contentColor = NopeRed,
             shape = CircleShape,
-            modifier = Modifier.size(64.dp),
-            elevation = FloatingActionButtonDefaults.elevation(6.dp)
+            modifier = Modifier.size(Dimens.dp64),
+            elevation = FloatingActionButtonDefaults.elevation(Dimens.dp6)
         ) {
             Icon(
                 Icons.Default.Close,
                 contentDescription = stringResource(R.string.action_register),
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(Dimens.dp30)
             )
         }
 
         FloatingActionButton(
             onClick = onAddToFavorites,
-            containerColor = Color.White,
-            contentColor = Color(0xFF636366),
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             shape = CircleShape,
-            modifier = Modifier.size(48.dp),
-            elevation = FloatingActionButtonDefaults.elevation(4.dp)
+            modifier = Modifier.size(Dimens.dp48),
+            elevation = FloatingActionButtonDefaults.elevation(Dimens.dp4)
         ) {
-            Icon(Icons.Default.StarRate, contentDescription = stringResource(R.string.favorites), modifier = Modifier.size(22.dp))
+            Icon(Icons.Default.StarRate, contentDescription = stringResource(R.string.favorites), modifier = Modifier.size(Dimens.dp22))
         }
 
         FloatingActionButton(
             onClick = onInfo,
-            containerColor = Color.White,
-            contentColor = Color(0xFF636366),
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             shape = CircleShape,
-            modifier = Modifier.size(48.dp),
-            elevation = FloatingActionButtonDefaults.elevation(4.dp)
+            modifier = Modifier.size(Dimens.dp48),
+            elevation = FloatingActionButtonDefaults.elevation(Dimens.dp4)
         ) {
-            Icon(Icons.Default.Info, contentDescription = stringResource(R.string.about_me), modifier = Modifier.size(22.dp))
+            Icon(Icons.Default.Info, contentDescription = stringResource(R.string.about_me), modifier = Modifier.size(Dimens.dp22))
         }
 
         FloatingActionButton(
@@ -294,13 +317,13 @@ private fun ActionButtons(
             containerColor = LikeGreen,
             contentColor = Color.White,
             shape = CircleShape,
-            modifier = Modifier.size(64.dp),
-            elevation = FloatingActionButtonDefaults.elevation(6.dp)
+            modifier = Modifier.size(Dimens.dp64),
+            elevation = FloatingActionButtonDefaults.elevation(Dimens.dp6)
         ) {
             Icon(
                 Icons.Default.Favorite,
                 contentDescription = stringResource(R.string.action_login),
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(Dimens.dp30)
             )
         }
     }
@@ -310,11 +333,11 @@ private fun ActionButtons(
 fun LoadingView() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(Dimens.dp16),
         modifier = Modifier.fillMaxWidth()
     ) {
         CircularProgressIndicator(color = LikeGreen)
-        Text(stringResource(R.string.loading), color = Color.Gray, fontSize = 15.sp)
+        Text(stringResource(R.string.loading), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = TextSizes.sp15)
     }
 }
 
@@ -322,11 +345,11 @@ fun LoadingView() {
 fun ErrorView(error: String, onRetry: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.padding(24.dp)
+        verticalArrangement = Arrangement.spacedBy(Dimens.dp16),
+        modifier = Modifier.padding(Dimens.dp24)
     ) {
         Text(stringResource(R.string.smth_wrong), style = MaterialTheme.typography.headlineSmall)
-        Text(error, color = Color.Gray, fontSize = 14.sp)
+        Text(error, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = TextSizes.sp14)
         Button(onClick = onRetry) { Text(stringResource(R.string.repeat)) }
     }
 }
@@ -335,9 +358,9 @@ fun ErrorView(error: String, onRetry: () -> Unit) {
 fun EmptyView() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(Dimens.dp12)
     ) {
-        Text(stringResource(R.string.all_viewed), color = Color.Gray, fontSize = 16.sp)
+        Text(stringResource(R.string.all_viewed), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = TextSizes.sp16)
     }
 }
 
@@ -345,12 +368,12 @@ fun EmptyView() {
 fun AllViewedView(onRetry: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(24.dp)
+        verticalArrangement = Arrangement.spacedBy(Dimens.dp12),
+        modifier = Modifier.padding(Dimens.dp24)
     ) {
         Text(stringResource(R.string.all_viewed), style = MaterialTheme.typography.headlineSmall)
-        Text(stringResource(R.string.message), color = Color.Gray, fontSize = 14.sp)
-        Spacer(Modifier.height(8.dp))
+        Text(stringResource(R.string.message), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = TextSizes.sp14)
+        Spacer(Modifier.height(Dimens.dp8))
         Button(onClick = onRetry) { Text(stringResource(R.string.repeat)) }
     }
 }
@@ -420,9 +443,9 @@ fun MainScreenContent(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .graphicsLayer {
-                                        scaleX = 0.93f
-                                        scaleY = 0.93f
-                                        translationY = 20f
+                                        scaleX = NEXT_CARD_SCALE
+                                        scaleY = NEXT_CARD_SCALE
+                                        translationY = NEXT_CARD_TRANSLATION_Y
                                     }
                             ) {
                                 ProfileCard(
@@ -467,7 +490,7 @@ fun FilterButton(
     IconButton(onClick = onClick, modifier = modifier) {
         Icon(
             Icons.Default.FilterAlt,
-            contentDescription = "Открыть фильтры"
+            contentDescription = stringResource(R.string.open_filters)
         )
     }
 }
@@ -495,10 +518,16 @@ fun MainScreen(
 
     if (state.showProfileDetails) {
         val profile = state.selectedProfile
+
         if (profile != null) {
             ProfileDetailScreen(
                 profile = profile,
-                onBack = viewModel::closeProfileDetails
+                onBack = viewModel::closeProfileDetails,
+                onAddToSkipList = { viewModel.addToSkipList(profile.uid) },
+                onAddToBlackList = { },
+                onUnblock = { },
+                isBlocked = false,
+                mode = ProfileScreenMode.FROMSWIPE
             )
             return
         }
@@ -567,10 +596,10 @@ fun FiltersScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Фильтры") },
+                title = { Text(stringResource(R.string.filters)) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(Icons.Default.Close, contentDescription = "Закрыть")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                     }
                 }
             )
@@ -580,23 +609,27 @@ fun FiltersScreen(
             modifier = Modifier
                 .padding(pad)
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+                .padding(Dimens.dp16),
+            verticalArrangement = Arrangement.spacedBy(Dimens.dp24)
         ) {
-            Text("ВУЗ", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.vuz), fontWeight = FontWeight.Bold)
             DropdownMenuForUniversity(
                 selectedUniversity = selectedUniversity,
                 onSelect = { selectedUniversity = it }
             )
 
-            Text("Пол", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.sex), fontWeight = FontWeight.Bold)
             GenderRadioGroup(
                 selectedGender = selectedGender,
                 onSelect = { selectedGender = it }
             )
 
             Text(
-                text = "Возраст: ${ageRange.start.toInt()}–${ageRange.endInclusive.toInt()}",
+                text = stringResource(
+                    R.string.age_range_format,
+                    ageRange.start.toInt(),
+                    ageRange.endInclusive.toInt()
+                ),
                 fontWeight = FontWeight.Bold
             )
             AgeRangeSlider(
@@ -614,7 +647,7 @@ fun FiltersScreen(
                     selectedUniversity = Constants.UNIVERSITY_ALL
                     selectedGender = Constants.GENDER_ANY
                     ageRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat()
-                }) { Text("Сбросить") }
+                }) { Text(stringResource(R.string.reset)) }
 
                 Button(onClick = {
                     onApplyFilters(
@@ -623,7 +656,7 @@ fun FiltersScreen(
                         ageRange.start.toInt(),
                         ageRange.endInclusive.toInt()
                     )
-                }) { Text("Применить") }
+                }) { Text(stringResource(R.string.apply)) }
             }
         }
     }
@@ -655,14 +688,16 @@ fun GenderRadioGroup(
     selectedGender: String,
     onSelect: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(Dimens.dp8)) {
         Constants.GENDERS_LIST.forEach { gender ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = Dimens.dp4)
             ) {
                 RadioButton(selected = selectedGender == gender, onClick = { onSelect(gender) })
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(Dimens.dp8))
                 Text(gender)
             }
         }

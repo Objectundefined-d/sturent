@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.chatscreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -21,14 +23,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.domain.model.Message
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.Bubble
 import com.example.flat_rent_app.presentation.screens.chatscreen.components.InputBar
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileDetailScreen
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.viewmodel.blacklistviewmodel.BlackListViewModel
 import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatUiState
 import com.example.flat_rent_app.presentation.viewmodel.chatviewmodel.ChatViewModel
 import kotlinx.coroutines.delay
@@ -37,17 +45,48 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+private const val DATE_OVERLAY_HIDE_DELAY_MS = 1000L
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     onBack: () -> Unit,
-    viewmodel: ChatViewModel = hiltViewModel()
+    viewmodel: ChatViewModel = hiltViewModel(),
+    blacklistviewmodel: BlackListViewModel = hiltViewModel()
 ) {
     val state by viewmodel.state.collectAsState()
     val messages by viewmodel.messages.collectAsState()
     val otherProfile by viewmodel.otherProfile.collectAsState()
 
+    val blackListState = blacklistviewmodel.state.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) { viewmodel.markRead() }
+
+    LaunchedEffect(state.showProfileDetails) {
+        if (state.showProfileDetails) {
+            otherProfile?.uid?.let { blacklistviewmodel.checkIsBlocked(it) }
+        }
+    }
+
+    if (state.showProfileDetails) {
+        val profile = otherProfile?.toSwipeProfile()
+        if (profile != null) {
+            ProfileDetailScreen(
+                profile = profile,
+                onBack = viewmodel::closeProfileDetails,
+                onAddToSkipList = {  },
+                onAddToBlackList = {
+                    otherProfile?.uid?.let { blacklistviewmodel.blockUser(it) }
+                },
+                onUnblock = {
+                    otherProfile?.uid?.let { blacklistviewmodel.unblockUser(it) }
+                },
+                isBlocked =  blackListState.value.profileBlocked,
+                mode = ProfileScreenMode.FROMCHAT
+            )
+            return
+        }
+    }
 
     ChatScreenContent(
         state = state,
@@ -58,7 +97,8 @@ fun ChatScreen(
         onSend = viewmodel::send,
         onDeleteMessage = { msgId, forBoth -> viewmodel.deleteMessage(msgId, forBoth) },
         onClearHistory = { forBoth -> viewmodel.clearHistory(forBoth) },
-        onEditMessage = { msgId, text -> viewmodel.editMessage(msgId, text) }
+        onEditMessage = { msgId, text -> viewmodel.editMessage(msgId, text) },
+        onOpenProfileDetails = viewmodel::openProfile
     )
 }
 
@@ -73,7 +113,8 @@ fun ChatScreenContent(
     onSend: () -> Unit,
     onDeleteMessage: (messageId: String, forBoth: Boolean) -> Unit,
     onClearHistory: (forBoth: Boolean) -> Unit,
-    onEditMessage: (messageId: String, newText: String) -> Unit
+    onEditMessage: (messageId: String, newText: String) -> Unit,
+    onOpenProfileDetails: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
@@ -87,7 +128,7 @@ fun ChatScreenContent(
 
     LaunchedEffect(isScrolling) {
         if (isScrolling) showDateOverlay = true
-        else { delay(1000); showDateOverlay = false }
+        else { delay(DATE_OVERLAY_HIDE_DELAY_MS); showDateOverlay = false }
     }
 
     val firstVisibleIndex by remember { derivedStateOf { listState.firstVisibleItemIndex } }
@@ -99,7 +140,7 @@ fun ChatScreenContent(
         var editText by remember { mutableStateOf(selectedMessage!!.text) }
         AlertDialog(
             onDismissRequest = { showEditDialog = false },
-            title = { Text("Редактировать сообщение") },
+            title = { Text(stringResource(R.string.edit_the_message)) },
             text = {
                 OutlinedTextField(
                     value = editText,
@@ -112,30 +153,38 @@ fun ChatScreenContent(
                     onEditMessage(selectedMessage!!.messageId, editText)
                     showEditDialog = false
                     selectedMessage = null
-                }) { Text("Сохранить") }
+                }) { Text(stringResource(R.string.save)) }
             },
             dismissButton = {
-                TextButton(onClick = { showEditDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showEditDialog = false }) { Text(text = stringResource(R.string.cancel)) }
             }
         )
     }
 
     if (showReadTimeDialog && selectedMessage != null) {
+        val message = selectedMessage ?: return
+        val sentDateString = SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
+            .format(Date(message.createdAt))
+        val readDateString = message.readAt?.let {
+            SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault()).format(Date(it))
+        }
         AlertDialog(
             onDismissRequest = { showReadTimeDialog = false },
-            title = { Text("Информация о сообщении") },
+            title = { Text(stringResource(R.string.information_about_message)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Отправлено: ${SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
-                        .format(Date(selectedMessage!!.createdAt))}")
-                    selectedMessage!!.readAt?.let {
-                        Text("Прочитано: ${SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())
-                            .format(Date(it))}")
-                    } ?: Text("Не прочитано")
+                Column(verticalArrangement = Arrangement.spacedBy(Dimens.dp4)) {
+                    Text(stringResource(R.string.sent_at, sentDateString))
+                    if (readDateString != null) {
+                        Text(stringResource(R.string.read_at, readDateString))
+                    } else {
+                        Text(stringResource(R.string.not_readed))
+                    }
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showReadTimeDialog = false }) { Text("OK") }
+                TextButton(onClick = { showReadTimeDialog = false }) {
+                    Text(stringResource(R.string.ok))
+                }
             }
         )
     }
@@ -149,10 +198,10 @@ fun ChatScreenContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 32.dp)
+                    .padding(bottom = Dimens.dp32)
             ) {
                 ListItem(
-                    headlineContent = { Text("Копировать") },
+                    headlineContent = { Text(text = stringResource(R.string.copy)) },
                     leadingContent = { Icon(Icons.Default.ContentCopy, null) },
                     modifier = Modifier.clickable {
                         clipboardManager.setText(AnnotatedString(selectedMessage!!.text))
@@ -161,17 +210,17 @@ fun ChatScreenContent(
                 )
                 if (selectedMessage!!.senderUid == state.myUid) {
                     ListItem(
-                        headlineContent = { Text("Редактировать") },
+                        headlineContent = { Text(text = stringResource(R.string.edit)) },
                         leadingContent = { Icon(Icons.Default.Edit, null) },
                         modifier = Modifier.clickable { showEditDialog = true }
                     )
                     ListItem(
-                        headlineContent = { Text("Время прочтения") },
+                        headlineContent = { Text(stringResource(R.string.read_time)) },
                         leadingContent = { Icon(Icons.Default.DoneAll, null) },
                         modifier = Modifier.clickable { showReadTimeDialog = true }
                     )
                     ListItem(
-                        headlineContent = { Text("Удалить у себя") },
+                        headlineContent = { Text(stringResource(R.string.delete_for_you)) },
                         leadingContent = {
                             Icon(Icons.Default.Delete, null,
                                 tint = MaterialTheme.colorScheme.error)
@@ -183,7 +232,7 @@ fun ChatScreenContent(
                     )
                     ListItem(
                         headlineContent = {
-                            Text("Удалить у всех", color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.delete_for_both), color = MaterialTheme.colorScheme.error)
                         },
                         leadingContent = {
                             Icon(Icons.Default.Delete, null,
@@ -196,7 +245,7 @@ fun ChatScreenContent(
                     )
                 } else {
                     ListItem(
-                        headlineContent = { Text("Удалить у себя") },
+                        headlineContent = { Text(stringResource(R.string.delete_for_you)) },
                         leadingContent = {
                             Icon(Icons.Default.Delete, null,
                                 tint = MaterialTheme.colorScheme.error)
@@ -214,30 +263,31 @@ fun ChatScreenContent(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Очистить историю?") },
-            text = { Text("Выберите способ очистки") },
+            title = { Text(stringResource(R.string.delete_history)) },
+            text = { Text(stringResource(R.string.choose_cleaning_method)) },
             confirmButton = {
                 TextButton(onClick = {
                     onClearHistory(true)
                     showClearDialog = false
-                }) { Text("У всех", color = MaterialTheme.colorScheme.error) }
+                }) { Text(stringResource(R.string.for_both), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { showClearDialog = false }) { Text("Отмена") }
+                    TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.cancel)) }
                     TextButton(onClick = {
                         onClearHistory(false)
                         showClearDialog = false
-                    }) { Text("Только у меня") }
+                    }) { Text(stringResource(R.string.only_for_me)) }
                 }
             }
         )
     }
 
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = title) },
+                title = { TextButton(onClick = onOpenProfileDetails ) { Text(text = title) } },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
@@ -252,7 +302,7 @@ fun ChatScreenContent(
                         onDismissRequest = { showMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Очистить историю") },
+                            text = { Text(stringResource(R.string.clean_history)) },
                             onClick = {
                                 showMenu = false
                                 showClearDialog = true
@@ -273,14 +323,16 @@ fun ChatScreenContent(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { pad ->
-        Box(modifier = Modifier.padding(pad).fillMaxSize()) {
+        Box(modifier = Modifier
+            .padding(pad)
+            .fillMaxSize()) {
             LazyColumn(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                    .padding(horizontal = Dimens.dp12),
+                verticalArrangement = Arrangement.spacedBy(Dimens.dp8),
+                contentPadding = PaddingValues(vertical = Dimens.dp12)
             ) {
                 items(messages, key = { it.messageId }) { msg ->
                     val index = messages.indexOf(msg)
@@ -295,17 +347,17 @@ fun ChatScreenContent(
                             contentAlignment = Alignment.Center
                         ) {
                             Surface(
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(Dimens.dp12),
                                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                             ) {
                                 Text(
                                     text = formatDateHeader(msg.createdAt),
                                     style = MaterialTheme.typography.labelSmall,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                                    modifier = Modifier.padding(horizontal = Dimens.dp12, vertical = Dimens.dp4)
                                 )
                             }
                         }
-                        Spacer(Modifier.height(4.dp))
+                        Spacer(Modifier.height(Dimens.dp4))
                     }
 
                     Bubble(
@@ -320,18 +372,18 @@ fun ChatScreenContent(
                 visible = showDateOverlay && currentDateHeader.isNotBlank(),
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 8.dp),
+                    .padding(top = Dimens.dp8),
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(Dimens.dp12),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                 ) {
                     Text(
                         text = currentDateHeader,
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = Dimens.dp12, vertical = Dimens.dp4)
                     )
                 }
             }
@@ -379,7 +431,8 @@ fun ChatScreenPreviewLight() {
             onSend = {},
             onDeleteMessage = { _, _ -> },
             onClearHistory = {},
-            onEditMessage = { _, _ -> }
+            onEditMessage = { _, _ -> },
+            onOpenProfileDetails = {}
         )
     }
 }
@@ -408,7 +461,8 @@ fun ChatScreenPreviewDark() {
             onSend = {},
             onDeleteMessage = { _, _ -> },
             onClearHistory = {},
-            onEditMessage = { _, _ -> }
+            onEditMessage = { _, _ -> },
+            onOpenProfileDetails = {}
         )
     }
 }

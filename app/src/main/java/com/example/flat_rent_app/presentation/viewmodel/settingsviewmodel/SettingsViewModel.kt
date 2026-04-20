@@ -136,4 +136,8 @@ class SettingsViewModel @Inject constructor(
     fun consumeEmailUpdate() {
         _state.update { it.copy(emailUpdateSent = false) }
     }
+
+    fun openBlackList() {
+        _state.update { it.copy(showBlackList = true) }
+    }
 }

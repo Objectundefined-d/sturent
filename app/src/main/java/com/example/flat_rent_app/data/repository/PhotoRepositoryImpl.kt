@@ -52,7 +52,7 @@ class PhotoRepositoryImpl @Inject constructor(
                 val response = api.uploadPhoto("Bearer $token", part)
 
                 if (response.isSuccessful && response.body()?.success == true) {
-                    val imageUrl = response.body()!!.data.file_url
+                    val imageUrl = response.body()!!.data.fileUrl
                     val fullUrl = if (imageUrl.startsWith("http")) imageUrl else BASE_URL + imageUrl
                     Result.success(fullUrl)
                 } else {
@@ -82,10 +82,10 @@ class PhotoRepositoryImpl @Inject constructor(
                 if (response.isSuccessful && response.body()?.success == true) {
                     val uploadData = response.body()!!.data
                     val photo = ProfilePhoto(
-                        fullUrl = if (uploadData.file_url.startsWith("http"))
-                            uploadData.file_url
+                        fullUrl = if (uploadData.fileUrl.startsWith("http"))
+                            uploadData.fileUrl
                         else
-                            BASE_URL + uploadData.file_url,
+                            BASE_URL + uploadData.fileUrl,
                         thumbUrl = null,
                         updatedAt = System.currentTimeMillis()
                     )
@@ -184,7 +184,7 @@ class PhotoRepositoryImpl @Inject constructor(
             inputStream?.close()
             file
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("PhotoRepositoryImpl", "uriToFile failed", e)
             null
         }
     }

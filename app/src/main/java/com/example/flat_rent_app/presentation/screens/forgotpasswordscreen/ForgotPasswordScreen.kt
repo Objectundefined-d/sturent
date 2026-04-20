@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.forgotpasswordscreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -91,8 +93,8 @@ fun ForgotPasswordScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(pad)
-                .padding(horizontal = 24.dp)
-                .padding(top = 24.dp)
+                .padding(horizontal = Dimens.dp24)
+                .padding(top = Dimens.dp24)
         ) {
             Text(
                 text = stringResource(R.string.password_recovery),
@@ -100,7 +102,7 @@ fun ForgotPasswordScreenContent(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Dimens.dp8))
 
             Text(
                 text = stringResource(R.string.instructions),
@@ -108,7 +110,7 @@ fun ForgotPasswordScreenContent(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(Dimens.dp32))
 
             OutlinedTextField(
                 value = email,
@@ -126,7 +128,7 @@ fun ForgotPasswordScreenContent(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimens.dp16))
 
             Button(
                 onClick = onSend,
@@ -135,8 +137,8 @@ fun ForgotPasswordScreenContent(
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(Dimens.dp20),
+                        strokeWidth = Dimens.dp2,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {

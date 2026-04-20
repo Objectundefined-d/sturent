@@ -1,5 +1,9 @@
 package com.example.flat_rent_app.presentation.screens.editquestionnairescreen
 
+import com.example.flat_rent_app.presentation.theme.TextSizes
+
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -40,6 +44,8 @@ import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.ProfilePhoto
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import com.example.flat_rent_app.presentation.viewmodel.editquestionnaire.EditQuestionnaireViewModel
+
+private val MainPhotoStarColor = Color(0xFFFFD700)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,12 +92,12 @@ fun EditQuestionnaireScreenContent(
         bottomBar = {
             Surface(
                 color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 2.dp
+                tonalElevation = Dimens.dp2
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(Dimens.dp16),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     OutlinedButton(
@@ -113,9 +119,9 @@ fun EditQuestionnaireScreenContent(
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
+                                modifier = Modifier.size(Dimens.dp20),
                                 color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp
+                                strokeWidth = Dimens.dp2
                             )
                         } else {
                             Text(stringResource(R.string.save))
@@ -133,19 +139,19 @@ fun EditQuestionnaireScreenContent(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(Dimens.dp16)
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                verticalArrangement = Arrangement.spacedBy(Dimens.dp24)
             ) {
                 Text(
                     text = stringResource(R.string.photos),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(bottom = 4.dp)
+                    modifier = Modifier.padding(bottom = Dimens.dp4)
                 )
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.dp10),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     (0..2).forEach { index ->
@@ -156,20 +162,20 @@ fun EditQuestionnaireScreenContent(
                         Column(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalArrangement = Arrangement.spacedBy(Dimens.dp4)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(110.dp)
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .height(Dimens.dp110)
+                                    .clip(RoundedCornerShape(Dimens.dp12))
                                     .background(MaterialTheme.colorScheme.surfaceVariant)
                                     .border(
-                                        width = if (isMain && hasPhoto) 2.dp else 0.dp,
+                                        width = if (isMain && hasPhoto) Dimens.dp2 else Dimens.dp0,
                                         color = if (isMain && hasPhoto)
                                             MaterialTheme.colorScheme.primary
                                         else Color.Transparent,
-                                        shape = RoundedCornerShape(12.dp)
+                                        shape = RoundedCornerShape(Dimens.dp12)
                                     )
                                     .clickable { onPickPhoto(index) },
                                 contentAlignment = Alignment.Center
@@ -185,7 +191,7 @@ fun EditQuestionnaireScreenContent(
                                         onClick = { onDeletePhoto(index) },
                                         modifier = Modifier
                                             .align(Alignment.TopEnd)
-                                            .size(28.dp)
+                                            .size(Dimens.dp28)
                                             .background(
                                                 MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
                                                 CircleShape
@@ -195,19 +201,19 @@ fun EditQuestionnaireScreenContent(
                                             Icons.Default.Close,
                                             contentDescription = stringResource(R.string.delete),
                                             tint = Color.White,
-                                            modifier = Modifier.size(14.dp)
+                                            modifier = Modifier.size(Dimens.dp14)
                                         )
                                     }
                                     Icon(
                                         imageVector = if (isMain) Icons.Default.Star
                                         else Icons.Outlined.StarOutline,
                                         contentDescription = stringResource(R.string.photo_set_main),
-                                        tint = if (isMain) Color(0xFFFFD700)
+                                        tint = if (isMain) MainPhotoStarColor
                                         else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                         modifier = Modifier
                                             .align(Alignment.BottomStart)
-                                            .padding(6.dp)
-                                            .size(20.dp)
+                                            .padding(Dimens.dp6)
+                                            .size(Dimens.dp20)
                                             .clickable { if (!isMain) onSetMainPhoto(index) }
                                     )
                                 } else {
@@ -215,7 +221,7 @@ fun EditQuestionnaireScreenContent(
                                         Icons.Default.Add,
                                         contentDescription = stringResource(R.string.photo_add),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(28.dp)
+                                        modifier = Modifier.size(Dimens.dp28)
                                     )
                                 }
                             }
@@ -227,7 +233,7 @@ fun EditQuestionnaireScreenContent(
                                     else -> stringResource(R.string.photo_add)
                                 },
                                 style = MaterialTheme.typography.labelSmall,
-                                fontSize = 10.sp,
+                                fontSize = TextSizes.sp10,
                                 color = if (isMain && hasPhoto)
                                     MaterialTheme.colorScheme.primary
                                 else MaterialTheme.colorScheme.onSurfaceVariant
@@ -274,13 +280,13 @@ fun EditQuestionnaireScreenContent(
                 )
 
                 Text(
-                    text = "Пол",
+                    text = stringResource(R.string.sex),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.dp16)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(
@@ -292,7 +298,7 @@ fun EditQuestionnaireScreenContent(
                             )
                         )
                         Text(
-                            "Мужской",
+                            stringResource(R.string.male),
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -306,7 +312,7 @@ fun EditQuestionnaireScreenContent(
                             )
                         )
                         Text(
-                            "Женский",
+                            stringResource(R.string.female),
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -379,7 +385,7 @@ fun EditQuestionnaireScreenContent(
                     placeholder = { Text(stringResource(R.string.hint_about)) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp),
+                        .height(Dimens.dp120),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline,
@@ -395,14 +401,14 @@ fun EditQuestionnaireScreenContent(
                     text = stringResource(R.string.habits_and_preferences),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    modifier = Modifier.padding(vertical = Dimens.dp8)
                 )
 
                 Column {
                     selectedHabits.keys.toList().chunked(2).forEach { rowHabits ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(Dimens.dp8)
                         ) {
                             rowHabits.forEach { habit ->
                                 val isSelected = selectedHabits[habit] ?: false

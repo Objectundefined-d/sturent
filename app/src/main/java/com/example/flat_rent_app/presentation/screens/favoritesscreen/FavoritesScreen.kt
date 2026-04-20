@@ -1,5 +1,9 @@
 package com.example.flat_rent_app.presentation.screens.favoritesscreen
 
+import com.example.flat_rent_app.presentation.theme.TextSizes
+
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -40,7 +44,15 @@ import com.example.flat_rent_app.presentation.viewmodel.favoritesviewmodel.Favor
 import com.example.flat_rent_app.util.BottomTabs
 import kotlinx.coroutines.launch
 import com.example.flat_rent_app.R
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.viewmodel.blacklistviewmodel.BlackListViewModel
+
+private const val SWIPE_HINT_THRESHOLD = 20f
+private const val SWIPE_OFFSCREEN_OFFSET = 2000f
+private const val SWIPE_ANIMATION_MS = 300
+private val SwipeLikeBackground = Color(0xFF38D986)
+private val SwipeNopeBackground = Color(0xFFFF4458)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,14 +60,30 @@ fun FavoritesScreen(
     onGoHome: () -> Unit,
     onGoProfile: () -> Unit,
     onGoChats: () -> Unit,
-    viewModel: FavoritesViewModel = hiltViewModel()
+    viewModel: FavoritesViewModel = hiltViewModel(),
+    blackListViewModel: BlackListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val blackListState by blackListViewModel.state.collectAsStateWithLifecycle()
 
     if (state.selectedProfile != null) {
+
+        LaunchedEffect(state.selectedProfile) {
+            state.selectedProfile?.uid?.let { blackListViewModel.checkIsBlocked(it) }
+        }
+
         ProfileDetailScreen(
             profile = state.selectedProfile!!.toSwipeProfile(),
-            onBack = viewModel::closeProfile
+            onBack = viewModel::closeProfile,
+            onAddToSkipList = { },
+            onAddToBlackList = {
+                state.selectedProfile?.uid?.let { blackListViewModel.blockUser(it) }
+            },
+            onUnblock = {
+                state.selectedProfile?.uid?.let { blackListViewModel.unblockUser(it) }
+            },
+            isBlocked = blackListState.profileBlocked,
+            mode = ProfileScreenMode.FROMCHAT
         )
         return
     }
@@ -148,14 +176,14 @@ fun FavoriteScreenContent(
                         text = stringResource(R.string.smth_wrong),
                         color = MaterialTheme.colorScheme.error
                     )
-                    Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
+                    Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = TextSizes.sp14)
                     Button(onClick = { retry() }) { Text(text = stringResource(R.string.repeat)) }
                 }
 
                 else -> LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    contentPadding = PaddingValues(Dimens.dp16),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.dp12)
                 ) {
                     items(profiles) { profile ->
                         FavoriteCard(
@@ -181,17 +209,17 @@ fun FavoriteCard(
     val offsetX = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
-    val threshold = with(density) { 100.dp.toPx() }
+    val threshold = with(density) { Dimens.dp100.toPx() }
 
     Box(modifier = Modifier.fillMaxWidth()) {
 
-        if (offsetX.value > 20f) {
+        if (offsetX.value > SWIPE_HINT_THRESHOLD) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(Dimens.dp16))
                     .background(
-                        Color(0xFF38D986).copy(
+                        SwipeLikeBackground.copy(
                             alpha = (offsetX.value / threshold).coerceIn(
                                 0f,
                                 1f
@@ -205,17 +233,17 @@ fun FavoriteCard(
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier
-                        .padding(start = 24.dp)
-                        .size(32.dp)
+                        .padding(start = Dimens.dp24)
+                        .size(Dimens.dp32)
                 )
             }
-        } else if (offsetX.value < -20f) {
+        } else if (offsetX.value < -SWIPE_HINT_THRESHOLD) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(Dimens.dp16))
                     .background(
-                        Color(0xFFFF4458).copy(
+                        SwipeNopeBackground.copy(
                             alpha = (-offsetX.value / threshold).coerceIn(
                                 0f,
                                 1f
@@ -229,15 +257,15 @@ fun FavoriteCard(
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier
-                        .padding(end = 24.dp)
-                        .size(32.dp)
+                        .padding(end = Dimens.dp24)
+                        .size(Dimens.dp32)
                 )
             }
         }
 
         Card(
             onClick = onClick,
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(Dimens.dp16),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             ),
@@ -254,18 +282,18 @@ fun FavoriteCard(
                             scope.launch {
                                 when {
                                     offsetX.value > threshold -> {
-                                        offsetX.animateTo(2000f, tween(300))
+                                        offsetX.animateTo(SWIPE_OFFSCREEN_OFFSET, tween(SWIPE_ANIMATION_MS))
                                         onSwipeRight()
                                         offsetX.snapTo(0f)
                                     }
 
                                     offsetX.value < -threshold -> {
-                                        offsetX.animateTo(-2000f, tween(300))
+                                        offsetX.animateTo(-SWIPE_OFFSCREEN_OFFSET, tween(SWIPE_ANIMATION_MS))
                                         onSwipeLeft()
                                         offsetX.snapTo(0f)
                                     }
 
-                                    else -> offsetX.animateTo(0f, tween(300))
+                                    else -> offsetX.animateTo(0f, tween(SWIPE_ANIMATION_MS))
                                 }
                             }
                         }
@@ -273,26 +301,30 @@ fun FavoriteCard(
                 }
         ) {
             Row(
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier.padding(Dimens.dp12),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.dp12)
             ) {
                 AsyncImage(
                     model = profile.photoSlots.getOrNull(profile.mainPhotoIndex)?.fullUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(Dimens.dp60)
                         .clip(CircleShape)
                 )
                 Column {
                     Text(
-                        text = "${profile.name}, ${profile.age ?: ""}",
-                        fontSize = 16.sp,
+                        text = stringResource(
+                            R.string.user_name_age_comma,
+                            profile.name,
+                            profile.age?.toString() ?: ""
+                        ),
+                        fontSize = TextSizes.sp16,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Text(text = profile.city, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = profile.city, fontSize = TextSizes.sp14, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

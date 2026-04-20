@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.profilescreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -27,6 +29,8 @@ import com.example.flat_rent_app.presentation.components.AppBottomBar
 import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 import com.example.flat_rent_app.util.BottomTabs
 import android.content.res.Configuration
+import androidx.compose.ui.res.stringResource
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,10 +50,10 @@ fun ProfileScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Профиль") },
+                title = { Text(stringResource(R.string.profile)) },
                 actions = {
                     IconButton(onClick = onGoSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Настройки")
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
                     }
                 }
             )
@@ -69,7 +73,7 @@ fun ProfileScreenContent(
                 .fillMaxSize()
                 .padding(pad)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 24.dp),
+                .padding(horizontal = Dimens.dp24, vertical = Dimens.dp24),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -78,8 +82,8 @@ fun ProfileScreenContent(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(320.dp)
-                    .clip(RoundedCornerShape(20.dp))
+                    .height(Dimens.dp320)
+                    .clip(RoundedCornerShape(Dimens.dp20))
             ) {
                 if (photoUrls.isEmpty()) {
                     Box(
@@ -90,12 +94,12 @@ fun ProfileScreenContent(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(Dimens.dp8)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = null,
-                                modifier = Modifier.size(80.dp),
+                                modifier = Modifier.size(Dimens.dp80),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -107,7 +111,7 @@ fun ProfileScreenContent(
                     ) { page ->
                         AsyncImage(
                             model = photoUrls[page],
-                            contentDescription = "Фото ${page + 1}",
+                            contentDescription = stringResource(R.string.photo_page, page + 1),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
@@ -117,13 +121,13 @@ fun ProfileScreenContent(
                         Row(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
-                                .padding(bottom = 12.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                .padding(bottom = Dimens.dp12),
+                            horizontalArrangement = Arrangement.spacedBy(Dimens.dp6)
                         ) {
                             photoUrls.indices.forEach { index ->
                                 Box(
                                     modifier = Modifier
-                                        .size(if (pagerState.currentPage == index) 8.dp else 6.dp)
+                                        .size(if (pagerState.currentPage == index) Dimens.dp8 else Dimens.dp6)
                                         .clip(CircleShape)
                                         .background(
                                             if (pagerState.currentPage == index)
@@ -138,10 +142,11 @@ fun ProfileScreenContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(Dimens.dp28))
 
+            val ageText = age?.toString() ?: stringResource(R.string.not_specified)
             Text(
-                text = "$displayName, $age",
+                text = stringResource(R.string.user_name_age, displayName, ageText),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -151,7 +156,7 @@ fun ProfileScreenContent(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
+                    modifier = Modifier.padding(top = Dimens.dp4, bottom = Dimens.dp24)
                 )
             }
 
@@ -159,12 +164,12 @@ fun ProfileScreenContent(
                 onClick = onEditQuestionnaire,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp)
+                    .padding(bottom = Dimens.dp24)
             ) {
-                Text("Редактировать анкету")
+                Text(stringResource(R.string.edit_questionnaire))
             }
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(Dimens.dp64))
 
             Button(
                 onClick = onSignOut,
@@ -173,7 +178,7 @@ fun ProfileScreenContent(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Выйти")
+                Text(stringResource(R.string.quit))
             }
         }
     }
@@ -196,8 +201,8 @@ fun ProfileScreen(
     ProfileScreenContent(
         displayName = when {
             !userProfile?.name.isNullOrBlank() -> userProfile?.name!!
-            !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@") ?: "Пользователь"
-            else -> "Пользователь"
+            !user?.email.isNullOrBlank() -> user?.email?.substringBefore(stringResource(R.string.sobaka)) ?: stringResource(R.string.user)
+            else -> stringResource(R.string.user)
         },
         age = userProfile?.age,
         email = user?.email,

@@ -1,13 +1,12 @@
 package com.example.flat_rent_app.presentation.viewmodel.chatviewmodel
 
-import android.R
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flat_rent_app.domain.model.Message
-import com.example.flat_rent_app.domain.model.MessageStatus
 import com.example.flat_rent_app.domain.model.UserProfile
 import com.example.flat_rent_app.domain.repository.AuthRepository
+import com.example.flat_rent_app.domain.repository.BlackListRepository
 import com.example.flat_rent_app.domain.repository.ChatRepository
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -77,5 +76,15 @@ class ChatViewModel @Inject constructor(
             .onFailure { e ->
                 _state.update { it.copy(error = e.message ?: "Ошибка редактирования") }
             }
+    }
+
+    fun openProfile() {
+        _state.update { it.copy(showProfileDetails = true) }
+    }
+
+    fun closeProfileDetails() {
+        _state.update {
+            it.copy(showProfileDetails = false)
+        }
     }
 }

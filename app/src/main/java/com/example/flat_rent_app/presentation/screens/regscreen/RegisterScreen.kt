@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.regscreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,19 +88,19 @@ fun RegisterScreenContent(
         Column(
             modifier = Modifier
                 .padding(pad)
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = Dimens.dp24)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(Dimens.dp14))
 
             Image(
                 painter = painterResource(id = R.drawable.ic_account),
                 contentDescription = null,
-                modifier = Modifier.size(72.dp)
+                modifier = Modifier.size(Dimens.dp72)
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(Dimens.dp10))
 
             Text(
                 text = stringResource(R.string.reg_title),
@@ -106,7 +108,7 @@ fun RegisterScreenContent(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(Modifier.height(22.dp))
+            Spacer(Modifier.height(Dimens.dp22))
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -115,10 +117,10 @@ fun RegisterScreenContent(
                 label = { Text(stringResource(R.string.reg_email_label)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(Dimens.dp28)
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Dimens.dp12))
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -136,10 +138,10 @@ fun RegisterScreenContent(
                         )
                     }
                 },
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(Dimens.dp28)
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Dimens.dp12))
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -157,30 +159,30 @@ fun RegisterScreenContent(
                         )
                     }
                 },
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(Dimens.dp28)
             )
 
             error?.let {
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(Dimens.dp10))
                 Text(it, color = MaterialTheme.colorScheme.error)
             }
 
-            Spacer(Modifier.height(26.dp))
+            Spacer(Modifier.height(Dimens.dp26))
 
             Button(
                 onClick = onRegisterClick,
                 enabled = !loading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(28.dp)
+                    .height(Dimens.dp52),
+                shape = RoundedCornerShape(Dimens.dp28)
             ) {
                 if (loading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp
+                        modifier = Modifier.size(Dimens.dp18),
+                        strokeWidth = Dimens.dp2
                     )
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.width(Dimens.dp10))
                 }
                 Text(stringResource(R.string.reg_submit))
             }

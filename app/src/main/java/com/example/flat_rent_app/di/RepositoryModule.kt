@@ -61,4 +61,11 @@ object RepositoryModule {
         tokenProvider: FirebaseIdTokenProvider,
         @ApplicationContext context: Context
     ): PhotoRepository = PhotoRepositoryImpl(api, tokenProvider, context)
+
+    @Provides
+    @Singleton
+    fun provideBlackListRepository(
+        db: FirebaseFirestore,
+        authRepository: AuthRepository
+    ) : BlackListRepository = BlackListRepositoryImpl(db, authRepository)
 }

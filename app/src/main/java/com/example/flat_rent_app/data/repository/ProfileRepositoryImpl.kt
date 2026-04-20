@@ -22,6 +22,10 @@ class ProfileRepositoryImpl @Inject constructor(
     private val db: FirebaseFirestore,
     private val authRepo: AuthRepository
 ) : ProfileRepository {
+    private companion object {
+        const val MAIN_PHOTO_INDEX_MAX = 2
+        const val PROFILE_PHOTO_SLOTS = 3
+    }
 
     override fun observerProfile(uid: String): Flow<UserProfile?> = callbackFlow {
         val reg = db.collection("users").document(uid)
@@ -78,7 +82,7 @@ class ProfileRepositoryImpl @Inject constructor(
 
     override suspend fun getFeedProfiles(limit: Int): Result<List<UserProfile>> =
         runCatching {
-            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Нет авторизации")
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
 
             Log.d("FIRESTORE", "getFeedProfiles uid=$myUid")
 
@@ -88,10 +92,26 @@ class ProfileRepositoryImpl @Inject constructor(
                 .get()
                 .await()
 
+            val skipPeople = db.collection("skipPeople")
+                .document(myUid)
+                .collection("items")
+                .get()
+                .await()
+
+            val blockedPeople = db.collection("blackList")
+                .document(myUid)
+                .collection("items")
+                .get()
+                .await()
+
             Log.d("FIRESTORE", "Всего документов: ${snap.documents.size}")
+            Log.d("FIRESTORE", "Всего скрытых: ${skipPeople.documents.size}")
+            Log.d("FIRESTORE", "Всего заблокированных: ${blockedPeople.documents.size}")
 
             snap.documents.mapNotNull { d ->
-                if (d.id == myUid) return@mapNotNull null
+                val skipIds = skipPeople.documents.map { it.id }
+                val blockedIds = blockedPeople.documents.map { it.id }
+                if (d.id == myUid || d.id in skipIds || d.id in blockedIds) return@mapNotNull null
                 try {
                     d.toUserProfile()
                 } catch (e: Exception) {
@@ -128,8 +148,10 @@ class ProfileRepositoryImpl @Inject constructor(
             eduPlace = getString("eduPlace").orEmpty(),
             description = getString("description").orEmpty(),
             preferences = (get("preferences") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-            mainPhotoIndex = ((getLong("mainPhotoIndex") ?: 0L).toInt()).coerceIn(0, 2),
-            photoSlots = slots.take(3).let { it + List(maxOf(0, 3 - it.size)) { null } },
+            mainPhotoIndex = ((getLong("mainPhotoIndex") ?: 0L).toInt()).coerceIn(0, MAIN_PHOTO_INDEX_MAX),
+            photoSlots = slots
+                .take(PROFILE_PHOTO_SLOTS)
+                .let { it + List(maxOf(0, PROFILE_PHOTO_SLOTS - it.size)) { null } },
             createdAtMillis = getLong("createdAtMillis"),
             updatedAtMillis = getLong("updatedAtMillis")
         )

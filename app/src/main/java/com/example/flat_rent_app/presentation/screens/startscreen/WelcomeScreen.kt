@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.startscreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,17 +39,17 @@ fun WelcomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(pad)
-                .padding(horizontal = 28.dp)
-                .padding(top = 130.dp),
+                .padding(horizontal = Dimens.dp28)
+                .padding(top = Dimens.dp130),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_welcome_logo),
                 contentDescription = null,
-                modifier = Modifier.size(140.dp)
+                modifier = Modifier.size(Dimens.dp140)
             )
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(Dimens.dp20))
 
             Text(
                 text = stringResource(R.string.welcome_title),
@@ -55,7 +57,7 @@ fun WelcomeScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(Dimens.dp10))
 
             Text(
                 text = stringResource(R.string.welcome_subtitle),
@@ -70,25 +72,25 @@ fun WelcomeScreen(
                 onClick = onRegister,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(28.dp)
+                    .height(Dimens.dp52),
+                shape = RoundedCornerShape(Dimens.dp28)
             ) {
                 Text(stringResource(R.string.action_register))
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Dimens.dp12))
 
             Button(
                 onClick = onLogin,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(28.dp)
+                    .height(Dimens.dp52),
+                shape = RoundedCornerShape(Dimens.dp28)
             ) {
                 Text(stringResource(R.string.action_login))
             }
 
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(Dimens.dp48))
         }
     }
 }
