@@ -6,5 +6,6 @@ data class ChatUiState(
     val otherUid: String = "",
     val input: String = "",
     val sending: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val showProfileDetails: Boolean = false
 )

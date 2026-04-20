@@ -1,6 +1,6 @@
 package com.example.flat_rent_app.presentation.screens.mainscreen
 
-import android.util.Log
+import android.content.res.Configuration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -29,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -52,11 +51,18 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.graphics.luminance
+import com.example.flat_rent_app.presentation.screens.profiledetailscreen.ProfileScreenMode
+import com.example.flat_rent_app.presentation.theme.CardShadow
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
+import com.example.flat_rent_app.presentation.theme.LikeGreen
+import com.example.flat_rent_app.presentation.theme.NopeRed
 import com.example.flat_rent_app.presentation.viewmodel.mainviewmodel.MainScreenState
 
-val LikeGreen = Color(0xFF38D986)
-private val NopeRed = Color(0xFFFF4458)
-private val CardShadow = Color(0x22000000)
+private val CardBackgroundLight = Color(0xFFFFFFFF)
+private val CardBackgroundDark = Color(0xFF1C1C1E)
+private val CardPlaceholderTopDark = Color(0xFF2C2C2E)
+private val CardPlaceholderTopLight = Color(0xFFEAE7F5)
 
 @Composable
 fun SwipeableProfileCard(
@@ -129,13 +135,15 @@ fun ProfileCard(
     description: String,
     photoUrl: String? = null,
 ) {
+    val isDarkPalette = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .shadow(16.dp, RoundedCornerShape(24.dp), ambientColor = CardShadow)
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF1C1C1E))
+            .background(if (isDarkPalette) CardBackgroundDark else CardBackgroundLight)
     ) {
         if (photoUrl != null) {
             AsyncImage(
@@ -150,12 +158,15 @@ fun ProfileCard(
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color(0xFF2C2C2E), Color(0xFF1C1C1E))
+                            listOf(
+                                if (isDarkPalette) CardPlaceholderTopDark else CardPlaceholderTopLight,
+                                if (isDarkPalette) CardBackgroundDark else CardBackgroundLight
+                            )
                         )
                     )
             ) {
                 Text(
-                    text = "👤",
+                    text = stringResource(R.string.default_photo),
                     fontSize = 96.sp,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -188,8 +199,9 @@ fun ProfileCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                val ageText = age?.toString() ?: stringResource(R.string.not_specified)
                 Text(
-                    text = "$name, $age",
+                    text = stringResource(R.string.user_name_age_format, name, ageText),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -252,7 +264,7 @@ private fun ActionButtons(
     ) {
         FloatingActionButton(
             onClick = onSwipeLeft,
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
             contentColor = NopeRed,
             shape = CircleShape,
             modifier = Modifier.size(64.dp),
@@ -267,8 +279,8 @@ private fun ActionButtons(
 
         FloatingActionButton(
             onClick = onAddToFavorites,
-            containerColor = Color.White,
-            contentColor = Color(0xFF636366),
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             shape = CircleShape,
             modifier = Modifier.size(48.dp),
             elevation = FloatingActionButtonDefaults.elevation(4.dp)
@@ -278,8 +290,8 @@ private fun ActionButtons(
 
         FloatingActionButton(
             onClick = onInfo,
-            containerColor = Color.White,
-            contentColor = Color(0xFF636366),
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             shape = CircleShape,
             modifier = Modifier.size(48.dp),
             elevation = FloatingActionButtonDefaults.elevation(4.dp)
@@ -312,7 +324,7 @@ fun LoadingView() {
         modifier = Modifier.fillMaxWidth()
     ) {
         CircularProgressIndicator(color = LikeGreen)
-        Text(stringResource(R.string.loading), color = Color.Gray, fontSize = 15.sp)
+        Text(stringResource(R.string.loading), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 15.sp)
     }
 }
 
@@ -324,7 +336,7 @@ fun ErrorView(error: String, onRetry: () -> Unit) {
         modifier = Modifier.padding(24.dp)
     ) {
         Text(stringResource(R.string.smth_wrong), style = MaterialTheme.typography.headlineSmall)
-        Text(error, color = Color.Gray, fontSize = 14.sp)
+        Text(error, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
         Button(onClick = onRetry) { Text(stringResource(R.string.repeat)) }
     }
 }
@@ -335,7 +347,7 @@ fun EmptyView() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(stringResource(R.string.all_viewed), color = Color.Gray, fontSize = 16.sp)
+        Text(stringResource(R.string.all_viewed), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp)
     }
 }
 
@@ -347,7 +359,7 @@ fun AllViewedView(onRetry: () -> Unit) {
         modifier = Modifier.padding(24.dp)
     ) {
         Text(stringResource(R.string.all_viewed), style = MaterialTheme.typography.headlineSmall)
-        Text(stringResource(R.string.message), color = Color.Gray, fontSize = 14.sp)
+        Text(stringResource(R.string.message), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
         Spacer(Modifier.height(8.dp))
         Button(onClick = onRetry) { Text(stringResource(R.string.repeat)) }
     }
@@ -493,10 +505,16 @@ fun MainScreen(
 
     if (state.showProfileDetails) {
         val profile = state.selectedProfile
+
         if (profile != null) {
             ProfileDetailScreen(
                 profile = profile,
-                onBack = viewModel::closeProfileDetails
+                onBack = viewModel::closeProfileDetails,
+                onAddToSkipList = { viewModel.addToSkipList(profile.uid) },
+                onAddToBlackList = { },
+                onUnblock = { },
+                isBlocked = false,
+                mode = ProfileScreenMode.FROMSWIPE
             )
             return
         }
@@ -565,10 +583,10 @@ fun FiltersScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Фильтры") },
+                title = { Text(stringResource(R.string.filters)) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(Icons.Default.Close, contentDescription = "Закрыть")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                     }
                 }
             )
@@ -581,20 +599,24 @@ fun FiltersScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Text("ВУЗ", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.vuz), fontWeight = FontWeight.Bold)
             DropdownMenuForUniversity(
                 selectedUniversity = selectedUniversity,
                 onSelect = { selectedUniversity = it }
             )
 
-            Text("Пол", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.sex), fontWeight = FontWeight.Bold)
             GenderRadioGroup(
                 selectedGender = selectedGender,
                 onSelect = { selectedGender = it }
             )
 
             Text(
-                text = "Возраст: ${ageRange.start.toInt()}–${ageRange.endInclusive.toInt()}",
+                text = stringResource(
+                    R.string.age_range_format,
+                    ageRange.start.toInt(),
+                    ageRange.endInclusive.toInt()
+                ),
                 fontWeight = FontWeight.Bold
             )
             AgeRangeSlider(
@@ -612,7 +634,7 @@ fun FiltersScreen(
                     selectedUniversity = Constants.UNIVERSITY_ALL
                     selectedGender = Constants.GENDER_ANY
                     ageRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat()
-                }) { Text("Сбросить") }
+                }) { Text(stringResource(R.string.reset)) }
 
                 Button(onClick = {
                     onApplyFilters(
@@ -621,7 +643,7 @@ fun FiltersScreen(
                         ageRange.start.toInt(),
                         ageRange.endInclusive.toInt()
                     )
-                }) { Text("Применить") }
+                }) { Text(stringResource(R.string.apply)) }
             }
         }
     }
@@ -657,7 +679,9 @@ fun GenderRadioGroup(
         Constants.GENDERS_LIST.forEach { gender ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
             ) {
                 RadioButton(selected = selectedGender == gender, onClick = { onSelect(gender) })
                 Spacer(Modifier.width(8.dp))
@@ -689,53 +713,89 @@ fun AgeRangeSlider(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewGenderRadioGroup() {
-    GenderRadioGroup(
-        selectedGender = Constants.GENDER_ANY,
-        onSelect = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewAgeRangeSlider() {
-    AgeRangeSlider(
-        ageRange = Constants.AGE_MIN_DEFAULT.toFloat()..Constants.AGE_MAX_DEFAULT.toFloat(),
-        onRangeChange = {}
-    )
-}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewFiltersScreen() {
-    val fakeState = MainScreenState()
-    FiltersScreen(
-        state = fakeState,
-        onClose = {},
-        onApplyFilters = { _, _, _, _ -> }
-    )
+    FlatrentappTheme {
+        val fakeState = MainScreenState()
+        FiltersScreen(
+            state = fakeState,
+            onClose = {},
+            onApplyFilters = { _, _, _, _ -> }
+        )
+    }
 }
 
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewMainScreen() {
-    MainScreenContent(
-        profiles = emptyList(),
-        currentIndex = -1,
-        isLoading = false,
-        error = null,
-        showAllViewed = false,
-        swipeRight = {},
-        swipeLeft = {},
-        openProfileDetails = {},
-        onGoChats = { },
-        onGoProfile = { },
-        onGoFavorites = { },
-        onAddToFavorites = { },
-        retry = {},
-        onOpenFilters = {}
-    )
+    FlatrentappTheme {
+        MainScreenContent(
+            profiles = emptyList(),
+            currentIndex = -1,
+            isLoading = false,
+            error = null,
+            showAllViewed = false,
+            swipeRight = {},
+            swipeLeft = {},
+            openProfileDetails = {},
+            onGoChats = { },
+            onGoProfile = { },
+            onGoFavorites = { },
+            onAddToFavorites = { },
+            retry = {},
+            onOpenFilters = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Dark", showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun PreviewMainScreenDark() {
+    FlatrentappTheme {
+        MainScreenContent(
+            profiles = emptyList(),
+            currentIndex = -1,
+            isLoading = false,
+            error = null,
+            showAllViewed = false,
+            swipeRight = {},
+            swipeLeft = {},
+            openProfileDetails = {},
+            onGoChats = { },
+            onGoProfile = { },
+            onGoFavorites = { },
+            onAddToFavorites = { },
+            retry = {},
+            onOpenFilters = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun MatchBottomSheetPreview() {
+    FlatrentappTheme {
+        MatchBottomSheet(
+            onSendMessage = {},
+            onContinue = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Dark", showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun MatchBottomSheetPreviewDark() {
+    FlatrentappTheme {
+        MatchBottomSheet(
+            onSendMessage = {},
+            onContinue = {}
+        )
+    }
 }

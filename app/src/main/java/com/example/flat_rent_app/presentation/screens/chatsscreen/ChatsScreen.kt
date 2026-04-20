@@ -1,21 +1,23 @@
 package com.example.flat_rent_app.presentation.screens.chatsscreen
 
-import android.util.Log
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.flat_rent_app.R
+import com.example.flat_rent_app.domain.model.Chat
 import com.example.flat_rent_app.domain.model.ChatUiItem
 import com.example.flat_rent_app.presentation.components.AppBottomBar
 import com.example.flat_rent_app.presentation.screens.chatsscreen.components.ChatRow
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import com.example.flat_rent_app.presentation.viewmodel.chatsviewmodel.ChatsViewModel
 import com.example.flat_rent_app.util.BottomTabs
 
@@ -53,7 +55,6 @@ fun ChatsScreen(
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatsScreenContent(
@@ -74,23 +75,31 @@ fun ChatsScreenContent(
     chatToDelete?.let { item ->
         AlertDialog(
             onDismissRequest = onDismissDelete,
-            title = { Text("Удалить чат?") },
-            text = { Text("Выберите способ удаления") },
+            title = { Text(stringResource(R.string.delete_chat_q)) },
+            text = { Text(stringResource(R.string.select_deletion_method)) },
             confirmButton = {
                 TextButton(onClick = { onDeleteChat(item, true) }) {
-                    Text("У всех")
+                    Text(
+                        stringResource(R.string.both),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = onDismissDelete) { Text("Отмена") }
-                    TextButton(onClick = { onDeleteChat(item, false) }) { Text("Только у меня") }
+                    TextButton(onClick = onDismissDelete) {
+                        Text(text = stringResource(R.string.cancel))
+                    }
+                    TextButton(onClick = { onDeleteChat(item, false) }) {
+                        Text(stringResource(R.string.only_for_me))
+                    }
                 }
             }
         )
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             if (searchVisible) {
                 TopAppBar(
@@ -98,13 +107,21 @@ fun ChatsScreenContent(
                         TextField(
                             value = searchQuery,
                             onValueChange = onSearchQuery,
-                            placeholder = { Text("Поиск по имени") },
+                            placeholder = {
+                                Text(
+                                    stringResource(R.string.name_search),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
                             singleLine = true,
                             colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                                unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                cursorColor = MaterialTheme.colorScheme.primary
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -114,16 +131,29 @@ fun ChatsScreenContent(
                             onSearchVisibleChange(false)
                             onSearchQuery("")
                         }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 )
             } else {
                 TopAppBar(
-                    title = { Text("Чаты") },
+                    title = {
+                        Text(
+                            stringResource(R.string.chats),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
                     actions = {
                         IconButton(onClick = { onSearchVisibleChange(true) }) {
-                            Icon(Icons.Default.Search, contentDescription = null)
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 )
@@ -141,15 +171,22 @@ fun ChatsScreenContent(
     ) { pad ->
         if (items.isEmpty()) {
             Box(
-                modifier = Modifier.padding(pad).fillMaxSize(),
+                modifier = Modifier
+                    .padding(pad)
+                    .fillMaxSize(),
                 contentAlignment = Alignment.Center
-            ) { Text(
-                if (searchQuery.isBlank()) "Пока нет чатов"
-                else "Ничего не найдено"
-            )
+            ) {
+                Text(
+                    text = if (searchQuery.isBlank()) stringResource(R.string.there_are_no_chats_yet) else stringResource(
+                        R.string.nothing_found
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         } else {
-            Column(modifier = Modifier.padding(pad).fillMaxSize()) {
+            Column(modifier = Modifier
+                .padding(pad)
+                .fillMaxSize()) {
                 items.forEach { item ->
                     val title = item.profile?.name?.takeIf { it.isNotBlank() } ?: item.chat.otherUid
                     val photoUrl = item.profile?.photoSlots
@@ -162,7 +199,9 @@ fun ChatsScreenContent(
                         onClick = { onOpenChat(item.chat.chatId, item.chat.otherUid) },
                         onLongClick = { onLongClickChat(item) }
                     )
-                    HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
                 }
             }
         }
@@ -170,23 +209,122 @@ fun ChatsScreenContent(
 }
 
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, name = "Light — пусто")
 @Composable
-fun ChatsScreenPreview() {
-    ChatsScreenContent(
-        searchVisible = false,
-        onSearchVisibleChange = {},
-        items = emptyList(),
-        searchQuery = "",
-        onSearchQuery = {},
-        onOpenChat = { _, _ -> },
-        onGoHome = {},
-        onGoProfile = {},
-        onGoFavorites = {},
-        chatToDelete = null,
-        onLongClickChat = {},
-        onDeleteChat = { _, _ -> },
-        onDismissDelete = {}
-    )
+fun ChatsScreenPreviewEmpty() {
+    FlatrentappTheme {
+        ChatsScreenContent(
+            searchVisible = false,
+            onSearchVisibleChange = {},
+            items = emptyList(),
+            searchQuery = "",
+            onSearchQuery = {},
+            onOpenChat = { _, _ -> },
+            onGoHome = {},
+            onGoProfile = {},
+            onGoFavorites = {},
+            chatToDelete = null,
+            onLongClickChat = {},
+            onDeleteChat = { _, _ -> },
+            onDismissDelete = {}
+        )
+    }
 }
 
+
+@Preview(showBackground = true, showSystemUi = true, name = "Light — с чатами")
+@Composable
+fun ChatsScreenPreviewWithChats() {
+    FlatrentappTheme {
+        ChatsScreenContent(
+            searchVisible = false,
+            onSearchVisibleChange = {},
+            items = listOf(
+                ChatUiItem(
+                    chat = Chat(
+                        chatId = "1",
+                        otherUid = "uid1",
+                        lastMessageText = "Привет, как дела?",
+                        unreadCount = 2
+                    ),
+                    profile = null
+                ),
+                ChatUiItem(
+                    chat = Chat(
+                        chatId = "2",
+                        otherUid = "uid2",
+                        lastMessageText = "Ищу соседа с сентября",
+                        unreadCount = 0
+                    ),
+                    profile = null
+                )
+            ),
+            searchQuery = "",
+            onSearchQuery = {},
+            onOpenChat = { _, _ -> },
+            onGoHome = {},
+            onGoProfile = {},
+            onGoFavorites = {},
+            chatToDelete = null,
+            onLongClickChat = {},
+            onDeleteChat = { _, _ -> },
+            onDismissDelete = {}
+        )
+    }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true, name = "Light — поиск")
+@Composable
+fun ChatsScreenPreviewSearch() {
+    FlatrentappTheme {
+        ChatsScreenContent(
+            searchVisible = true,
+            onSearchVisibleChange = {},
+            items = emptyList(),
+            searchQuery = "Иван",
+            onSearchQuery = {},
+            onOpenChat = { _, _ -> },
+            onGoHome = {},
+            onGoProfile = {},
+            onGoFavorites = {},
+            chatToDelete = null,
+            onLongClickChat = {},
+            onDeleteChat = { _, _ -> },
+            onDismissDelete = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark — с чатами",
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun ChatsScreenPreviewDark() {
+    FlatrentappTheme {
+        ChatsScreenContent(
+            searchVisible = false,
+            onSearchVisibleChange = {},
+            items = listOf(
+                ChatUiItem(
+                    chat = Chat(
+                        chatId = "1",
+                        otherUid = "uid1",
+                        lastMessageText = "Привет!",
+                        unreadCount = 1
+                    ),
+                    profile = null
+                )
+            ),
+            searchQuery = "",
+            onSearchQuery = {},
+            onOpenChat = { _, _ -> },
+            onGoHome = {},
+            onGoProfile = {},
+            onGoFavorites = {},
+            chatToDelete = null,
+            onLongClickChat = {},
+            onDeleteChat = { _, _ -> },
+            onDismissDelete = {}
+        )
+    }
+}

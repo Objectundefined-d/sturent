@@ -1,19 +1,6 @@
 package com.example.flat_rent_app.presentation.screens.editquestionnairescreen
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
+import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -21,14 +8,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,14 +31,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.domain.model.Gender
 import com.example.flat_rent_app.domain.model.ProfilePhoto
-import com.example.flat_rent_app.presentation.screens.onboarding.OnbFieldLabel
-import com.example.flat_rent_app.presentation.screens.onboarding.OnbIcon
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import com.example.flat_rent_app.presentation.viewmodel.editquestionnaire.EditQuestionnaireViewModel
-import com.example.flat_rent_app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,12 +68,14 @@ fun EditQuestionnaireScreenContent(
     onBack: () -> Unit
 ) {
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.my_questionnaire),
                         style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -89,20 +84,42 @@ fun EditQuestionnaireScreenContent(
             )
         },
         bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 2.dp
             ) {
-                OutlinedButton(onClick = onBack) {
-                    Text(text = stringResource(R.string.back))
-                }
-                Button(onClick = onSave, enabled = !isLoading) {
-                    if (isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                    } else {
-                        Text(text = stringResource(R.string.save))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    OutlinedButton(
+                        onClick = onBack,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(stringResource(R.string.back))
+                    }
+                    Button(
+                        onClick = onSave,
+                        enabled = !isLoading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                        )
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(stringResource(R.string.save))
+                        }
                     }
                 }
             }
@@ -123,6 +140,7 @@ fun EditQuestionnaireScreenContent(
                 Text(
                     text = stringResource(R.string.photos),
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
 
@@ -148,7 +166,9 @@ fun EditQuestionnaireScreenContent(
                                     .background(MaterialTheme.colorScheme.surfaceVariant)
                                     .border(
                                         width = if (isMain && hasPhoto) 2.dp else 0.dp,
-                                        color = if (isMain && hasPhoto) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                        color = if (isMain && hasPhoto)
+                                            MaterialTheme.colorScheme.primary
+                                        else Color.Transparent,
                                         shape = RoundedCornerShape(12.dp)
                                     )
                                     .clickable { onPickPhoto(index) },
@@ -166,7 +186,10 @@ fun EditQuestionnaireScreenContent(
                                         modifier = Modifier
                                             .align(Alignment.TopEnd)
                                             .size(28.dp)
-                                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                                            .background(
+                                                MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
+                                                CircleShape
+                                            )
                                     ) {
                                         Icon(
                                             Icons.Default.Close,
@@ -176,9 +199,11 @@ fun EditQuestionnaireScreenContent(
                                         )
                                     }
                                     Icon(
-                                        imageVector = if (isMain) Icons.Default.Star else Icons.Outlined.StarOutline,
+                                        imageVector = if (isMain) Icons.Default.Star
+                                        else Icons.Outlined.StarOutline,
                                         contentDescription = stringResource(R.string.photo_set_main),
-                                        tint = if (isMain) Color(0xFFFFD700) else Color.White,
+                                        tint = if (isMain) Color(0xFFFFD700)
+                                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                         modifier = Modifier
                                             .align(Alignment.BottomStart)
                                             .padding(6.dp)
@@ -203,6 +228,9 @@ fun EditQuestionnaireScreenContent(
                                 },
                                 style = MaterialTheme.typography.labelSmall,
                                 fontSize = 10.sp,
+                                color = if (isMain && hasPhoto)
+                                    MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurfaceVariant
                                 color = if (isMain && hasPhoto) {
                                     MaterialTheme.colorScheme.primary
                                 } else {
@@ -219,7 +247,16 @@ fun EditQuestionnaireScreenContent(
                     label = { Text(stringResource(R.string.name)) },
                     placeholder = { Text(stringResource(R.string.hint_name)) },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
 
                 OutlinedTextField(
@@ -229,34 +266,54 @@ fun EditQuestionnaireScreenContent(
                     placeholder = { Text(stringResource(R.string.hint_age)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
 
                 Text(
-                    text = "Пол",
-                    style = MaterialTheme.typography.titleMedium)
+                    text = stringResource(R.string.sex),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(
                             selected = gender == Gender.MALE,
-                            onClick = { onGenderChanged(Gender.MALE) }
+                            onClick = { onGenderChanged(Gender.MALE) },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colorScheme.primary,
+                                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         )
-                        Text("Мужской")
+                        Text(
+                            stringResource(R.string.male),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                     }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(
                             selected = gender == Gender.FEMALE,
-                            onClick = { onGenderChanged(Gender.FEMALE) }
+                            onClick = { onGenderChanged(Gender.FEMALE) },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colorScheme.primary,
+                                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         )
-                        Text("Женский")
+                        Text(
+                            stringResource(R.string.female),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                 }
 
@@ -266,7 +323,16 @@ fun EditQuestionnaireScreenContent(
                     label = { Text(stringResource(R.string.city)) },
                     placeholder = { Text(stringResource(R.string.hint_city)) },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
 
                 var expanded by remember { mutableStateOf(false) }
@@ -280,10 +346,20 @@ fun EditQuestionnaireScreenContent(
                         readOnly = true,
                         label = { Text(stringResource(R.string.educational_institution)) },
                         placeholder = { Text(stringResource(R.string.hint_university)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            .menuAnchor(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                        )
                     )
                     ExposedDropdownMenu(
                         expanded = expanded,
@@ -308,12 +384,22 @@ fun EditQuestionnaireScreenContent(
                     placeholder = { Text(stringResource(R.string.hint_about)) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp)
+                        .height(120.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
 
                 Text(
                     text = stringResource(R.string.habits_and_preferences),
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
@@ -336,6 +422,12 @@ fun EditQuestionnaireScreenContent(
                                                 style = MaterialTheme.typography.labelMedium
                                             )
                                         },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                        ),
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                 }
@@ -398,10 +490,87 @@ fun EditQuestionnaireScreen(
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, name = "Light")
 @Composable
-fun EditQuestionnaireScreenPreview() {
-    MaterialTheme {
+fun EditQuestionnaireScreenPreviewLight() {
+    FlatrentappTheme {
+        EditQuestionnaireScreenContent(
+            name = "Иван",
+            age = "22",
+            gender = Gender.MALE,
+            city = "Москва",
+            eduPlace = "МГУ",
+            description = "Ищу тихого соседа",
+            selectedHabits = mapOf(
+                "Курение" to false,
+                "Алкоголь" to false,
+                "Сова" to true,
+                "Жаворонок" to false,
+                "Животные" to true,
+                "Гости" to false,
+                "Чистота" to true,
+                "Тишина" to false,
+            ),
+            photoSlots = listOf(null, null, null),
+            mainPhotoIndex = 0,
+            isLoading = false,
+            onNameChanged = {},
+            onAgeChanged = {},
+            onGenderChanged = {},
+            onCityChanged = {},
+            onEduPlaceChanged = {},
+            onDescriptionChanged = {},
+            onToggleHabit = {},
+            onPickPhoto = {},
+            onDeletePhoto = {},
+            onSetMainPhoto = {},
+            onSave = {},
+            onBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun EditQuestionnaireScreenPreviewDark() {
+    FlatrentappTheme {
+        EditQuestionnaireScreenContent(
+            name = "Иван",
+            age = "22",
+            gender = Gender.MALE,
+            city = "Москва",
+            eduPlace = "МГТУ им. Н.Э. Баумана",
+            description = "Ищу тихого соседа",
+            selectedHabits = mapOf(
+                "Курение" to false,
+                "Алкоголь" to true,
+                "Сова" to true,
+                "Жаворонок" to false,
+            ),
+            photoSlots = listOf(null, null, null),
+            mainPhotoIndex = 0,
+            isLoading = false,
+            onNameChanged = {},
+            onAgeChanged = {},
+            onGenderChanged = {},
+            onCityChanged = {},
+            onEduPlaceChanged = {},
+            onDescriptionChanged = {},
+            onToggleHabit = {},
+            onPickPhoto = {},
+            onDeletePhoto = {},
+            onSetMainPhoto = {},
+            onSave = {},
+            onBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Loading")
+@Composable
+fun EditQuestionnaireScreenPreviewLoading() {
+    FlatrentappTheme {
         EditQuestionnaireScreenContent(
             name = "Иван",
             age = "22",
@@ -409,21 +578,10 @@ fun EditQuestionnaireScreenPreview() {
             city = "Москва",
             eduPlace = "МГУ",
             description = "Описание",
-            selectedHabits = mapOf(
-                stringResource(R.string.habit_smoking) to false,
-                stringResource(R.string.habit_alcohol) to false,
-                stringResource(R.string.habit_night_owl) to true,
-                stringResource(R.string.habit_early_bird) to false,
-                stringResource(R.string.habit_pets) to true,
-                stringResource(R.string.habit_guests) to false,
-                stringResource(R.string.habit_clean) to true,
-                stringResource(R.string.habit_quiet) to false,
-                stringResource(R.string.habit_music) to false,
-                stringResource(R.string.habit_sport) to true,
-            ),
+            selectedHabits = emptyMap(),
             photoSlots = listOf(null, null, null),
             mainPhotoIndex = 0,
-            isLoading = false,
+            isLoading = true,
             onNameChanged = {},
             onAgeChanged = {},
             onGenderChanged = {},

@@ -22,64 +22,91 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.flat_rent_app.R
+import android.content.res.Configuration
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
 @Composable
 fun WelcomeScreen(
     onRegister: () -> Unit,
     onLogin: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 28.dp)
-            .padding(top = 130.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_welcome_logo),
-            contentDescription = null,
-            modifier = Modifier.size(140.dp)
-        )
-
-        Spacer(Modifier.height(20.dp))
-
-        Text(
-            text = stringResource(R.string.welcome_title),
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(Modifier.height(10.dp))
-
-        Text(
-            text = stringResource(R.string.welcome_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(Modifier.height(120.dp))
-
-        OutlinedButton(
-            onClick = onRegister,
+    Scaffold { pad ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(28.dp)
+                .fillMaxSize()
+                .padding(pad)
+                .padding(horizontal = 28.dp)
+                .padding(top = 130.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(stringResource(R.string.action_register))
-        }
+            Image(
+                painter = painterResource(id = R.drawable.ic_welcome_logo),
+                contentDescription = null,
+                modifier = Modifier.size(140.dp)
+            )
 
-        Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(20.dp))
 
-        Button(
-            onClick = onLogin,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(28.dp)
-        ) {
-            Text(stringResource(R.string.action_login))
+            Text(
+                text = stringResource(R.string.welcome_title),
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Text(
+                text = stringResource(R.string.welcome_subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(Modifier.weight(1f))
+
+            OutlinedButton(
+                onClick = onRegister,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(28.dp)
+            ) {
+                Text(stringResource(R.string.action_register))
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            Button(
+                onClick = onLogin,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(28.dp)
+            ) {
+                Text(stringResource(R.string.action_login))
+            }
+
+            Spacer(Modifier.height(48.dp))
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Light",
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun WelcomeScreenPreviewLight() {
+    FlatrentappTheme {
+        WelcomeScreen(onRegister = {}, onLogin = {})
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun WelcomeScreenPreviewDark() {
+    FlatrentappTheme {
+        WelcomeScreen(onRegister = {}, onLogin = {})
     }
 }

@@ -1,12 +1,12 @@
 package com.example.flat_rent_app.presentation.viewmodel.chatviewmodel
 
-import android.R
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flat_rent_app.domain.model.Message
 import com.example.flat_rent_app.domain.model.UserProfile
 import com.example.flat_rent_app.domain.repository.AuthRepository
+import com.example.flat_rent_app.domain.repository.BlackListRepository
 import com.example.flat_rent_app.domain.repository.ChatRepository
 import com.example.flat_rent_app.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,8 +26,8 @@ class ChatViewModel @Inject constructor(
     private val otherUid: String = savedStateHandle["otherUid"] ?: ""
     private val myUid: String = authRepo.currentUid().orEmpty()
 
-    private val _ui = MutableStateFlow(ChatUiState(myUid = myUid, chatId = chatId, otherUid = otherUid))
-    val ui: StateFlow<ChatUiState> = _ui.asStateFlow()
+    private val _state = MutableStateFlow(ChatUiState(myUid = myUid, chatId = chatId, otherUid = otherUid))
+    val state: StateFlow<ChatUiState> = _state.asStateFlow()
 
     val otherProfile: StateFlow<UserProfile?> =
         profileRepo.observerProfile(otherUid)
@@ -38,17 +38,19 @@ class ChatViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun onInput(v: String) {
-        _ui.update { it.copy(input = v, error = null) }
+        _state.update { it.copy(input = v, error = null) }
     }
 
     fun send() = viewModelScope.launch {
-        val s = _ui.value
-        if (s.input.isBlank()) return@launch
+        val inputText = _state.value.input
+        if (inputText.isBlank()) return@launch
 
-        _ui.update { it.copy(sending = true, error = null) }
-        chatRepo.sendMessage(s.chatId, s.otherUid, s.input)
-            .onSuccess { _ui.update { it.copy(input = "", sending = false) } }
-            .onFailure { e -> _ui.update { it.copy(sending = false, error = e.message ?: "Ошибка") } }
+        _state.update { it.copy(input = "") }
+
+        chatRepo.sendMessage(_state.value.chatId, _state.value.otherUid, inputText)
+            .onFailure { e ->
+                _state.update { it.copy(error = e.message ?: "Ошибка") }
+            }
     }
 
     fun markRead() = viewModelScope.launch {
@@ -56,16 +58,33 @@ class ChatViewModel @Inject constructor(
     }
 
     fun deleteMessage(messageId: String, forBoth: Boolean) = viewModelScope.launch {
-        chatRepo.deleteMessage(ui.value.chatId, messageId, forBoth)
+        chatRepo.deleteMessage(state.value.chatId, messageId, forBoth)
             .onFailure { e ->
-                _ui.update { it.copy(error = e.message ?: "Ошибка удаления") }
+                _state.update { it.copy(error = e.message ?: "Ошибка удаления") }
             }
     }
 
     fun clearHistory(forBoth: Boolean) = viewModelScope.launch {
-        chatRepo.clearHistory(ui.value.chatId, forBoth)
+        chatRepo.clearHistory(state.value.chatId, forBoth)
             .onFailure { e ->
-                _ui.update { it.copy(error = e.message ?: "Ошибка удаления") }
+                _state.update { it.copy(error = e.message ?: "Ошибка удаления") }
             }
+    }
+
+    fun editMessage(messageId: String, newText: String) = viewModelScope.launch {
+        chatRepo.editMessage(state.value.chatId, messageId, newText)
+            .onFailure { e ->
+                _state.update { it.copy(error = e.message ?: "Ошибка редактирования") }
+            }
+    }
+
+    fun openProfile() {
+        _state.update { it.copy(showProfileDetails = true) }
+    }
+
+    fun closeProfileDetails() {
+        _state.update {
+            it.copy(showProfileDetails = false)
+        }
     }
 }

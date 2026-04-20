@@ -1,8 +1,8 @@
 package com.example.flat_rent_app.data.repository
 
-import android.util.Log
 import com.example.flat_rent_app.domain.model.Chat
 import com.example.flat_rent_app.domain.model.Message
+import com.example.flat_rent_app.domain.model.MessageStatus
 import com.example.flat_rent_app.domain.repository.AuthRepository
 import com.example.flat_rent_app.domain.repository.ChatRepository
 import com.google.firebase.firestore.FieldValue
@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.jvm.Throws
 
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
@@ -68,17 +67,32 @@ class ChatRepositoryImpl @Inject constructor(
                 }
 
                 val list = snap.documents.mapNotNull { d ->
+                    val blockedMessage = d.getBoolean("blockedMessage") ?: false
                     val senderUid = d.getString("senderUid") ?: return@mapNotNull null
 
+                    if (blockedMessage && senderUid != myUid)
+                        return@mapNotNull null
+
                     val deletedFor = (d.get("deletedFor") as? List<*>) ?: emptyList<String>()
-                    if (myUid in deletedFor) return@mapNotNull null
+                    if (myUid in deletedFor)
+                        return@mapNotNull null
+
+                    val hasPendingWrites = d.metadata.hasPendingWrites()
+                    val editedAt = d.getLong("editedAt")
+                    val status = when {
+                        hasPendingWrites && editedAt == null -> MessageStatus.SENDING
+                        d.getString("status") == "read" -> MessageStatus.READ
+                        else -> MessageStatus.SENT
+                    }
 
                     Message(
                         messageId = d.id,
                         senderUid = senderUid,
                         text = d.getString("text").orEmpty(),
                         type = d.getString("type") ?: "text",
-                        createdAt = d.getLong("createdAt") ?: 0L
+                        createdAt = d.getLong("createdAt") ?: 0L,
+                        status = status,
+                        readAt = d.getLong("readAt")
                     )
                 }.reversed()
 
@@ -91,8 +105,18 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun sendMessage(chatId: String, otherId: String, text: String): Result<Unit> =
         runCatching {
-            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Нет авторизации")
+            val myUid = authRepo.currentUid() ?: throw IllegalStateException("Не авторизован")
             if (text.isBlank()) throw IllegalArgumentException("Пустое сообщение")
+
+            val blockedByOther = db.collection("blackList").document(otherId)
+                .collection("items").document(myUid)
+                .get().await().exists()
+
+            val iBlockedOther = db.collection("blackList").document(myUid)
+                .collection("items").document(otherId)
+                .get().await().exists()
+
+            val isBlocked = blockedByOther || iBlockedOther
 
             val now = System.currentTimeMillis()
 
@@ -111,7 +135,9 @@ class ChatRepositoryImpl @Inject constructor(
                     "senderUid" to myUid,
                     "text" to text,
                     "type" to "text",
-                    "createdAt" to now
+                    "createdAt" to now,
+                    "status" to "sent",
+                    "blockedMessage" to isBlocked
                 )
             )
 
@@ -130,13 +156,13 @@ class ChatRepositoryImpl @Inject constructor(
                 ), SetOptions.merge()
             )
 
-            batch.set(
-                otherIndex, mapOf(
+            if (!isBlocked) {
+                batch.set(otherIndex, mapOf(
                     "lastMessageText" to text,
                     "lastMessageAt" to now,
                     "unreadCount" to FieldValue.increment(1)
-                ), SetOptions.merge()
-            )
+                ), SetOptions.merge())
+            }
 
             batch.commit().await()
             Unit
@@ -153,7 +179,27 @@ class ChatRepositoryImpl @Inject constructor(
                 .set(mapOf("unreadCount" to 0L), SetOptions.merge())
                 .await()
 
+            val unread = db.collection("chats").document(chatId)
+                .collection("messages")
+                .whereEqualTo("status", "sent")
+                .get()
+                .await()
+
+            val batch = db.batch()
+            unread.documents.forEach { doc ->
+                val senderUid = doc.getString("senderUid")
+                if (senderUid != myUid) {
+                    batch.update(
+                        doc.reference, mapOf(
+                            "status" to "read",
+                            "readAt" to System.currentTimeMillis()
+                        )
+                    )
+                }
+            }
+            batch.commit().await()
             Unit
+
         }.recoverCatching { t ->
             throw RuntimeException(t.message ?: "Ошибка markRead", t)
         }
@@ -283,5 +329,21 @@ class ChatRepositoryImpl @Inject constructor(
             Unit
         }.recoverCatching { t ->
             throw RuntimeException(t.message ?: "Ошибка удаления сообщения", t)
+        }
+
+    override suspend fun editMessage(
+        chatId: String,
+        messageId: String,
+        newText: String
+    ): Result<Unit> =
+        runCatching {
+            db.collection("chats").document(chatId)
+                .collection("messages").document(messageId)
+                .update(
+                    mapOf(
+                        "text" to newText,
+                        "editedAt" to System.currentTimeMillis()
+                    )
+                ).await()
         }
 }

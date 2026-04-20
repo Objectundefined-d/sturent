@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,7 +26,12 @@ import coil.compose.AsyncImage
 import com.example.flat_rent_app.presentation.components.AppBottomBar
 import com.example.flat_rent_app.presentation.viewmodel.profileviewmodel.ProfileViewModel
 import com.example.flat_rent_app.util.BottomTabs
+import android.content.res.Configuration
+import androidx.compose.ui.res.stringResource
+import com.example.flat_rent_app.R
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreenContent(
     displayName: String,
@@ -37,37 +43,19 @@ fun ProfileScreenContent(
     onGoHome: () -> Unit,
     onGoChats: () -> Unit,
     onGoFavorites: () -> Unit,
-    onDeleteAccount: () -> Unit,
+    onGoSettings: () -> Unit,
 ) {
-    var showDeleteDialog by remember { mutableStateOf(false) }
-
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Удалить аккаунт?") },
-            text = { Text("Это действие нельзя отменить. Все данные будут удалены.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        onDeleteAccount()
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text("Удалить")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Отмена")
-                }
-            }
-        )
-    }
-
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.profile)) },
+                actions = {
+                    IconButton(onClick = onGoSettings) {
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
+                    }
+                }
+            )
+        },
         bottomBar = {
             AppBottomBar(
                 selected = BottomTabs.PROFILE,
@@ -121,7 +109,7 @@ fun ProfileScreenContent(
                     ) { page ->
                         AsyncImage(
                             model = photoUrls[page],
-                            contentDescription = "Фото ${page + 1}",
+                            contentDescription = stringResource(R.string.photo_page, page + 1),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
@@ -141,9 +129,9 @@ fun ProfileScreenContent(
                                         .clip(CircleShape)
                                         .background(
                                             if (pagerState.currentPage == index)
-                                                Color.White
+                                                MaterialTheme.colorScheme.onPrimary
                                             else
-                                                Color.White.copy(alpha = 0.5f)
+                                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
                                         )
                                 )
                             }
@@ -154,8 +142,9 @@ fun ProfileScreenContent(
 
             Spacer(modifier = Modifier.height(28.dp))
 
+            val ageText = age?.toString() ?: stringResource(R.string.not_specified)
             Text(
-                text = "$displayName, $age",
+                text = stringResource(R.string.user_name_age, displayName, ageText),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -165,7 +154,7 @@ fun ProfileScreenContent(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
+                    modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
                 )
             }
 
@@ -173,12 +162,12 @@ fun ProfileScreenContent(
                 onClick = onEditQuestionnaire,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp)
+                    .padding(bottom = 24.dp)
             ) {
-                Text("Редактировать анкету")
+                Text(stringResource(R.string.edit_questionnaire))
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
             Button(
                 onClick = onSignOut,
@@ -187,19 +176,7 @@ fun ProfileScreenContent(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Выйти")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = { showDeleteDialog = true },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text("Удалить аккаунт")
+                Text(stringResource(R.string.quit))
             }
         }
     }
@@ -211,6 +188,7 @@ fun ProfileScreen(
     onGoChats: () -> Unit,
     onGoFavorites: () -> Unit,
     onEditQuestionnaire: () -> Unit,
+    onGoSettings: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val user by viewModel.user.collectAsState(initial = null)
@@ -221,8 +199,8 @@ fun ProfileScreen(
     ProfileScreenContent(
         displayName = when {
             !userProfile?.name.isNullOrBlank() -> userProfile?.name!!
-            !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@") ?: "Пользователь"
-            else -> "Пользователь"
+            !user?.email.isNullOrBlank() -> user?.email?.substringBefore(stringResource(R.string.sobaka)) ?: stringResource(R.string.user)
+            else -> stringResource(R.string.user)
         },
         age = userProfile?.age,
         email = user?.email,
@@ -232,14 +210,15 @@ fun ProfileScreen(
         onGoHome = onGoHome,
         onGoChats = onGoChats,
         onGoFavorites = onGoFavorites,
-        onDeleteAccount = viewModel::deleteAccount
+        onGoSettings = onGoSettings
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, name = "Light",
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
-fun ProfileScreenPreview() {
-    MaterialTheme {
+fun ProfileScreenPreviewLight() {
+    FlatrentappTheme {
         ProfileScreenContent(
             displayName = "Имя Фамилия",
             age = 22,
@@ -247,14 +226,33 @@ fun ProfileScreenPreview() {
             photoUrls = listOf(
                 "https://picsum.photos/seed/1/400/600",
                 "https://picsum.photos/seed/2/400/600",
-                "https://picsum.photos/seed/3/400/600"
             ),
             onEditQuestionnaire = {},
             onSignOut = {},
             onGoHome = {},
             onGoChats = {},
             onGoFavorites = {},
-            onDeleteAccount = {}
+            onGoSettings = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun ProfileScreenPreviewDark() {
+    FlatrentappTheme {
+        ProfileScreenContent(
+            displayName = "Имя Фамилия",
+            age = 22,
+            email = "user@mail.com",
+            photoUrls = emptyList(),
+            onEditQuestionnaire = {},
+            onSignOut = {},
+            onGoHome = {},
+            onGoChats = {},
+            onGoFavorites = {},
+            onGoSettings = {}
         )
     }
 }

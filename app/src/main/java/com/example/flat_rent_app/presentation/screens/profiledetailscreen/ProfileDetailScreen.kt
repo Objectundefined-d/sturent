@@ -1,5 +1,6 @@
 package com.example.flat_rent_app.presentation.screens.profiledetailscreen
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,50 +13,65 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.flat_rent_app.R
 import com.example.flat_rent_app.domain.model.SwipeProfile
+import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileDetailScreen(
     profile: SwipeProfile,
     onBack: () -> Unit,
+    onAddToSkipList: () -> Unit,
+    onAddToBlackList: () -> Unit,
+    onUnblock: () -> Unit,
+    isBlocked: Boolean = false,
+    mode: ProfileScreenMode
 ) {
     ProfileDetailContent(
         profile = profile,
-        onBack = onBack
+        onBack = onBack,
+        onAddToSkipList = onAddToSkipList,
+        onAddToBlackList = onAddToBlackList,
+        onUnblock = onUnblock,
+        isBlocked = isBlocked,
+        mode = mode
     )
 }
+
+enum class ProfileScreenMode { FROMCHAT, FROMSWIPE }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileDetailContent(
     profile: SwipeProfile,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onAddToSkipList: () -> Unit,
+    onAddToBlackList: () -> Unit,
+    onUnblock: () -> Unit,
+    isBlocked: Boolean = false,
+    mode: ProfileScreenMode
 ) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Профиль", color = Color.Black) },
+                title = { Text(text = stringResource(R.string.profile)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.Default.Close,
-                            contentDescription = "Закрыть",
-                            tint = Color.Black
+                            contentDescription = stringResource(R.string.close),
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.Unspecified,
-                    navigationIconContentColor = Color.Unspecified,
-                    titleContentColor = Color.Unspecified,
-                    actionIconContentColor = Color.Unspecified
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         }
@@ -75,7 +91,7 @@ fun ProfileDetailContent(
                 if (profile.photoUrl != null) {
                     AsyncImage(
                         model = profile.photoUrl,
-                        contentDescription = "Фото профиля",
+                        contentDescription = stringResource(R.string.profile_photo),
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
@@ -85,13 +101,19 @@ fun ProfileDetailContent(
                             .fillMaxSize()
                             .background(
                                 brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                                    colors = listOf(Color(0xFF6A11CB), Color(0xFF2575FC))
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.primary,
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    )
                                 )
                             )
                     )
                 }
+
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(24.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
                     contentAlignment = Alignment.BottomStart
                 ) {
                     Text(
@@ -104,41 +126,117 @@ fun ProfileDetailContent(
             }
 
             Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 shape = MaterialTheme.shapes.medium
             ) {
                 Column(
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(24.dp))
-                        Spacer(Modifier.width(12.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.LocationOn,
+                            contentDescription = "Город",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
-                            Text("Местоположение", fontSize = 14.sp, color = Color.Gray)
-                            Text(profile.city, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                            Text(
+                                stringResource(R.string.location),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = profile.city,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     }
+
                     HorizontalDivider()
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.School, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(24.dp))
-                        Spacer(Modifier.width(12.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.School,
+                            contentDescription = "Образование",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
-                            Text("Образование", fontSize = 14.sp, color = Color.Gray)
-                            Text(profile.university, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                            Text(
+                                stringResource(R.string.education),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = profile.university,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     }
+
+                    HorizontalDivider()
+
+                    Column {
+                        Text(
+                            stringResource(R.string.about_yourself),
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = profile.description,
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp
+                        )
+                    }
+
                     HorizontalDivider()
                     Column {
-                        Text("О себе", fontSize = 14.sp, color = Color.Gray)
-                        Spacer(Modifier.height(8.dp))
-                        Text(profile.description, fontSize = 16.sp, lineHeight = 24.sp)
+                        Text(
+                            stringResource(R.string.looking_for),
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = profile.lookingFor,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                     HorizontalDivider()
-                    Column {
-                        Text("Ищет", fontSize = 14.sp, color = Color.Gray)
-                        Spacer(Modifier.height(8.dp))
-                        Text(profile.lookingFor, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Button(
+                        onClick = when (mode) {
+                            ProfileScreenMode.FROMCHAT if isBlocked -> onUnblock
+                            ProfileScreenMode.FROMCHAT -> onAddToBlackList
+                            else -> onAddToSkipList
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = when (mode) {
+                                ProfileScreenMode.FROMCHAT if isBlocked -> MaterialTheme.colorScheme.secondary
+                                ProfileScreenMode.FROMCHAT -> MaterialTheme.colorScheme.error
+                                else -> MaterialTheme.colorScheme.primary
+                            }
+                        )
+                    ) {
+                        Text(
+                            when (mode) {
+                                ProfileScreenMode.FROMCHAT if isBlocked -> stringResource(R.string.unblock)
+                                ProfileScreenMode.FROMCHAT -> stringResource(R.string.ban)
+                                else -> stringResource(R.string.dont_recommend)
+                            }
+                        )
                     }
                 }
             }
@@ -147,20 +245,132 @@ fun ProfileDetailContent(
     }
 }
 
+@Preview(showBackground = true, showSystemUi = true, name = "Light",
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
-@Preview(showBackground = true, showSystemUi = true)
-fun ProfileDetailScreenPreview() {
-    ProfileDetailContent(
-        profile = SwipeProfile(
-            uid = "preview_uid",
-            name = "Имя",
-            age = 22,
-            city = "Город",
-            university = "Вуз",
-            description = "Описание",
-            lookingFor = "Описание",
-            photoUrl = null
-        ),
-        onBack = {}
-    )
+fun ProfileDetailScreenPreviewLight() {
+    FlatrentappTheme {
+        ProfileDetailContent(
+            profile = SwipeProfile(
+                uid = "preview_uid",
+                name = "Иван Иванов",
+                age = 22,
+                city = "Москва",
+                university = "МГТУ им. Баумана",
+                description = "Люблю спорт и путешествия",
+                lookingFor = "Тихого соседа",
+                photoUrl = null
+            ),
+            onBack = { },
+            onAddToSkipList = { },
+            onAddToBlackList = { },
+            onUnblock = { },
+            isBlocked = false,
+            mode = ProfileScreenMode.FROMCHAT
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Light",
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun ProfileDetailScreenPreviewLightFromSwipe() {
+    FlatrentappTheme {
+        ProfileDetailContent(
+            profile = SwipeProfile(
+                uid = "preview_uid",
+                name = "Иван Иванов",
+                age = 22,
+                city = "Москва",
+                university = "МГТУ им. Баумана",
+                description = "Люблю спорт и путешествия",
+                lookingFor = "Тихого соседа",
+                photoUrl = null
+            ),
+            onBack = { },
+            onAddToSkipList = { },
+            onAddToBlackList = { },
+            onUnblock = { },
+            isBlocked = false,
+            mode = ProfileScreenMode.FROMSWIPE
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Light",
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun ProfileDetailScreenPreviewLightFromSwipeUnblock() {
+    FlatrentappTheme {
+        ProfileDetailContent(
+            profile = SwipeProfile(
+                uid = "preview_uid",
+                name = "Иван Иванов",
+                age = 22,
+                city = "Москва",
+                university = "МГТУ им. Баумана",
+                description = "Люблю спорт и путешествия",
+                lookingFor = "Тихого соседа",
+                photoUrl = null
+            ),
+            onBack = { },
+            onAddToSkipList = { },
+            onAddToBlackList = { },
+            onUnblock = { },
+            isBlocked = true,
+            mode = ProfileScreenMode.FROMCHAT
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun ProfileDetailScreenPreviewDarkFromChat() {
+    FlatrentappTheme {
+        ProfileDetailContent(
+            profile = SwipeProfile(
+                uid = "preview_uid",
+                name = "Иван Иванов",
+                age = 22,
+                city = "Москва",
+                university = "МГТУ им. Баумана",
+                description = "Люблю спорт и путешествия",
+                lookingFor = "Тихого соседа",
+                photoUrl = null
+            ),
+            onBack = { },
+            onAddToSkipList = { },
+            onAddToBlackList = { },
+            onUnblock = {},
+            isBlocked = false,
+            mode = ProfileScreenMode.FROMCHAT
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun ProfileDetailScreenPreviewDarkFromSwipe() {
+    FlatrentappTheme {
+        ProfileDetailContent(
+            profile = SwipeProfile(
+                uid = "preview_uid",
+                name = "Иван Иванов",
+                age = 22,
+                city = "Москва",
+                university = "МГТУ им. Баумана",
+                description = "Люблю спорт и путешествия",
+                lookingFor = "Тихого соседа",
+                photoUrl = null
+            ),
+            onBack = { },
+            onAddToSkipList = { },
+            onAddToBlackList = { },
+            onUnblock = { },
+            isBlocked =  false,
+            mode = ProfileScreenMode.FROMSWIPE
+        )
+    }
 }

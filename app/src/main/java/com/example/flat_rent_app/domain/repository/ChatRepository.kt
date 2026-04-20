@@ -13,4 +13,5 @@ interface ChatRepository {
     suspend fun deleteChat(chatId: String, otherUid: String, forBoth: Boolean): Result<Unit>
     suspend fun clearHistory(chatId: String, forBoth: Boolean): Result<Unit>
     suspend fun deleteMessage(chatId: String, messageId: String, forBoth: Boolean): Result<Unit>
+    suspend fun editMessage(chatId: String, messageId: String, newText: String): Result<Unit>
 }

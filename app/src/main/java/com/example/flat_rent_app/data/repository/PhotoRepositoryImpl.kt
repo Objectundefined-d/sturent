@@ -28,7 +28,7 @@ class PhotoRepositoryImpl @Inject constructor(
 ) : PhotoRepository {
 
     companion object {
-        private const val BASE_URL = "https://flatrentserver-production.up.railway.app"
+        private const val BASE_URL = "http://37.46.17.80"
         private const val MAX_IMAGE_SIZE = 5 * 1024 * 1024
     }
 
