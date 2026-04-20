@@ -64,7 +64,7 @@ class RootViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     profileRepo.saveFcmToken(token)
-                } catch (e: Exception) {
+                } catch (ignored: Exception) {
                 }
             }
         }

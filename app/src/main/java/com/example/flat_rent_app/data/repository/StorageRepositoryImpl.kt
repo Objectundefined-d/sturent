@@ -21,6 +21,8 @@ class StorageRepositoryImpl @Inject constructor(
     companion object {
         private const val MAX_IMAGE_SIZE = 1024 * 1024
         private const val IMAGE_QUALITY = 80
+        private const val MIN_IMAGE_QUALITY = 10
+        private const val IMAGE_QUALITY_STEP = 10
     }
 
     private val contentResolver: ContentResolver
@@ -100,9 +102,9 @@ class StorageRepositoryImpl @Inject constructor(
         var bytes = stream.toByteArray()
         var quality = IMAGE_QUALITY
 
-        while (bytes.size > MAX_IMAGE_SIZE && quality > 10) {
+        while (bytes.size > MAX_IMAGE_SIZE && quality > MIN_IMAGE_QUALITY) {
             stream.reset()
-            quality -= 10
+            quality -= IMAGE_QUALITY_STEP
             originalBitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
             bytes = stream.toByteArray()
         }
