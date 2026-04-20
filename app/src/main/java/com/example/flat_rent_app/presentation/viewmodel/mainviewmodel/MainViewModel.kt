@@ -267,7 +267,11 @@ private fun applyFilters(
             age in ageMin..ageMax
         }
 
-    Log.d("FILTER", "До фильтра: ${profiles.size}, после: ${result.size}, university=$university, gender=$genderFilter, age=$ageMin..$ageMax")
+    Log.d(
+        "FILTER",
+        "До фильтра: ${profiles.size}, после: ${result.size}, " +
+            "university=$university, gender=$genderFilter, age=$ageMin..$ageMax"
+    )
 
     return result
 }

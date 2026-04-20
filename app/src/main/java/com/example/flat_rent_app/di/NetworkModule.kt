@@ -22,6 +22,10 @@ import java.security.cert.X509Certificate
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    private const val CONNECT_TIMEOUT_SEC = 30L
+    private const val READ_TIMEOUT_SEC = 60L
+    private const val WRITE_TIMEOUT_SEC = 60L
+
     @Provides
     @Singleton
     fun provideMoshi(): Moshi = Moshi.Builder()
@@ -46,9 +50,9 @@ object NetworkModule {
             .addInterceptor(authTokenInterceptor)
             .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
             .hostnameVerifier { _, _ -> true }
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(60, TimeUnit.SECONDS)
+            .connectTimeout(CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .readTimeout(READ_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .writeTimeout(WRITE_TIMEOUT_SEC, TimeUnit.SECONDS)
             .build()
     }
 

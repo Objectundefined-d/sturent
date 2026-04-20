@@ -66,6 +66,7 @@ private val AppWhite = Color.White
 private val AppGray = Color(0xFFF2F2F7)
 private val AppLightBlue = Color(0xFFE8F0FE)
 
+@Suppress("UnusedParameter")
 @Composable
 fun OnboardingScaffold(
     step: Int,

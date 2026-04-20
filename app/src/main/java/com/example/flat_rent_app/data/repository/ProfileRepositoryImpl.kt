@@ -23,6 +23,11 @@ class ProfileRepositoryImpl @Inject constructor(
     private val authRepo: AuthRepository
 ) : ProfileRepository {
 
+    companion object {
+        private const val PROFILE_PHOTO_SLOT_COUNT = 3
+        private const val MAIN_PHOTO_INDEX_MAX = 2
+    }
+
     override fun observerProfile(uid: String): Flow<UserProfile?> = callbackFlow {
         val reg = db.collection("users").document(uid)
             .addSnapshotListener { snap, err ->
@@ -128,8 +133,13 @@ class ProfileRepositoryImpl @Inject constructor(
             eduPlace = getString("eduPlace").orEmpty(),
             description = getString("description").orEmpty(),
             preferences = (get("preferences") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-            mainPhotoIndex = ((getLong("mainPhotoIndex") ?: 0L).toInt()).coerceIn(0, 2),
-            photoSlots = slots.take(3).let { it + List(maxOf(0, 3 - it.size)) { null } },
+            mainPhotoIndex = ((getLong("mainPhotoIndex") ?: 0L).toInt()).coerceIn(
+                0,
+                MAIN_PHOTO_INDEX_MAX
+            ),
+            photoSlots = slots.take(PROFILE_PHOTO_SLOT_COUNT).let {
+                it + List(maxOf(0, PROFILE_PHOTO_SLOT_COUNT - it.size)) { null }
+            },
             createdAtMillis = getLong("createdAtMillis"),
             updatedAtMillis = getLong("updatedAtMillis")
         )

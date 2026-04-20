@@ -26,15 +26,15 @@ data class UploadResponse(
 
 @JsonClass(generateAdapter = true)
 data class PhotoData(
-    @Json(name = "file_name") val file_name: String,
-    @Json(name = "file_url") val file_url: String,
-    @Json(name = "file_size") val file_size: Long,
-    @Json(name = "original_name") val original_name: String
+    @Json(name = "file_name") val fileName: String,
+    @Json(name = "file_url") val fileUrl: String,
+    @Json(name = "file_size") val fileSize: Long,
+    @Json(name = "original_name") val originalName: String
 )
 
 @JsonClass(generateAdapter = true)
 data class HealthResponse(
     @Json(name = "status") val status: String,
-    @Json(name = "upload_dir") val upload_dir: String,
-    @Json(name = "max_file_size") val max_file_size: Int
+    @Json(name = "upload_dir") val uploadDir: String,
+    @Json(name = "max_file_size") val maxFileSize: Int
 )

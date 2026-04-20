@@ -1,0 +1,78 @@
+# Overrides merged with Detekt defaults (see buildUponDefaultConfig in app/build.gradle.kts).
+
+config:
+  validation: true
+
+complexity:
+  LongMethod:
+    allowedLines: 280
+  CyclomaticComplexMethod:
+    allowedComplexity: 25
+  TooManyFunctions:
+    allowedFunctionsPerFile: 19
+    allowedFunctionsPerClass: 19
+    allowedFunctionsPerInterface: 19
+    allowedFunctionsPerObject: 19
+    allowedFunctionsPerEnum: 19
+    ignoreDeprecated: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+  TooGenericExceptionThrown:
+    active: false
+  SwallowedException:
+    active: false
+
+naming:
+  PackageNaming:
+    packagePattern: '[a-z]+(\.[a-z][a-zA-Z0-9_]*)*'
+  FunctionNaming:
+    ignoreAnnotated:
+      - Composable
+
+performance:
+  ForEachOnRange:
+    active: false
+
+empty-blocks:
+  EmptyFunctionBlock:
+    active: false
+
+style:
+  MagicNumber:
+    excludes:
+      - '**/test/**'
+      - '**/androidTest/**'
+      - '**/commonTest/**'
+      - '**/jvmTest/**'
+      - '**/androidUnitTest/**'
+      - '**/androidInstrumentedTest/**'
+      - '**/jsTest/**'
+      - '**/iosTest/**'
+      - '**/*.kts'
+      - '**/presentation/**'
+    ignorePropertyDeclaration: true
+    ignoreLocalVariableDeclaration: true
+    ignoreAnnotation: true
+    ignoreEnums: true
+    ignoreRanges: true
+  MaxLineLength:
+    maxLineLength: 140
+  WildcardImport:
+    excludeImports:
+      - java.util.*
+      - androidx.compose.foundation.layout.*
+      - androidx.compose.material3.*
+      - androidx.compose.runtime.*
+      - androidx.compose.animation.core.*
+      - androidx.compose.material.icons.filled.*
+      - kotlinx.coroutines.flow.*
+      - com.example.flat_rent_app.data.repository.*
+      - com.example.flat_rent_app.domain.repository.*
+      - retrofit2.http.*
+      - org.junit.Assert.*
+  ReturnCount:
+    max: 4
+  UnusedParameter:
+    allowedNames: 'ignored|expected|_'
