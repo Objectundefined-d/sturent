@@ -87,4 +87,18 @@ class ChatViewModel @Inject constructor(
             it.copy(showProfileDetails = false)
         }
     }
+
+    fun setSearchActive(active: Boolean) {
+        _state.update {
+            it.copy(isSearchActive = active, searchQuery = if (!active) "" else it.searchQuery)
+        }
+    }
+
+    fun onSearchQueryChange(query: String) {
+        _state.update { it.copy(searchQuery = query) }
+    }
+
+    fun clearSearch() {
+        _state.update { it.copy(isSearchActive = false, searchQuery = "") }
+    }
 }

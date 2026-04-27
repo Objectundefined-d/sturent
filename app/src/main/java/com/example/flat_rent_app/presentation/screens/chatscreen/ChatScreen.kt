@@ -16,10 +16,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -70,14 +72,14 @@ fun ChatScreen(
             ProfileDetailScreen(
                 profile = profile,
                 onBack = viewmodel::closeProfileDetails,
-                onAddToSkipList = {  },
+                onAddToSkipList = { },
                 onAddToBlackList = {
                     otherProfile?.uid?.let { blacklistviewmodel.blockUser(it) }
                 },
                 onUnblock = {
                     otherProfile?.uid?.let { blacklistviewmodel.unblockUser(it) }
                 },
-                isBlocked =  blackListState.value.profileBlocked,
+                isBlocked = blackListState.value.profileBlocked,
                 mode = ProfileScreenMode.FROMCHAT
             )
             return
@@ -94,7 +96,10 @@ fun ChatScreen(
         onDeleteMessage = { msgId, forBoth -> viewmodel.deleteMessage(msgId, forBoth) },
         onClearHistory = { forBoth -> viewmodel.clearHistory(forBoth) },
         onEditMessage = { msgId, text -> viewmodel.editMessage(msgId, text) },
-        onOpenProfileDetails = viewmodel::openProfile
+        onOpenProfileDetails = viewmodel::openProfile,
+        onSearchActiveChange = viewmodel::setSearchActive,
+        onSearchQueryChange = viewmodel::onSearchQueryChange,
+        onClearSearch = viewmodel::clearSearch
     )
 }
 
@@ -110,7 +115,10 @@ fun ChatScreenContent(
     onDeleteMessage: (messageId: String, forBoth: Boolean) -> Unit,
     onClearHistory: (forBoth: Boolean) -> Unit,
     onEditMessage: (messageId: String, newText: String) -> Unit,
-    onOpenProfileDetails: () -> Unit
+    onOpenProfileDetails: () -> Unit,
+    onSearchActiveChange: (Boolean) -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onClearSearch: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
@@ -122,9 +130,26 @@ fun ChatScreenContent(
     var showDateOverlay by remember { mutableStateOf(false) }
     val isScrolling by remember { derivedStateOf { listState.isScrollInProgress } }
 
+    var scrollToMessageId by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(isScrolling) {
         if (isScrolling) showDateOverlay = true
         else { delay(1000); showDateOverlay = false }
+    }
+
+    val filteredMessages = remember(messages, state.searchQuery) {
+        if (state.searchQuery.isBlank()) messages
+        else messages.filter { it.text.contains(state.searchQuery, ignoreCase = true) }
+    }
+
+    LaunchedEffect(scrollToMessageId) {
+        scrollToMessageId?.let { id ->
+            val index = messages.indexOfFirst { it.messageId == id }
+            if (index >= 0) {
+                listState.animateScrollToItem(index)
+            }
+            scrollToMessageId = null
+        }
     }
 
     val firstVisibleIndex by remember { derivedStateOf { listState.firstVisibleItemIndex } }
@@ -279,34 +304,68 @@ fun ChatScreenContent(
         )
     }
 
-
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { TextButton(onClick = onOpenProfileDetails ) { Text(text = title) } },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = null)
-                    }
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.clean_history)) },
-                            onClick = {
-                                showMenu = false
-                                showClearDialog = true
-                            }
+            if (state.isSearchActive) {
+                TopAppBar(
+                    title = {
+                        TextField(
+                            value = state.searchQuery,
+                            onValueChange = onSearchQueryChange,
+                            placeholder = { Text(stringResource(R.string.search_messages)) },
+                            singleLine = true,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier.fillMaxWidth()
                         )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onClearSearch) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        }
+                    },
+                    actions = {
+                        if (state.searchQuery.isNotBlank()) {
+                            TextButton(onClick = { onSearchQueryChange("") }) {
+                                Text(stringResource(R.string.clear))
+                            }
+                        }
                     }
-                }
-            )
+                )
+            } else {
+                TopAppBar(
+                    title = { TextButton(onClick = onOpenProfileDetails) { Text(text = title) } },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { onSearchActiveChange(true) }) {
+                            Icon(Icons.Default.Search, contentDescription = null)
+                        }
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = null)
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.clean_history)) },
+                                onClick = {
+                                    showMenu = false
+                                    showClearDialog = true
+                                }
+                            )
+                        }
+                    }
+                )
+            }
         },
         bottomBar = {
             InputBar(
@@ -330,57 +389,72 @@ fun ChatScreenContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(vertical = 12.dp)
             ) {
-                items(messages, key = { it.messageId }) { msg ->
-                    val index = messages.indexOf(msg)
-                    val needDateSeparator = index == 0 || !isSameDay(
-                        Calendar.getInstance().apply { timeInMillis = messages[index - 1].createdAt },
-                        Calendar.getInstance().apply { timeInMillis = msg.createdAt }
-                    )
-
-                    if (needDateSeparator) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                            ) {
-                                Text(
-                                    text = formatDateHeader(msg.createdAt),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                                )
-                            }
+                items(filteredMessages, key = { it.messageId }) { msg ->
+                    val index = filteredMessages.indexOf(msg)
+                    if (!state.isSearchActive) {
+                        val needDateSeparator = if (index == 0) true else {
+                            val prevMsg = filteredMessages[index - 1]
+                            !isSameDay(
+                                Calendar.getInstance().apply { timeInMillis = prevMsg.createdAt },
+                                Calendar.getInstance().apply { timeInMillis = msg.createdAt }
+                            )
                         }
-                        Spacer(Modifier.height(4.dp))
+                        if (needDateSeparator) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                                ) {
+                                    Text(
+                                        text = formatDateHeader(msg.createdAt),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(4.dp))
+                        }
                     }
 
                     Bubble(
                         msg = msg,
                         isMine = msg.senderUid == state.myUid,
-                        onLongClick = { selectedMessage = msg }
+                        onLongClick = { selectedMessage = msg },
+                        onClick = {
+                            if (state.isSearchActive) {
+                                run {
+                                    scrollToMessageId = msg.messageId
+                                    onClearSearch()
+                                }
+                            } else null
+                        },
+                        highlightText = if (state.isSearchActive) state.searchQuery else null
                     )
                 }
             }
 
-            AnimatedVisibility(
-                visible = showDateOverlay && currentDateHeader.isNotBlank(),
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 8.dp),
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            if (!state.isSearchActive) {
+                AnimatedVisibility(
+                    visible = showDateOverlay && currentDateHeader.isNotBlank(),
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 8.dp),
+                    enter = fadeIn(),
+                    exit = fadeOut()
                 ) {
-                    Text(
-                        text = currentDateHeader,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    )
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                    ) {
+                        Text(
+                            text = currentDateHeader,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
         }
@@ -403,7 +477,6 @@ fun isSameDay(a: Calendar, b: Calendar): Boolean =
     a.get(Calendar.YEAR) == b.get(Calendar.YEAR) &&
             a.get(Calendar.DAY_OF_YEAR) == b.get(Calendar.DAY_OF_YEAR)
 
-
 @Preview(showBackground = true, showSystemUi = true, name = "Light")
 @Composable
 fun ChatScreenPreviewLight() {
@@ -414,7 +487,9 @@ fun ChatScreenPreviewLight() {
                 chatId = "chat1",
                 otherUid = "other",
                 input = "",
-                sending = false
+                sending = false,
+                isSearchActive = false,
+                searchQuery = ""
             ),
             messages = listOf(
                 Message(messageId = "1", senderUid = "me", text = "Привет!", createdAt = 0),
@@ -428,7 +503,10 @@ fun ChatScreenPreviewLight() {
             onDeleteMessage = { _, _ -> },
             onClearHistory = {},
             onEditMessage = { _, _ -> },
-            onOpenProfileDetails = {}
+            onOpenProfileDetails = {},
+            onSearchActiveChange = {},
+            onSearchQueryChange = {},
+            onClearSearch = {}
         )
     }
 }
@@ -445,7 +523,9 @@ fun ChatScreenPreviewDark() {
                 otherUid = "other",
                 input = "Набираю сообщение",
                 sending = false,
-                error = "Ошибка"
+                error = "Ошибка",
+                isSearchActive = false,
+                searchQuery = ""
             ),
             messages = listOf(
                 Message(messageId = "1", senderUid = "me", text = "Привет", createdAt = 0),
@@ -458,7 +538,10 @@ fun ChatScreenPreviewDark() {
             onDeleteMessage = { _, _ -> },
             onClearHistory = {},
             onEditMessage = { _, _ -> },
-            onOpenProfileDetails = {}
+            onOpenProfileDetails = {},
+            onSearchActiveChange = {},
+            onSearchQueryChange = {},
+            onClearSearch = {}
         )
     }
 }

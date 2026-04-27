@@ -189,4 +189,6 @@
     <string name="read_at">Прочитано: %s</string>
     <string name="no_blocked">Нет добавленых в чёрный список</string>
     <string name="unblock">Разблокировать</string>
+    <string name="search_messages">Поиск сообщений</string>
+    <string name="clear">Очистить</string>
 </resources>
