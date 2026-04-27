@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.onboarding
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -47,8 +49,8 @@ fun OnbPrefsScreen(
         }
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(horizontal = Dimens.dp16),
+            verticalArrangement = Arrangement.spacedBy(Dimens.dp12)
         ) {
             ChipFlowRow(
                 items = options,

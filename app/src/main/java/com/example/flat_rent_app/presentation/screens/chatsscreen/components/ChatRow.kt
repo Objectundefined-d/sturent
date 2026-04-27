@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.chatsscreen.components
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -46,7 +48,7 @@ fun ChatRow(
                 onClick = onClick,
                 onLongClick = onLongClick
             )
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(horizontal = Dimens.dp12, vertical = Dimens.dp10),
         verticalAlignment = Alignment.CenterVertically
     ) {
         SubcomposeAsyncImage(
@@ -54,7 +56,7 @@ fun ChatRow(
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(44.dp)
+                .size(Dimens.dp44)
                 .clip(CircleShape),
             error = {
                 Box(
@@ -79,7 +81,7 @@ fun ChatRow(
             }
         )
 
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(Dimens.dp12))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -103,7 +105,7 @@ fun ChatRow(
         }
 
         if (chat.unreadCount > 0) {
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(Dimens.dp10))
             Badge(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary

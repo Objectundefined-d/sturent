@@ -1,5 +1,7 @@
 package com.example.flat_rent_app.presentation.screens.chatscreen
 
+import com.example.flat_rent_app.presentation.theme.Dimens
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -44,6 +46,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+
+private const val DATE_OVERLAY_HIDE_DELAY_MS = 1000L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -134,7 +138,7 @@ fun ChatScreenContent(
 
     LaunchedEffect(isScrolling) {
         if (isScrolling) showDateOverlay = true
-        else { delay(1000); showDateOverlay = false }
+        else { delay(DATE_OVERLAY_HIDE_DELAY_MS); showDateOverlay = false }
     }
 
     val filteredMessages = remember(messages, state.searchQuery) {
@@ -193,7 +197,7 @@ fun ChatScreenContent(
             onDismissRequest = { showReadTimeDialog = false },
             title = { Text(stringResource(R.string.information_about_message)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(Dimens.dp4)) {
                     Text(stringResource(R.string.sent_at, sentDateString))
                     if (readDateString != null) {
                         Text(stringResource(R.string.read_at, readDateString))
@@ -219,7 +223,7 @@ fun ChatScreenContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 32.dp)
+                    .padding(bottom = Dimens.dp32)
             ) {
                 ListItem(
                     headlineContent = { Text(text = stringResource(R.string.copy)) },
@@ -385,9 +389,9 @@ fun ChatScreenContent(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                    .padding(horizontal = Dimens.dp12),
+                verticalArrangement = Arrangement.spacedBy(Dimens.dp8),
+                contentPadding = PaddingValues(vertical = Dimens.dp12)
             ) {
                 items(filteredMessages, key = { it.messageId }) { msg ->
                     val index = filteredMessages.indexOf(msg)

@@ -14,6 +14,9 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val authRepo: AuthRepository
 ) : ViewModel() {
+    private companion object {
+        const val MIN_PASSWORD_LENGTH = 6
+    }
 
     private val _state = MutableStateFlow(AuthUiState())
     val state: StateFlow<AuthUiState> = _state
@@ -53,7 +56,7 @@ class AuthViewModel @Inject constructor(
     private fun validateEmailPass(email: String, pass: String): String? {
         if (email.isBlank()) return "Введите email"
         if (!email.contains("@")) return "Некорректный email"
-        if (pass.length < 6) return "Пароль минимум 6 символов"
+        if (pass.length < MIN_PASSWORD_LENGTH) return "Пароль минимум 6 символов"
         return null
     }
 
