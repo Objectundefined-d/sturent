@@ -7,5 +7,7 @@ data class ChatUiState(
     val input: String = "",
     val sending: Boolean = false,
     val error: String? = null,
-    val showProfileDetails: Boolean = false
+    val showProfileDetails: Boolean = false,
+    val isSearchActive: Boolean = false,
+    val searchQuery: String = ""
 )

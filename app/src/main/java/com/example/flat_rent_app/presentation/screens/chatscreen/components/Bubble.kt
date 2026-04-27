@@ -26,6 +26,10 @@ import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import com.example.flat_rent_app.domain.model.MessageStatus
 import com.example.flat_rent_app.presentation.theme.FlatrentappTheme
 import java.text.SimpleDateFormat
@@ -37,7 +41,9 @@ import java.util.Locale
 fun Bubble(
     msg: Message,
     isMine: Boolean,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
+    onClick: () -> Unit = {},
+    highlightText: String? = null
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -47,7 +53,7 @@ fun Bubble(
             shape = RoundedCornerShape(Dimens.dp16),
             color = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier.combinedClickable(
-                onClick = {},
+                onClick = onClick,
                 onLongClick = onLongClick
             )
         ) {
@@ -56,8 +62,30 @@ fun Bubble(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.spacedBy(Dimens.dp4)
             ) {
+                val textToShow = if (!highlightText.isNullOrBlank()) {
+                    buildAnnotatedString {
+                        val lowerText = msg.text.lowercase()
+                        val lowerQuery = highlightText.lowercase()
+                        var start = 0
+                        while (true) {
+                            val index = lowerText.indexOf(lowerQuery, start)
+                            if (index == -1) {
+                                append(msg.text.substring(start))
+                                break
+                            }
+                            append(msg.text.substring(start, index))
+                            pushStyle(SpanStyle(background = Color.Yellow.copy(alpha = 0.5f)))
+                            append(msg.text.substring(index, index + highlightText.length))
+                            pop()
+                            start = index + highlightText.length
+                        }
+                    }
+                } else {
+                    AnnotatedString(msg.text)
+                }
+
                 Text(
-                    text = msg.text,
+                    text = textToShow,
                     color = if (isMine) MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.onSurfaceVariant
                 )
