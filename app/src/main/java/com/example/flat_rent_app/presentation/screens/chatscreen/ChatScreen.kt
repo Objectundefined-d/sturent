@@ -42,6 +42,12 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,6 +125,11 @@ fun ChatScreenContent(
     var showReadTimeDialog by remember { mutableStateOf(false) }
 
     val listState = rememberLazyListState()
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            listState.scrollToItem(messages.size - 1)
+        }
+    }
     var showDateOverlay by remember { mutableStateOf(false) }
     val isScrolling by remember { derivedStateOf { listState.isScrollInProgress } }
 
@@ -131,6 +142,16 @@ fun ChatScreenContent(
     val currentDateHeader = remember(firstVisibleIndex, messages) {
         messages.getOrNull(firstVisibleIndex)?.createdAt?.let { formatDateHeader(it) } ?: ""
     }
+
+    val scope = rememberCoroutineScope()
+
+    val showScrollToBottom = remember(messages.size) {
+        derivedStateOf {
+            val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+            messages.isNotEmpty() && lastVisibleIndex < messages.size - 1
+        }
+    }.value
+
 
     if (showEditDialog && selectedMessage != null) {
         var editText by remember { mutableStateOf(selectedMessage!!.text) }
@@ -380,6 +401,32 @@ fun ChatScreenContent(
                         text = currentDateHeader,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                    )
+                }
+            }
+
+            AnimatedVisibility(
+                visible = showScrollToBottom,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 16.dp),
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut()
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        scope.launch {
+                            listState.animateScrollToItem(messages.size - 1)
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        Icons.Default.KeyboardArrowDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
